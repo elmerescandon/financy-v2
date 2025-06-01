@@ -7,11 +7,13 @@ import { LogIn, UserPlus } from 'lucide-react'
 import Login from './login'
 import Signup from './signup'
 import PasswordRecovery from './password-recovery'
+import EmailConfirmation from './email-confirmation'
 
-type AuthView = 'tabs' | 'password-recovery'
+type AuthView = 'tabs' | 'password-recovery' | 'email-confirmation'
 
 export default function Authentication() {
     const [currentView, setCurrentView] = useState<AuthView>('tabs')
+    const [signupEmail, setSignupEmail] = useState('')
 
     const handlePasswordRecovery = () => {
         setCurrentView('password-recovery')
@@ -19,6 +21,56 @@ export default function Authentication() {
 
     const handleBackToLogin = () => {
         setCurrentView('tabs')
+    }
+
+    const handleSignupSuccess = (email: string) => {
+        setSignupEmail(email)
+        setCurrentView('email-confirmation')
+    }
+
+    const renderContent = () => {
+        switch (currentView) {
+            case 'password-recovery':
+                return (
+                    <div className="min-h-[400px] flex flex-col">
+                        <PasswordRecovery onBack={handleBackToLogin} />
+                    </div>
+                )
+            case 'email-confirmation':
+                return (
+                    <div className="min-h-[400px] flex flex-col">
+                        <EmailConfirmation
+                            email={signupEmail}
+                            onBack={handleBackToLogin}
+                        />
+                    </div>
+                )
+            default:
+                return (
+                    <Tabs defaultValue="login" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50">
+                            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                <LogIn className="w-4 h-4 mr-2" />
+                                Iniciar Sesión
+                            </TabsTrigger>
+                            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Registrarse
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <div className="min-h-[400px] flex flex-col">
+                            <TabsContent value="login" className="flex-1 m-0">
+                                <Login onPasswordRecovery={handlePasswordRecovery} />
+                            </TabsContent>
+
+                            <TabsContent value="signup" className="flex-1 m-0">
+                                <Signup onSignupSuccess={handleSignupSuccess} />
+                            </TabsContent>
+                        </div>
+                    </Tabs>
+                )
+        }
     }
 
     return (
@@ -38,34 +90,7 @@ export default function Authentication() {
                     </CardHeader>
 
                     <CardContent>
-                        {currentView === 'tabs' ? (
-                            <Tabs defaultValue="login" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50">
-                                    <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                                        <LogIn className="w-4 h-4 mr-2" />
-                                        Iniciar Sesión
-                                    </TabsTrigger>
-                                    <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                                        <UserPlus className="w-4 h-4 mr-2" />
-                                        Registrarse
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <div className="min-h-[400px] flex flex-col">
-                                    <TabsContent value="login" className="flex-1 m-0">
-                                        <Login onPasswordRecovery={handlePasswordRecovery} />
-                                    </TabsContent>
-
-                                    <TabsContent value="signup" className="flex-1 m-0">
-                                        <Signup />
-                                    </TabsContent>
-                                </div>
-                            </Tabs>
-                        ) : (
-                            <div className="min-h-[400px] flex flex-col">
-                                <PasswordRecovery onBack={handleBackToLogin} />
-                            </div>
-                        )}
+                        {renderContent()}
 
                         {currentView === 'tabs' && (
                             <div className="mt-8 text-center">

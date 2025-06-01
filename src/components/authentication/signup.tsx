@@ -6,15 +6,31 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { UserPlus, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { toast } from 'sonner'
 
-export default function Signup() {
+interface SignupProps {
+    onSignupSuccess: (email: string) => void
+}
+
+export default function Signup({ onSignupSuccess }: SignupProps) {
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     const handleSubmit = async (formData: FormData) => {
         setIsLoading(true)
         try {
+            const email = formData.get('email') as string
             await signup(formData)
+            // If signup was successful (no error thrown), show confirmation
+            toast.success('¡Cuenta creada exitosamente!', {
+                description: 'Revisa tu correo para confirmar tu cuenta'
+            })
+            onSignupSuccess(email)
+        } catch (error) {
+            console.error('Signup error:', error)
+            toast.error('Error al crear la cuenta', {
+                description: 'El correo ya está registrado o hubo un problema. Inténtalo de nuevo.'
+            })
         } finally {
             setIsLoading(false)
         }

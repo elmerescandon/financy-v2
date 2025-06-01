@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Mail, Send, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 interface PasswordRecoveryProps {
     onBack: () => void
@@ -15,12 +16,10 @@ export default function PasswordRecovery({ onBack }: PasswordRecoveryProps) {
     const [email, setEmail] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
-    const [error, setError] = useState('')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
-        setError('')
 
         try {
             const supabase = createClient()
@@ -29,12 +28,49 @@ export default function PasswordRecovery({ onBack }: PasswordRecoveryProps) {
             })
 
             if (error) {
-                setError(error.message)
+                console.error('Password recovery error:', error)
+                toast.error('Error al enviar el correo', {
+                    description: 'No se pudo enviar el correo de recuperación. Verifica tu email e inténtalo de nuevo.'
+                })
             } else {
+                toast.success('¡Correo enviado!', {
+                    description: 'Revisa tu bandeja de entrada para restablecer tu contraseña'
+                })
                 setIsSuccess(true)
             }
         } catch (err) {
-            setError('Ocurrió un error inesperado. Inténtalo de nuevo.')
+            console.error('Unexpected error:', err)
+            toast.error('Error inesperado', {
+                description: 'Ocurrió un problema inesperado. Inténtalo de nuevo más tarde.'
+            })
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleResendEmail = async () => {
+        if (!email) return
+
+        setIsLoading(true)
+        try {
+            const supabase = createClient()
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+            })
+
+            if (error) {
+                toast.error('Error al reenviar', {
+                    description: 'No se pudo reenviar el correo. Inténtalo de nuevo.'
+                })
+            } else {
+                toast.success('Correo reenviado', {
+                    description: 'Se ha enviado un nuevo enlace de recuperación'
+                })
+            }
+        } catch (err) {
+            toast.error('Error inesperado', {
+                description: 'No se pudo reenviar el correo. Inténtalo más tarde.'
+            })
         } finally {
             setIsLoading(false)
         }
@@ -59,6 +95,22 @@ export default function PasswordRecovery({ onBack }: PasswordRecoveryProps) {
                 <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
                     <p className="mb-2">Revisa tu bandeja de entrada y spam</p>
                     <p>El enlace expirará en 1 hora</p>
+                </div>
+
+                <div className="pt-4">
+                    <p className="text-xs text-muted-foreground mb-3">
+                        ¿No recibiste el correo?
+                    </p>
+                    <Button
+                        onClick={handleResendEmail}
+                        variant="outline"
+                        size="sm"
+                        className="text-sm mb-4"
+                        disabled={isLoading}
+                    >
+                        <Send className="w-4 h-4 mr-2" />
+                        Reenviar correo
+                    </Button>
                 </div>
 
                 <Button
@@ -112,12 +164,6 @@ export default function PasswordRecovery({ onBack }: PasswordRecoveryProps) {
                         />
                     </div>
                 </div>
-
-                {error && (
-                    <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
-                        {error}
-                    </div>
-                )}
 
                 <Button
                     type="submit"
