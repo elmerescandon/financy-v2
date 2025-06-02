@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface LoginProps {
     onPasswordRecovery: () => void
@@ -15,19 +16,23 @@ interface LoginProps {
 export default function Login({ onPasswordRecovery }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
 
     const handleSubmit = async (formData: FormData) => {
         setIsLoading(true)
         try {
-            await login(formData)
+            const user = await login(formData)
             toast.success('¡Inicio de sesión exitoso!', {
                 description: 'Bienvenido de vuelta a Financy'
             })
+            console.log("user", user)
+            router.push('/home')
         } catch (error) {
-            console.error('Login error:', error)
-            toast.error('Error al iniciar sesión', {
-                description: 'Credenciales incorrectas. Verifica tu email y contraseña.'
-            })
+            console.log("error", error)
+            // console.error('Login error:', error)
+            // toast.error('Error al iniciar sesión', {
+            //     description: 'Credenciales incorrectas. Verifica tu email y contraseña.'
+            // })
         } finally {
             setIsLoading(false)
         }

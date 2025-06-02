@@ -41,7 +41,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
+
   /* Pastel Earth Palette */
   --color-sage: oklch(0.85 0.05 140);
   --color-terracotta: oklch(0.75 0.12 35);
@@ -138,4 +138,13 @@
 
 .warm-gradient {
   background: linear-gradient(135deg, var(--color-sage) 0%, var(--color-terracotta) 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

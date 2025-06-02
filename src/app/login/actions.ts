@@ -1,9 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export async function login(formData: FormData) {
     const supabase = await createClient()
@@ -16,17 +16,12 @@ export async function login(formData: FormData) {
     }
 
     const { data, error } = await supabase.auth.signInWithPassword(dataLogin)
-
     if (error) {
-        if (error?.code === 'invalid_credentials') {
-            throw new Error("Credenciales incorrectas, por favor intenta nuevamente.")
-        }
-
-        throw new Error("No se pudo iniciar sesión, por favor intenta nuevamente.")
+        throw new Error(error.message)
     }
 
     revalidatePath('/', 'layout')
-    redirect('/home')
+    return data.user
 }
 
 export async function signup(formData: FormData) {
