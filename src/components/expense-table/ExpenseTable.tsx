@@ -38,6 +38,7 @@ import {
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { ExpenseWithDetails } from '@/types/expense'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog'
 
 interface ExpenseTableProps {
     expenses: ExpenseWithDetails[]
@@ -200,6 +201,31 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
 
                 return (
                     <div className="flex items-center gap-2">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Eliminar gasto
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        ¿Estás seguro de que quieres eliminar este gasto?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => onDelete(expense.id)}>Eliminar</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         <Button
                             variant="ghost"
                             size="sm"
@@ -208,18 +234,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                         >
                             <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                                if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
-                                    onDelete(expense.id)
-                                }
-                            }}
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
+
                     </div>
                 )
             },
