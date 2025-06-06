@@ -31,8 +31,7 @@ export default function AddExpensePage() {
 
     return (
         <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center gap-4">
+            <div>
                 <Button
                     variant="ghost"
                     size="sm"
@@ -45,7 +44,6 @@ export default function AddExpensePage() {
                 <h1 className="text-3xl font-bold text-warm-gray-900">Agregar Gasto</h1>
             </div>
 
-            {/* Form */}
             <Card>
                 <CardContent className="pt-6">
                     <ExpenseForm

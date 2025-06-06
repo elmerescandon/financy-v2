@@ -76,7 +76,6 @@ export default function ExpensesPage() {
                 <h1 className="text-3xl font-bold text-warm-gray-900">Gastos</h1>
                 <Button
                     onClick={() => router.push('/gastos/agregar')}
-                    className="bg-sage-600 hover:bg-sage-700"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Agregar Gasto
@@ -84,42 +83,34 @@ export default function ExpensesPage() {
             </div>
 
             {/* Filters */}
-            <Card>
-                <CardContent className="pt-6">
-                    <ExpenseFilters
-                        categories={categories}
-                        filters={filters}
-                        onFiltersChange={setFilters}
-                    />
-                </CardContent>
-            </Card>
+            <ExpenseFilters
+                categories={categories}
+                filters={filters}
+                onFiltersChange={setFilters}
+            />
 
             {/* Expenses Table */}
-            <Card>
-                <CardContent className="pt-6">
-                    {filteredExpenses.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-muted-foreground mb-4">
-                                {expenses.length === 0
-                                    ? 'No tienes gastos registrados aún.'
-                                    : 'No se encontraron gastos con los filtros aplicados.'
-                                }
-                            </p>
-                            <Button
-                                onClick={() => router.push('/gastos/agregar')}
-                                variant="outline"
-                            >
-                                Agregar tu primer gasto
-                            </Button>
-                        </div>
-                    ) : (
-                        <ExpenseTable
-                            expenses={filteredExpenses}
-                            onDelete={handleDeleteExpense}
-                        />
-                    )}
-                </CardContent>
-            </Card>
+            {filteredExpenses.length === 0 ? (
+                <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                        {expenses.length === 0
+                            ? 'No tienes gastos registrados aún.'
+                            : 'No se encontraron gastos con los filtros aplicados.'
+                        }
+                    </p>
+                    <Button
+                        onClick={() => router.push('/gastos/agregar')}
+                        variant="outline"
+                    >
+                        Agregar tu primer gasto
+                    </Button>
+                </div>
+            ) : (
+                <ExpenseTable
+                    expenses={filteredExpenses}
+                    onDelete={handleDeleteExpense}
+                />
+            )}
         </div>
     )
 } 

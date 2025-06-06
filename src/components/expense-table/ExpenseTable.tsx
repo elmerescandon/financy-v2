@@ -84,37 +84,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             },
             size: 120,
         },
-        {
-            accessorKey: 'description',
-            header: 'Descripción',
-            cell: ({ row }) => {
-                const expense = row.original
-                return (
-                    <div>
-                        <div className="font-medium">{row.getValue('description')}</div>
-                        {expense.merchant && (
-                            <div className="text-xs text-muted-foreground">
-                                📍 {expense.merchant}
-                            </div>
-                        )}
-                        {expense.tags && expense.tags.length > 0 && (
-                            <div className="flex gap-1 mt-1">
-                                {expense.tags.slice(0, 2).map((tag, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
-                                        #{tag}
-                                    </Badge>
-                                ))}
-                                {expense.tags.length > 2 && (
-                                    <Badge variant="outline" className="text-xs px-1 py-0">
-                                        +{expense.tags.length - 2}
-                                    </Badge>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )
-            },
-        },
+
         {
             accessorKey: 'amount',
             header: ({ column }) => {
@@ -132,12 +102,12 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             cell: ({ row }) => {
                 const amount = parseFloat(row.getValue('amount'))
                 return (
-                    <div className="text-right font-medium">
+                    <div className="text-left ml-4 font-medium">
                         {formatCurrency(amount)}
                     </div>
                 )
             },
-            size: 100,
+            // size: 100,
         },
         {
             accessorKey: 'category',
@@ -192,6 +162,37 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             size: 120,
         },
         {
+            accessorKey: 'description',
+            header: 'Descripción',
+            cell: ({ row }) => {
+                const expense = row.original
+                return (
+                    <div>
+                        <div className="font-medium">{row.getValue('description')}</div>
+                        {expense.merchant && (
+                            <div className="text-xs text-muted-foreground">
+                                📍 {expense.merchant}
+                            </div>
+                        )}
+                        {expense.tags && expense.tags.length > 0 && (
+                            <div className="flex gap-1 mt-1">
+                                {expense.tags.slice(0, 2).map((tag, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
+                                        #{tag}
+                                    </Badge>
+                                ))}
+                                {expense.tags.length > 2 && (
+                                    <Badge variant="outline" className="text-xs px-1 py-0">
+                                        +{expense.tags.length - 2}
+                                    </Badge>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )
+            },
+        },
+        {
             id: 'actions',
             header: 'Acciones',
             cell: ({ row }) => {
@@ -224,6 +225,7 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             },
             size: 80,
         },
+
     ]
 
     const table = useReactTable({

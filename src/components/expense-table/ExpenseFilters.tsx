@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { X, Filter } from 'lucide-react'
+import { X } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
+import { Label } from '../ui/label'
 
 export interface ExpenseFilters {
     dateRange: 'all' | 'this_month' | 'prev_month' | 'last_3_months' | 'this_year'
@@ -49,24 +50,28 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     return (
         <div className="space-y-4">
             {/* Date Range Buttons */}
-            <div className="flex flex-wrap gap-2">
-                {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
-                    <Button
-                        key={key}
-                        variant={filters.dateRange === key ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
-                        className={filters.dateRange === key ? 'bg-sage-600 hover:bg-sage-700' : ''}
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
+            <div className="flex flex-wrap gap-4">
+                <div>
+                    <Label className='text-sm font-medium text-muted-foreground mb-1'>Fecha</Label>
+                    <div className='flex flex-wrap gap-2'>
 
-            {/* Category Filter */}
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-muted-foreground" />
+                        {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
+                            <Button
+                                key={key}
+                                variant={filters.dateRange === key ? 'default' : 'outline'}
+                                // size="sm"
+                                onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
+                                className={filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}
+                            >
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+
+
+                <div>
+                    <Label className='text-sm font-medium text-muted-foreground mb-1'>Categoría</Label>
                     <Select
                         value={filters.categoryId || 'all'}
                         onValueChange={handleCategoryChange}
@@ -75,7 +80,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                             <SelectValue placeholder="Filtrar por categoría" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Todas las categorías</SelectItem>
+                            <SelectItem value="all">Escoge una categoría</SelectItem>
                             {categories.map((category) => (
                                 <SelectItem key={category.id} value={category.id}>
                                     <div className="flex items-center gap-2">
@@ -88,7 +93,32 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                     </Select>
                 </div>
 
-                {/* Clear Filters */}
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex items-center gap-4">
+                {hasActiveFilters && (
+                    <div className="flex flex-wrap gap-2">
+                        {filters.dateRange !== 'all' && (
+                            <Badge variant="secondary" className="gap-1">
+                                {DATE_RANGE_LABELS[filters.dateRange]}
+                                <X
+                                    className="w-3 h-3 cursor-pointer hover:text-destructive"
+                                    onClick={() => handleDateRangeChange('all')}
+                                />
+                            </Badge>
+                        )}
+                        {selectedCategory && (
+                            <Badge variant="secondary" className="gap-1">
+                                <span>{selectedCategory.icon}</span>
+                                {selectedCategory.name}
+                                <Button variant="ghost" size="icon" onClick={() => handleCategoryChange('all')} className='cursor-pointer hover:text-destructive'>
+                                    <X className="w-4 h-4 " />
+                                </Button>
+                            </Badge>
+                        )}
+                    </div>
+                )}
                 {hasActiveFilters && (
                     <Button
                         variant="ghost"
@@ -96,36 +126,13 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                         onClick={clearFilters}
                         className="text-muted-foreground hover:text-foreground"
                     >
-                        <X className="w-4 h-4 mr-1" />
+                        <X className="w-3 h-3 mr-1" />
                         Limpiar filtros
                     </Button>
                 )}
+
             </div>
 
-            {/* Active Filters Display */}
-            {hasActiveFilters && (
-                <div className="flex flex-wrap gap-2">
-                    {filters.dateRange !== 'all' && (
-                        <Badge variant="secondary" className="gap-1">
-                            {DATE_RANGE_LABELS[filters.dateRange]}
-                            <X
-                                className="w-3 h-3 cursor-pointer hover:text-destructive"
-                                onClick={() => handleDateRangeChange('all')}
-                            />
-                        </Badge>
-                    )}
-                    {selectedCategory && (
-                        <Badge variant="secondary" className="gap-1">
-                            <span>{selectedCategory.icon}</span>
-                            {selectedCategory.name}
-                            <X
-                                className="w-3 h-3 cursor-pointer hover:text-destructive"
-                                onClick={() => handleCategoryChange('all')}
-                            />
-                        </Badge>
-                    )}
-                </div>
-            )}
         </div>
     )
 } 
