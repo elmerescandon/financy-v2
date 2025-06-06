@@ -128,7 +128,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             <div className="grid grid-cols-2 gap-4">
                 {/* Amount */}
                 <div>
-                    <Label htmlFor="amount">Cantidad *</Label>
+                    <Label htmlFor="amount" className="text-sm font-medium mb-2">Cantidad *</Label>
                     <Input
                         id="amount"
                         type="number"
@@ -145,7 +145,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
                 {/* Date */}
                 <div>
-                    <Label htmlFor="date">Fecha *</Label>
+                    <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
                     <Input
                         id="date"
                         type="date"
@@ -160,7 +160,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Description */}
             <div>
-                <Label htmlFor="description">Descripción *</Label>
+                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción *</Label>
                 <Input
                     id="description"
                     placeholder="Ej: Compra en supermercado"
@@ -175,9 +175,9 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             <div className="grid grid-cols-2 gap-4">
                 {/* Category */}
                 <div>
-                    <Label>Categoría *</Label>
+                    <Label htmlFor="category" className="text-sm font-medium mb-2">Categoría *</Label>
                     <Select value={formData.category_id} onValueChange={handleCategoryChange}>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona una categoría" />
                         </SelectTrigger>
                         <SelectContent>
@@ -197,14 +197,14 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 </div>
 
                 {/* Subcategory */}
-                <div>
-                    <Label>Subcategoría</Label>
+                <div className="w-full">
+                    <Label htmlFor="subcategory" className="text-sm font-medium mb-2">Subcategoría</Label>
                     <Select
                         value={formData.subcategory_id}
                         onValueChange={(value) => handleInputChange('subcategory_id', value)}
                         disabled={!formData.category_id || subcategories.length === 0}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona una subcategoría" />
                         </SelectTrigger>
                         <SelectContent>
@@ -221,12 +221,12 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             <div className="grid grid-cols-2 gap-4">
                 {/* Payment Method */}
                 <div>
-                    <Label>Método de pago *</Label>
+                    <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago *</Label>
                     <Select
                         value={formData.payment_method}
                         onValueChange={(value) => handleInputChange('payment_method', value)}
                     >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona método de pago" />
                         </SelectTrigger>
                         <SelectContent>
@@ -244,7 +244,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
                 {/* Merchant */}
                 <div>
-                    <Label htmlFor="merchant">Comercio</Label>
+                    <Label htmlFor="merchant" className="text-sm font-medium mb-2">Comercio</Label>
                     <Input
                         id="merchant"
                         placeholder="Ej: Mercadona, Amazon..."
@@ -256,7 +256,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Tags */}
             <div>
-                <Label>Etiquetas</Label>
+                <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
                 <div className="flex gap-2 mb-2">
                     <Input
                         value={tagInput}
@@ -276,15 +276,16 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 {tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                         {tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="bg-sage-100 text-sage-700">
+                            <Badge key={index} variant="outline" className="bg-sage-100 text-sage-700">
                                 #{tag}
-                                <button
+                                <Button
+                                    variant="ghost"
                                     type="button"
                                     onClick={() => removeTag(tag)}
-                                    className="ml-1 hover:bg-sage-200 rounded-full p-0.5"
+                                    className="m-0 p-0"
                                 >
-                                    <X className="w-3 h-3" />
-                                </button>
+                                    <X className="w-2 h-2" />
+                                </Button>
                             </Badge>
                         ))}
                     </div>
@@ -293,7 +294,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Actions */}
             <div className="flex gap-3 pt-4">
-                <Button type="submit" className="bg-sage-600 hover:bg-sage-700">
+                <Button type="submit" variant="default">
                     {initialData ? 'Actualizar' : 'Crear'} Gasto
                 </Button>
                 <Button type="button" variant="outline" onClick={onCancel}>
