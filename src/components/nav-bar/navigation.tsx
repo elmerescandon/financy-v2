@@ -196,9 +196,13 @@ export default function Navigation({ user, children }: NavigationProps) {
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Perfil</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/settings')}>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion')}>
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Configuración</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion/api')}>
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    <span>API Keys</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
