@@ -1,9 +1,16 @@
-import { NavWrapper } from "@/components/nav-bar";
+import { NavWrapper } from "@/components/nav-bar"
+import { ExpenseProvider } from '@/lib/context/ExpenseContext'
 
-export default function PrivateLayout({ children }: { children: React.ReactNode }) {
-    return <>
+export default function PrivateLayout({
+    children,
+}: {
+    children: React.ReactNode
+}) {
+    return (
         <NavWrapper>
-            {children}
+            <ExpenseProvider>
+                {children}
+            </ExpenseProvider>
         </NavWrapper>
-    </>;
+    )
 }

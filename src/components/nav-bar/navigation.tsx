@@ -104,8 +104,8 @@ export default function Navigation({ user, children }: NavigationProps) {
     }
 
     const navigationItems = [
-        { icon: Home, label: 'Inicio', href: '/' },
-        { icon: Receipt, label: 'Gastos', href: '/expenses' },
+        { icon: Home, label: 'Inicio', href: '/inicio' },
+        { icon: Receipt, label: 'Gastos', href: '/gastos' },
         { icon: PieChart, label: 'Presupuestos', href: '/budgets' },
         { icon: TrendingUp, label: 'Análisis', href: '/analytics' },
         { icon: Target, label: 'Metas', href: '/goals' },
