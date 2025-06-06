@@ -1,51 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { useExpenseContext } from '@/lib/context/ExpenseContext'
 import { useCategories } from '@/hooks/useCategories'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Trash2, Edit } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
-import { ExpenseForm } from '@/components/expenses/ExpenseForm'
-import type { ExpenseWithDetails } from '@/types/expense'
-import { ExpenseItem } from '@/components/expenses/ExpenseItem'
+import { Card, CardContent } from '@/components/ui/card'
+import { Plus } from 'lucide-react'
+import {
+    ExpenseTable,
+    ExpenseFilters,
+    type ExpenseFiltersType,
+    filterExpensesByDateRange,
+    filterExpensesByCategory
+} from '@/components/expense-table'
+import { toast } from 'sonner'
 
 export default function ExpensesPage() {
-    const { expenses, loading, error, createExpense, updateExpense, deleteExpense } = useExpenseContext()
+    const router = useRouter()
+    const { expenses, loading, error, deleteExpense } = useExpenseContext()
     const { categories } = useCategories()
-    const [showForm, setShowForm] = useState(false)
-    const [editingExpense, setEditingExpense] = useState<ExpenseWithDetails | null>(null)
 
-    const handleCreateExpense = async (data: any) => {
-        try {
-            await createExpense(data)
-            setShowForm(false)
-        } catch (err) {
-            console.error('Error creating expense:', err)
-        }
-    }
-
-    const handleUpdateExpense = async (data: any) => {
-        if (!editingExpense) return
-
-        try {
-            await updateExpense(editingExpense.id, data)
-            setEditingExpense(null)
-        } catch (err) {
-            console.error('Error updating expense:', err)
-        }
-    }
+    const [filters, setFilters] = useState<ExpenseFiltersType>({
+        dateRange: 'all'
+    })
 
     const handleDeleteExpense = async (id: string) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este gasto?')) return
-
         try {
             await deleteExpense(id)
+            toast.success('Gasto eliminado exitosamente')
         } catch (err) {
+            toast.error('Error al eliminar el gasto')
             console.error('Error deleting expense:', err)
         }
     }
+
+    const filteredExpenses = useMemo(() => {
+        let filtered = expenses
+
+        // Apply date range filter
+        filtered = filterExpensesByDateRange(filtered, filters.dateRange)
+
+        // Apply category filter
+        filtered = filterExpensesByCategory(filtered, filters.categoryId)
+
+        return filtered
+    }, [expenses, filters])
 
     if (loading) {
         return (
@@ -75,7 +75,7 @@ export default function ExpensesPage() {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-warm-gray-900">Gastos</h1>
                 <Button
-                    onClick={() => setShowForm(true)}
+                    onClick={() => router.push('/gastos/agregar')}
                     className="bg-sage-600 hover:bg-sage-700"
                 >
                     <Plus className="w-4 h-4 mr-2" />
@@ -83,54 +83,43 @@ export default function ExpensesPage() {
                 </Button>
             </div>
 
-            {/* Expense Form Modal */}
-            {(showForm || editingExpense) && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            {editingExpense ? 'Editar Gasto' : 'Nuevo Gasto'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ExpenseForm
-                            categories={categories}
-                            initialData={editingExpense}
-                            onSubmit={editingExpense ? handleUpdateExpense : handleCreateExpense}
-                            onCancel={() => {
-                                setShowForm(false)
-                                setEditingExpense(null)
-                            }}
-                        />
-                    </CardContent>
-                </Card>
-            )}
+            {/* Filters */}
+            <Card>
+                <CardContent className="pt-6">
+                    <ExpenseFilters
+                        categories={categories}
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                    />
+                </CardContent>
+            </Card>
 
-            {/* Expenses List */}
-            <div className="space-y-4">
-                {expenses.length === 0 ? (
-                    <Card>
-                        <CardContent className="pt-6 text-center">
-                            <p className="text-muted-foreground">No tienes gastos registrados aún.</p>
+            {/* Expenses Table */}
+            <Card>
+                <CardContent className="pt-6">
+                    {filteredExpenses.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-muted-foreground mb-4">
+                                {expenses.length === 0
+                                    ? 'No tienes gastos registrados aún.'
+                                    : 'No se encontraron gastos con los filtros aplicados.'
+                                }
+                            </p>
                             <Button
-                                onClick={() => setShowForm(true)}
+                                onClick={() => router.push('/gastos/agregar')}
                                 variant="outline"
-                                className="mt-4"
                             >
                                 Agregar tu primer gasto
                             </Button>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    expenses.map((expense) => (
-                        <ExpenseItem
-                            key={expense.id}
-                            expense={expense}
-                            onEdit={() => setEditingExpense(expense)}
+                        </div>
+                    ) : (
+                        <ExpenseTable
+                            expenses={filteredExpenses}
                             onDelete={handleDeleteExpense}
                         />
-                    ))
-                )}
-            </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     )
 } 
