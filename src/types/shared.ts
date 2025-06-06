@@ -26,7 +26,7 @@ export type ExpenseSource =
     | 'api'
 
 // Currency type (ISO 4217 codes)
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'MXN' | 'CAD' | 'AUD' | 'JPY'
+export type Currency = 'USD' | 'EUR' | 'GBP' | 'MXN' | 'CAD' | 'AUD' | 'JPY' | 'PEN'
 
 // Database schema type for environment switching
 export type DatabaseSchema = 'public' | 'development'

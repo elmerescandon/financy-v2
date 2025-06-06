@@ -70,13 +70,13 @@ export const SubcategoryFiltersSchema = z.object({
 // Expense validation schemas
 export const PaymentMethodSchema = z.enum(['cash', 'credit_card', 'debit_card', 'bank_transfer', 'other'])
 export const ExpenseSourceSchema = z.enum(['manual', 'email_scrape', 'iphone_shortcut', 'api'])
-export const CurrencySchema = z.enum(['USD', 'EUR', 'GBP', 'MXN', 'CAD', 'AUD', 'JPY'])
+export const CurrencySchema = z.enum(['USD', 'EUR', 'GBP', 'MXN', 'CAD', 'AUD', 'JPY', 'PEN'])
 
 export const CreateExpenseSchema = z.object({
     amount: z.number()
         .min(VALIDATION_CONSTRAINTS.AMOUNT_MIN, `Amount must be at least ${VALIDATION_CONSTRAINTS.AMOUNT_MIN}`)
         .max(VALIDATION_CONSTRAINTS.AMOUNT_MAX, `Amount must be at most ${VALIDATION_CONSTRAINTS.AMOUNT_MAX}`),
-    currency: CurrencySchema.default('USD'),
+    currency: CurrencySchema.default('PEN'),
     description: z.string()
         .min(1, 'Description is required')
         .max(500, 'Description must be 500 characters or less'),
