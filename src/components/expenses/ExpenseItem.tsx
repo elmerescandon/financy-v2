@@ -33,7 +33,11 @@ export function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemProps) {
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                            <span>{new Date(expense.date).toLocaleDateString('es-ES')}</span>
+                            <span>
+                                {new Date(expense.date).toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                {' '}
+                                {new Date(expense.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                             {expense.category && (
                                 <span className="flex items-center gap-1">
                                     <span>{expense.category.icon}</span>

@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
 import type { ExpenseWithDetails } from '@/types/expense'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
+import { Accordion, AccordionTrigger, AccordionItem, AccordionContent } from '../ui/accordion'
 
 interface ExpenseFormProps {
     categories: CategoryWithSubcategories[]
@@ -122,53 +124,24 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                {/* Amount */}
-                <div>
-                    <Label htmlFor="amount" className="text-sm font-medium mb-2">Cantidad *</Label>
-                    <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        value={formData.amount}
-                        onChange={(e) => handleInputChange('amount', e.target.value)}
-                    />
-                    {errors.amount && (
-                        <p className="text-sm text-destructive mt-1">{errors.amount}</p>
-                    )}
-                </div>
-
-                {/* Date */}
-                <div>
-                    <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
-                    <Input
-                        id="date"
-                        type="datetime-local"
-                        value={formData.date}
-                        onChange={(e) => handleInputChange('date', e.target.value)}
-                    />
-                    {errors.date && (
-                        <p className="text-sm text-destructive mt-1">{errors.date}</p>
-                    )}
-                </div>
-            </div>
-
-            {/* Description */}
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-5xl w-full">
+            {/* Amount */}
             <div>
-                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción *</Label>
+                <Label htmlFor="amount" className="text-sm font-medium mb-2">Cantidad *</Label>
                 <Input
-                    id="description"
-                    placeholder="Ej: Compra en supermercado"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={formData.amount}
+                    onChange={(e) => handleInputChange('amount', e.target.value)}
                 />
-                {errors.description && (
-                    <p className="text-sm text-destructive mt-1">{errors.description}</p>
+                {errors.amount && (
+                    <p className="text-sm text-destructive mt-1">{errors.amount}</p>
                 )}
             </div>
+
 
             <div className="grid grid-cols-2 gap-4">
                 {/* Category */}
@@ -216,79 +189,118 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                {/* Payment Method */}
-                <div>
-                    <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago *</Label>
-                    <Select
-                        value={formData.payment_method}
-                        onValueChange={(value) => handleInputChange('payment_method', value)}
-                    >
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Selecciona método de pago" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {PAYMENT_METHODS.map((method) => (
-                                <SelectItem key={method} value={method}>
-                                    {PAYMENT_METHOD_LABELS[method]}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    {errors.payment_method && (
-                        <p className="text-sm text-destructive mt-1">{errors.payment_method}</p>
-                    )}
-                </div>
 
-                {/* Merchant */}
-                <div>
-                    <Label htmlFor="merchant" className="text-sm font-medium mb-2">Comercio</Label>
-                    <Input
-                        id="merchant"
-                        placeholder="Ej: Mercadona, Amazon..."
-                        value={formData.merchant}
-                        onChange={(e) => handleInputChange('merchant', e.target.value)}
-                    />
-                </div>
-            </div>
+            <Accordion type='single' collapsible>
+                <AccordionItem value="item-1" className='my-2 max-w-5xl w-full'>
+                    <AccordionTrigger type='button' className='w-full'>
+                        <span className="text-sm font-medium">Agregar detalles</span>
+                    </AccordionTrigger>
+                    <AccordionContent className='space-y-4'>
+                        {/* Date */}
+                        <div>
+                            <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
+                            <Input
+                                id="date"
+                                type="datetime-local"
+                                value={formData.date}
+                                onChange={(e) => handleInputChange('date', e.target.value)}
+                            />
+                            {errors.date && (
+                                <p className="text-sm text-destructive mt-1">{errors.date}</p>
+                            )}
+                        </div>
 
-            {/* Tags */}
-            <div>
-                <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
-                <div className="flex gap-2 mb-2">
-                    <Input
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        placeholder="Agregar etiqueta"
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault()
-                                addTag()
-                            }
-                        }}
-                    />
-                    <Button type="button" onClick={addTag} variant="outline">
-                        Agregar
-                    </Button>
-                </div>
-                {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                        {tags.map((tag, index) => (
-                            <Badge key={index} variant="outline">
-                                #{tag}
-                                <Button
-                                    variant="ghost"
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    className="m-0 p-0"
+                        {/* Description */}
+                        <div>
+                            <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción *</Label>
+                            <Input
+                                id="description"
+                                placeholder="Ej: Compra en supermercado"
+                                value={formData.description}
+                                onChange={(e) => handleInputChange('description', e.target.value)}
+                            />
+                            {errors.description && (
+                                <p className="text-sm text-destructive mt-1">{errors.description}</p>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Payment Method */}
+                            <div>
+                                <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago *</Label>
+                                <Select
+                                    value={formData.payment_method}
+                                    onValueChange={(value) => handleInputChange('payment_method', value)}
                                 >
-                                    <X className="w-2 h-2" />
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Selecciona método de pago" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {PAYMENT_METHODS.map((method) => (
+                                            <SelectItem key={method} value={method}>
+                                                {PAYMENT_METHOD_LABELS[method]}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.payment_method && (
+                                    <p className="text-sm text-destructive mt-1">{errors.payment_method}</p>
+                                )}
+                            </div>
+
+                            {/* Merchant */}
+                            <div>
+                                <Label htmlFor="merchant" className="text-sm font-medium mb-2">Comercio</Label>
+                                <Input
+                                    id="merchant"
+                                    placeholder="Ej: Mercadona, Amazon..."
+                                    value={formData.merchant}
+                                    onChange={(e) => handleInputChange('merchant', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Tags */}
+                        <div>
+                            <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
+                            <div className="flex gap-2 mb-2">
+                                <Input
+                                    value={tagInput}
+                                    onChange={(e) => setTagInput(e.target.value)}
+                                    placeholder="Agregar etiqueta"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault()
+                                            addTag()
+                                        }
+                                    }}
+                                />
+                                <Button type="button" onClick={addTag} variant="outline">
+                                    Agregar
                                 </Button>
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            </div>
+                            {tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                    {tags.map((tag, index) => (
+                                        <Badge key={index} variant="outline">
+                                            #{tag}
+                                            <Button
+                                                variant="ghost"
+                                                type="button"
+                                                onClick={() => removeTag(tag)}
+                                                className="m-0 p-0"
+                                            >
+                                                <X className="w-2 h-2" />
+                                            </Button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
 
             {/* Actions */}
             <div className="flex gap-3 pt-4">
