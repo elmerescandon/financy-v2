@@ -148,7 +148,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                     <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
                     <Input
                         id="date"
-                        type="date"
+                        type="datetime-local"
                         value={formData.date}
                         onChange={(e) => handleInputChange('date', e.target.value)}
                     />
@@ -276,7 +276,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 {tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                         {tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="bg-sage-100 text-sage-700">
+                            <Badge key={index} variant="outline">
                                 #{tag}
                                 <Button
                                     variant="ghost"
