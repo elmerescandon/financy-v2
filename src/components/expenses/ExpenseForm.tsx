@@ -43,7 +43,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     const [formData, setFormData] = useState({
         amount: initialData?.amount?.toString() || '',
         description: initialData?.description || '',
-        date: initialData?.date || new Date().toISOString().split('T')[0],
+        date: initialData?.date || new Date().toISOString(),
         category_id: initialData?.category_id || '',
         subcategory_id: initialData?.subcategory_id || '',
         merchant: initialData?.merchant || '',

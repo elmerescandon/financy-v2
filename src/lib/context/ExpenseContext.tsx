@@ -66,6 +66,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
             const expenseData = {
                 ...data,
+                date: new Date(data.date).toISOString(),
                 payment_method: mapPaymentMethodToDb(data.payment_method),
                 user_id: user.id, // Add the user_id for RLS
                 source: 'manual'
@@ -95,6 +96,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
                 ...(data.payment_method && {
                     payment_method: mapPaymentMethodToDb(data.payment_method)
                 })
+            }
+
+            if (updateData.date) {
+                updateData.date = new Date(updateData.date).toISOString()
             }
 
             const { data: updatedExpense, error: updateError } = await supabase

@@ -1,4 +1,6 @@
 'use client'
+import { format } from "date-fns";
+import { TZDate } from "@date-fns/tz";
 
 import {
     ColumnDef,
@@ -67,20 +69,12 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                 )
             },
             cell: ({ row }) => {
-                const date = new Date(row.getValue('date'))
+                const date = new TZDate(row.getValue('date'), 'America/Lima')
+                console.log(date)
                 return (
-                    <div className="text-sm">
-                        <div className="font-medium">
-                            {date.toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: '2-digit'
-                            })}
-                        </div>
-                        <div className="text-muted-foreground text-xs">
-                            {date.toLocaleDateString('es-ES', { weekday: 'short' })}
-                        </div>
-                    </div>
+                    <span className="text-sm">
+                        {format(date.toLocaleString(undefined, { timeZone: 'America/Lima' }), "PPpp")}
+                    </span>
                 )
             },
             size: 120,
