@@ -2,27 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { validateApiKey } from '@/lib/api/auth'
-
-// Validation schema for integration requests
-const IntegrationExpenseSchema = z.object({
-    amount: z.number().min(0.01, 'Amount must be greater than 0'),
-    description: z.string().min(1, 'Description is required').max(500),
-    source: z.enum(['iphone', 'email'], {
-        errorMap: () => ({ message: 'Source must be either "iphone" or "email"' })
-    }),
-    merchant: z.string().max(200).optional(),
-    category: z.string().optional(),
-    subcategory: z.string().optional(),
-    date: z.string().optional(), // ISO date string
-    payment_method: z.enum([
-        'efectivo', 'tarjeta_debito', 'tarjeta_credito',
-        'transferencia', 'paypal', 'bizum', 'otro'
-    ]).optional(),
-    tags: z.array(z.string()).default([]),
-    notes: z.string().max(1000).optional(),
-    confidence_score: z.number().min(0).max(1).optional(), // For AI-parsed data
-    raw_data: z.object({}).passthrough().optional() // Store original data for debugging
-})
+import type { ExpenseSource, PaymentMethod } from '@/types/shared'
+import { iPhoneShortcutExpenseSchema } from '@/lib/api/validation'
 
 export async function POST(request: NextRequest) {
     try {
@@ -39,7 +20,7 @@ export async function POST(request: NextRequest) {
 
         // 2. Parse and validate request body
         const body = await request.json()
-        const validationResult = IntegrationExpenseSchema.safeParse(body)
+        const validationResult = iPhoneShortcutExpenseSchema.safeParse(body)
 
         if (!validationResult.success) {
             return NextResponse.json(
@@ -103,7 +84,7 @@ export async function POST(request: NextRequest) {
             tags: data.tags,
             source: data.source,
             confidence_score: data.confidence_score || null,
-            raw_data: data.raw_data || null,
+            source_metadata: data.source_metadata || {},
             needs_review: data.source === 'email' && (data.confidence_score || 0) < 0.8
         }
 

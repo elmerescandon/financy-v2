@@ -80,12 +80,12 @@ curl -X POST "https://your-domain.com/api/integrations/expenses" \
     "category": "Shopping",
     "payment_method": "tarjeta_credito",
     "confidence_score": 0.95,
-    "raw_data": {
-      "email_subject": "Compra realizada por 85,50€ - BBVA",
-      "bank": "BBVA",
-      "card_last_digits": "1234",
-      "transaction_id": "TXN789456123"
-    }
+             "source_metadata": {
+           "email_subject": "Compra realizada por 85,50€ - BBVA",
+           "bank": "BBVA",
+           "card_last_digits": "1234",
+           "transaction_id": "TXN789456123"
+         }
   }'
 ```
 
@@ -105,11 +105,11 @@ curl -X POST "https://your-domain.com/api/integrations/expenses" \
     "category": "Entertainment",
     "payment_method": "paypal",
     "confidence_score": 0.98,
-    "raw_data": {
-      "email_subject": "Has enviado 30,00 EUR a Spotify",
-      "paypal_transaction_id": "PP123456789",
-      "recipient": "Spotify"
-    }
+             "source_metadata": {
+           "email_subject": "Has enviado 30,00 EUR a Spotify",
+           "paypal_transaction_id": "PP123456789",
+           "recipient": "Spotify"
+         }
   }'
 ```
 
@@ -128,11 +128,11 @@ curl -X POST "https://your-domain.com/api/integrations/expenses" \
     "payment_method": "bizum",
     "category": "Food & Dining",
     "confidence_score": 0.87,
-    "raw_data": {
-      "email_subject": "Has realizado un Bizum de 20€",
-      "bizum_reference": "BZ987654321",
-      "recipient_phone": "***123"
-    }
+             "source_metadata": {
+           "email_subject": "Has realizado un Bizum de 20€",
+           "bizum_reference": "BZ987654321",
+           "recipient_phone": "***123"
+         }
   }'
 ```
 

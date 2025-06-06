@@ -69,7 +69,7 @@ export const SubcategoryFiltersSchema = z.object({
 
 // Expense validation schemas
 export const PaymentMethodSchema = z.enum(['cash', 'credit_card', 'debit_card', 'bank_transfer', 'other'])
-export const ExpenseSourceSchema = z.enum(['manual', 'email_scrape', 'iphone_shortcut', 'api'])
+export const ExpenseSourceSchema = z.enum(['manual', 'iphone', 'email', 'import', 'api'])
 export const CurrencySchema = z.enum(['USD', 'EUR', 'GBP', 'MXN', 'CAD', 'AUD', 'JPY', 'PEN'])
 
 export const CreateExpenseSchema = z.object({
@@ -133,19 +133,16 @@ export const BulkExpenseOperationSchema = z.object({
 export const iPhoneShortcutExpenseSchema = z.object({
     amount: z.number().min(VALIDATION_CONSTRAINTS.AMOUNT_MIN),
     description: z.string().min(1).max(500),
+    category: z.string().optional(),
+    subcategory: z.string().optional(),
     merchant: z.string().max(VALIDATION_CONSTRAINTS.MERCHANT_MAX_LENGTH).optional(),
-    category_guess: z.string().optional(),
     date: DateSchema.optional(),
-    location: z.object({
-        latitude: z.number(),
-        longitude: z.number(),
-        address: z.string().optional(),
-    }).optional(),
-    shortcut_metadata: z.object({
-        shortcut_name: z.string(),
-        device_name: z.string(),
-        timestamp: z.string(),
-    }),
+    source: ExpenseSourceSchema.default('iphone'),
+    payment_method: PaymentMethodSchema.optional(),
+    tags: z.array(z.string()).default([]),
+    notes: z.string().max(1000).optional(),
+    confidence_score: z.number().min(0).max(1).optional(), // For AI-parsed data
+    source_metadata: z.object({}).passthrough().optional() // Store original data for debugging
 })
 
 export const EmailScrapedExpenseSchema = z.object({

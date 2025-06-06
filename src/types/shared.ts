@@ -10,7 +10,7 @@ export interface UserOwnedEntity extends BaseEntity {
     user_id: string
 }
 
-// Payment method enum
+// Payment method enum - matches database enum
 export type PaymentMethod =
     | 'cash'
     | 'credit_card'
@@ -18,11 +18,12 @@ export type PaymentMethod =
     | 'bank_transfer'
     | 'other'
 
-// Expense source enum
+// Expense source enum - matches database enum
 export type ExpenseSource =
     | 'manual'
-    | 'email_scrape'
-    | 'iphone_shortcut'
+    | 'iphone'
+    | 'email'
+    | 'import'
     | 'api'
 
 // Currency type (ISO 4217 codes)
@@ -30,6 +31,25 @@ export type Currency = 'USD' | 'EUR' | 'GBP' | 'MXN' | 'CAD' | 'AUD' | 'JPY' | '
 
 // Database schema type for environment switching
 export type DatabaseSchema = 'public' | 'development'
+
+// Enum metadata for validation and display
+export const EXPENSE_SOURCE_OPTIONS = [
+    { value: 'manual', label: 'Manual', description: 'Ingresado manualmente' },
+    { value: 'iphone', label: 'iPhone', description: 'Atajo de Siri/iPhone' },
+    { value: 'email', label: 'Email', description: 'Extraído de email bancario' },
+    { value: 'import', label: 'Importación', description: 'Importado desde archivo' },
+    { value: 'api', label: 'API', description: 'Creado vía API externa' },
+] as const
+
+export const PAYMENT_METHOD_OPTIONS = [
+    { value: 'efectivo', label: 'Efectivo', icon: '💵' },
+    { value: 'tarjeta_debito', label: 'Tarjeta de débito', icon: '💳' },
+    { value: 'tarjeta_credito', label: 'Tarjeta de crédito', icon: '💳' },
+    { value: 'transferencia', label: 'Transferencia', icon: '🏦' },
+    { value: 'paypal', label: 'PayPal', icon: '🅿️' },
+    { value: 'bizum', label: 'Bizum', icon: '📱' },
+    { value: 'otro', label: 'Otro', icon: '❓' },
+] as const
 
 // Common validation constraints
 export const VALIDATION_CONSTRAINTS = {
