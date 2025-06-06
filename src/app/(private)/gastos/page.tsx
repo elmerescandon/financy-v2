@@ -70,12 +70,13 @@ export default function ExpensesPage() {
     }
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-warm-gray-900">Gastos</h1>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">Gastos</h1>
                 <Button
                     onClick={() => router.push('/gastos/agregar')}
+                    className="w-full sm:w-auto"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Agregar Gasto
@@ -101,6 +102,7 @@ export default function ExpensesPage() {
                     <Button
                         onClick={() => router.push('/gastos/agregar')}
                         variant="outline"
+                        className="w-full sm:w-auto"
                     >
                         Agregar tu primer gasto
                     </Button>

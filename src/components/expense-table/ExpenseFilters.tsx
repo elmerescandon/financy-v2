@@ -50,18 +50,17 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     return (
         <div className="space-y-4">
             {/* Date Range Buttons */}
-            <div className="flex flex-wrap gap-4">
-                <div>
-                    <Label className='text-sm font-medium text-muted-foreground mb-1'>Fecha</Label>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+                <div className="flex-1 min-w-0">
+                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Fecha</Label>
                     <div className='flex flex-wrap gap-2'>
-
                         {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
                             <Button
                                 key={key}
                                 variant={filters.dateRange === key ? 'default' : 'outline'}
-                                // size="sm"
+                                size="sm"
                                 onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
-                                className={filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}
+                                className={`text-xs sm:text-sm ${filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}`}
                             >
                                 {label}
                             </Button>
@@ -69,14 +68,13 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                     </div>
                 </div>
 
-
-                <div>
-                    <Label className='text-sm font-medium text-muted-foreground mb-1'>Categoría</Label>
+                <div className="flex-1 min-w-0 sm:max-w-xs">
+                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Categoría</Label>
                     <Select
                         value={filters.categoryId || 'all'}
                         onValueChange={handleCategoryChange}
                     >
-                        <SelectTrigger className="w-[200px]">
+                        <SelectTrigger className="w-full">
                             <SelectValue placeholder="Filtrar por categoría" />
                         </SelectTrigger>
                         <SelectContent>
@@ -92,12 +90,11 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                         </SelectContent>
                     </Select>
                 </div>
-
             </div>
 
-            {/* Category Filter */}
-            <div className="flex items-center gap-4">
-                {hasActiveFilters && (
+            {/* Active Filters */}
+            {hasActiveFilters && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                     <div className="flex flex-wrap gap-2">
                         {filters.dateRange !== 'all' && (
                             <Badge variant="secondary" className="gap-1">
@@ -112,27 +109,23 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                             <Badge variant="secondary" className="gap-1">
                                 <span>{selectedCategory.icon}</span>
                                 {selectedCategory.name}
-                                <Button variant="ghost" size="icon" onClick={() => handleCategoryChange('all')} className='cursor-pointer hover:text-destructive'>
-                                    <X className="w-4 h-4 " />
+                                <Button variant="ghost" size="icon" onClick={() => handleCategoryChange('all')} className='cursor-pointer hover:text-destructive p-0 h-auto'>
+                                    <X className="w-4 h-4" />
                                 </Button>
                             </Badge>
                         )}
                     </div>
-                )}
-                {hasActiveFilters && (
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={clearFilters}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground w-full sm:w-auto"
                     >
                         <X className="w-3 h-3 mr-1" />
                         Limpiar filtros
                     </Button>
-                )}
-
-            </div>
-
+                </div>
+            )}
         </div>
     )
 } 
