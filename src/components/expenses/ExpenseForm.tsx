@@ -61,9 +61,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         if (!formData.amount || parseFloat(formData.amount) <= 0) {
             newErrors.amount = 'La cantidad es obligatoria y debe ser mayor a 0'
         }
-        if (!formData.description.trim()) {
-            newErrors.description = 'La descripción es obligatoria'
-        }
+
         if (!formData.date) {
             newErrors.date = 'La fecha es obligatoria'
         }
