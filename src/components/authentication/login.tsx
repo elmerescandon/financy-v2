@@ -6,35 +6,51 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { useFormStatus } from 'react-dom'
 
 interface LoginProps {
     onPasswordRecovery: () => void
 }
 
+function Submit() {
+    const { pending } = useFormStatus();
+    return (
+        <Button
+            type="submit"
+            className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0"
+            disabled={pending}
+        >
+            {pending ? (
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : (
+                <>
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Iniciar Sesión
+                </>
+            )}
+
+        </Button>
+    );
+}
+
 export default function Login({ onPasswordRecovery }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
     const handleSubmit = async (formData: FormData) => {
-        setIsLoading(true)
         try {
-            const user = await login(formData)
+            await Promise.resolve(new Promise((resolve) => setTimeout(resolve, 2000)))
+            await login(formData)
             toast.success('¡Inicio de sesión exitoso!', {
                 description: 'Bienvenido de vuelta a Financy'
             })
-            console.log("user", user)
-            router.push('/home')
+            router.push('/gastos')
         } catch (error) {
-            console.log("error", error)
-            // console.error('Login error:', error)
-            // toast.error('Error al iniciar sesión', {
-            //     description: 'Credenciales incorrectas. Verifica tu email y contraseña.'
-            // })
-        } finally {
-            setIsLoading(false)
+            toast.error('Error al iniciar sesión', {
+                description: 'Credenciales incorrectas. Verifica tu email y contraseña.'
+            })
         }
     }
 
@@ -86,7 +102,7 @@ export default function Login({ onPasswordRecovery }: LoginProps) {
                     <button
                         type="button"
                         onClick={onPasswordRecovery}
-                        className="text-sm text-primary hover:text-primary/80 transition-colors"
+                        className="text-sm text-primary hover:text-primary/80 transition-colors hover:underline"
                     >
                         ¿Olvidaste tu contraseña?
                     </button>
@@ -99,23 +115,7 @@ export default function Login({ onPasswordRecovery }: LoginProps) {
                     </div>
                 </div>
 
-                <Button
-                    type="submit"
-                    className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                            <span>Iniciando Sesión...</span>
-                        </div>
-                    ) : (
-                        <>
-                            <LogIn className="w-4 h-4 mr-2" />
-                            Iniciar Sesión
-                        </>
-                    )}
-                </Button>
+                <Submit />
             </form>
         </div>
     )

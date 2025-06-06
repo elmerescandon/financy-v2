@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -9,6 +10,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -35,7 +39,11 @@ import {
     TrendingUp,
     Receipt,
     Target,
-    ChevronUp
+    ChevronUp,
+    Monitor,
+    Moon,
+    Sun,
+    Palette
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
@@ -55,6 +63,7 @@ interface NavigationProps {
 
 export default function Navigation({ user, children }: NavigationProps) {
     const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const { theme, setTheme } = useTheme()
     const router = useRouter()
 
     const handleLogout = async () => {
@@ -104,7 +113,6 @@ export default function Navigation({ user, children }: NavigationProps) {
     }
 
     const navigationItems = [
-        { icon: Home, label: 'Inicio', href: '/inicio' },
         { icon: Receipt, label: 'Gastos', href: '/gastos' },
         { icon: PieChart, label: 'Presupuestos', href: '/budgets' },
         { icon: TrendingUp, label: 'Análisis', href: '/analytics' },
@@ -200,6 +208,26 @@ export default function Navigation({ user, children }: NavigationProps) {
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Configuración</span>
                                 </DropdownMenuItem>
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>
+                                        <Palette className="mr-2 h-4 w-4" />
+                                        <span>Tema</span>
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem onClick={() => setTheme("light")}>
+                                            <Sun className="mr-2 h-4 w-4" />
+                                            <span>Claro</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                            <Moon className="mr-2 h-4 w-4" />
+                                            <span>Oscuro</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("system")}>
+                                            <Monitor className="mr-2 h-4 w-4" />
+                                            <span>Sistema</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuSub>
                                 <DropdownMenuItem onClick={() => router.push('/configuracion/api')}>
                                     <CreditCard className="mr-2 h-4 w-4" />
                                     <span>API Keys</span>
