@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { mapPaymentMethodToDb } from '@/lib/paymentMethods'
 import type { ExpenseWithDetails } from '@/types/expense'
 
 interface ExpenseData {
@@ -65,6 +66,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
             const expenseData = {
                 ...data,
+                payment_method: mapPaymentMethodToDb(data.payment_method),
                 user_id: user.id, // Add the user_id for RLS
                 source: 'manual'
             }
@@ -88,9 +90,16 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
     const updateExpense = async (id: string, data: Partial<ExpenseData>) => {
         try {
+            const updateData = {
+                ...data,
+                ...(data.payment_method && {
+                    payment_method: mapPaymentMethodToDb(data.payment_method)
+                })
+            }
+
             const { data: updatedExpense, error: updateError } = await supabase
                 .from('expenses')
-                .update(data)
+                .update(updateData)
                 .eq('id', id)
                 .select(`
           *,
