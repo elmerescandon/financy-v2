@@ -118,14 +118,11 @@ export default function Navigation({ user, children }: NavigationProps) {
                     <SidebarHeader className="p-6">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-xl warm-gradient flex items-center justify-center">
-                                <CreditCard className="w-6 h-6 text-white" />
+                                <CreditCard className="w-6 h-6 text-foreground" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-lg font-bold text-foreground">
                                     Financy
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                    Control financiero
                                 </span>
                             </div>
                         </div>
