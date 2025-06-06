@@ -27,6 +27,7 @@ import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
@@ -37,6 +38,8 @@ import {
     Edit,
     Trash2,
     Eye,
+    MoreHorizontal,
+    EllipsisVertical,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { ExpenseWithDetails } from '@/types/expense'
@@ -138,13 +141,11 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             header: 'Método de Pago',
             cell: ({ row }) => {
                 const paymentMethods = {
-                    efectivo: 'Efectivo',
-                    tarjeta_debito: 'T. Débito',
-                    tarjeta_credito: 'T. Crédito',
-                    transferencia: 'Transferencia',
-                    paypal: 'PayPal',
-                    bizum: 'Bizum',
-                    otro: 'Otro'
+                    cash: 'Efectivo',
+                    debit_card: 'T. Débito',
+                    credit_card: 'T. Crédito',
+                    bank_transfer: 'Transferencia',
+                    other: 'Otro'
                 }
 
                 const method = row.getValue('payment_method') as keyof typeof paymentMethods
@@ -194,42 +195,30 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
                 const expense = row.original
 
                 return (
-                    <div className="flex items-center gap-2">
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                        Eliminar gasto
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        ¿Estás seguro de que quieres eliminar este gasto?
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => onDelete(expense.id)}>Eliminar</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/gastos/editar/${expense.id}`)}
-                            className="h-8 w-8 p-0"
-                        >
-                            <Edit className="h-4 w-4" />
-                        </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                            >
+                                <EllipsisVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                                <DropdownMenuItem className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(expense.id)}>
+                                    <Trash2 className="h-4 w-4 mr-2 text-destructive" />
+                                    Eliminar
+                                </DropdownMenuItem>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/gastos/editar/${expense.id}`)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu >
 
-                    </div>
                 )
             },
             size: 80,

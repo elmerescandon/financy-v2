@@ -6,48 +6,47 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Plus, X } from 'lucide-react'
+import { Loader2, LogIn, Plus, X } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
 import type { ExpenseWithDetails } from '@/types/expense'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { Accordion, AccordionTrigger, AccordionItem, AccordionContent } from '../ui/accordion'
+import { DateTimePicker24h } from '../ui/date-time-picker'
+import { useFormStatus } from 'react-dom'
 
 interface ExpenseFormProps {
     categories: CategoryWithSubcategories[]
     initialData?: ExpenseWithDetails | null
-    onSubmit: (data: any) => void
+    onSubmit: (data: any) => Promise<void>
     onCancel: () => void
 }
 
 const PAYMENT_METHODS = [
-    'efectivo',
-    'tarjeta_debito',
-    'tarjeta_credito',
-    'transferencia',
-    'paypal',
-    'bizum',
-    'otro'
+    'cash',
+    'debit_card',
+    'credit_card',
+    'bank_transfer',
+    'other'
 ]
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
-    efectivo: 'Efectivo',
-    tarjeta_debito: 'Tarjeta de débito',
-    tarjeta_credito: 'Tarjeta de crédito',
-    transferencia: 'Transferencia',
-    paypal: 'PayPal',
-    bizum: 'Bizum',
-    otro: 'Otro'
+    cash: 'Efectivo',
+    debit_card: 'Tarjeta de débito',
+    credit_card: 'Tarjeta de crédito',
+    bank_transfer: 'Transferencia',
+    other: 'Otro'
 }
 
 export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: ExpenseFormProps) {
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         amount: initialData?.amount?.toString() || '',
         description: initialData?.description || '',
-        date: initialData?.date || new Date().toISOString(),
+        date: initialData?.date ? new Date(initialData.date) : new Date(),
         category_id: initialData?.category_id || '',
         subcategory_id: initialData?.subcategory_id || '',
         merchant: initialData?.merchant || '',
-        payment_method: initialData?.payment_method || 'tarjeta_debito'
+        payment_method: initialData?.payment_method || ''
     })
 
     const [tags, setTags] = useState<string[]>(initialData?.tags || [])
@@ -78,26 +77,30 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         return Object.keys(newErrors).length === 0
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-
-        if (!validateForm()) return
-
-        const submitData = {
-            amount: parseFloat(formData.amount),
-            description: formData.description.trim(),
-            date: formData.date,
-            category_id: formData.category_id,
-            subcategory_id: formData.subcategory_id || null,
-            merchant: formData.merchant.trim() || null,
-            payment_method: formData.payment_method,
-            tags: tags
+    const handleSubmit = async (e: React.FormEvent) => {
+        try {
+            e.preventDefault()
+            setLoading(true)
+            if (!validateForm()) return
+            const submitData = {
+                amount: parseFloat(formData.amount),
+                description: formData.description.trim(),
+                date: formData.date,
+                category_id: formData.category_id,
+                subcategory_id: formData.subcategory_id || null,
+                merchant: formData.merchant.trim() || null,
+                payment_method: formData.payment_method,
+                tags: tags
+            }
+            await onSubmit(submitData)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
         }
-
-        onSubmit(submitData)
     }
 
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = (field: string, value: string | Date) => {
         setFormData(prev => ({ ...prev, [field]: value }))
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }))
@@ -199,12 +202,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                         {/* Date */}
                         <div>
                             <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
-                            <Input
-                                id="date"
-                                type="datetime-local"
-                                value={formData.date}
-                                onChange={(e) => handleInputChange('date', e.target.value)}
-                            />
+                            <DateTimePicker24h date={formData.date} onDateChange={(date) => handleInputChange('date', date)} />
                             {errors.date && (
                                 <p className="text-sm text-destructive mt-1">{errors.date}</p>
                             )}
@@ -304,8 +302,8 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Actions */}
             <div className="flex gap-3 pt-4">
-                <Button type="submit" variant="default">
-                    {initialData ? 'Actualizar' : 'Crear'} Gasto
+                <Button type="submit" variant="default" disabled={loading} className='w-[100px]'>
+                    {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Crear Gasto"}
                 </Button>
                 <Button type="button" variant="outline" onClick={onCancel}>
                     Cancelar
