@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { setCredentials } from '@/lib/gmail';
+import { getGmailWithRefresh } from '@/lib/gmail';
 import { parseEmailToExpense } from '@/lib/expense-parser';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Gmail not connected' }, { status: 400 });
         }
 
-        // Setup Gmail API
-        const gmail = setCredentials({
+        // Setup Gmail API with token refresh
+        const gmail = await getGmailWithRefresh({
             access_token: tokenData.access_token,
             refresh_token: tokenData.refresh_token,
         });

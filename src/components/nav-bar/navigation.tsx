@@ -43,7 +43,8 @@ import {
     Monitor,
     Moon,
     Sun,
-    Palette
+    Palette,
+    Mail
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
@@ -231,6 +232,10 @@ export default function Navigation({ user, children }: NavigationProps) {
                                 <DropdownMenuItem onClick={() => router.push('/configuracion/api')}>
                                     <CreditCard className="mr-2 h-4 w-4" />
                                     <span>API Keys</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion/gmail')}>
+                                    <Mail className="mr-2 h-4 w-4" />
+                                    <span>Gmail Integration</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
