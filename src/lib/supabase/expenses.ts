@@ -29,10 +29,12 @@ export class ExpenseService {
         category:categories(id, name, color, icon),
         subcategory:subcategories(id, name, category_id)
       `)
+            .eq('type', 'expense')
             .order('date', { ascending: false })
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1)
 
+        console.log('data', data)
         if (error) throw error
         return data as ExpenseWithDetails[]
     }
@@ -47,6 +49,7 @@ export class ExpenseService {
         subcategory:subcategories(id, name, category_id)
       `)
             .eq('id', id)
+            .eq('type', 'expense')
             .single()
 
         if (error) throw error
@@ -59,6 +62,7 @@ export class ExpenseService {
             .from('expenses')
             .update(updates)
             .eq('id', id)
+            .eq('type', 'expense')
             .select(`
         *,
         category:categories(id, name, color, icon),
@@ -76,6 +80,7 @@ export class ExpenseService {
             .from('expenses')
             .delete()
             .eq('id', id)
+            .eq('type', 'expense')
 
         if (error) throw error
     }
@@ -89,6 +94,7 @@ export class ExpenseService {
         category:categories(id, name, color, icon),
         subcategory:subcategories(id, name, category_id)
       `)
+            .eq('type', 'expense')
             .gte('date', startDate)
             .lte('date', endDate)
             .order('date', { ascending: false })
@@ -106,6 +112,7 @@ export class ExpenseService {
         category:categories(id, name, color, icon),
         subcategory:subcategories(id, name, category_id)
       `)
+            .eq('type', 'expense')
             .eq('category_id', categoryId)
             .order('date', { ascending: false })
 

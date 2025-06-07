@@ -13,6 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/colla
 import { Accordion, AccordionTrigger, AccordionItem, AccordionContent } from '../ui/accordion'
 import { DateTimePicker24h } from '../ui/date-time-picker'
 import { useFormStatus } from 'react-dom'
+import { CURRENCY } from '@/lib/constants'
 
 interface ExpenseFormProps {
     categories: CategoryWithSubcategories[]
@@ -46,7 +47,9 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         category_id: initialData?.category_id || '',
         subcategory_id: initialData?.subcategory_id || '',
         merchant: initialData?.merchant || '',
-        payment_method: initialData?.payment_method || ''
+        payment_method: initialData?.payment_method || '',
+        type: 'expense',
+        currency: CURRENCY
     })
 
     const [tags, setTags] = useState<string[]>(initialData?.tags || [])

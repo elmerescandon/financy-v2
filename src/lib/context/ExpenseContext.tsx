@@ -1,29 +1,22 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { mapPaymentMethodToDb } from '@/lib/paymentMethods'
-import type { ExpenseWithDetails } from '@/types/expense'
-
-interface ExpenseData {
-    amount: number
-    description: string
-    date: string
-    category_id: string
-    subcategory_id?: string | null
-    merchant?: string | null
-    payment_method: string
-    tags?: string[]
-}
+import { ExpenseService } from '@/lib/supabase/expenses'
+import type { ExpenseWithDetails, CreateExpenseData, UpdateExpenseData } from '@/types/expense'
 
 interface ExpenseContextType {
     expenses: ExpenseWithDetails[]
     loading: boolean
     error: string | null
-    createExpense: (data: ExpenseData) => Promise<void>
-    updateExpense: (id: string, data: Partial<ExpenseData>) => Promise<void>
+    limit: number
+    offset: number
+    createExpense: (data: CreateExpenseData) => Promise<void>
+    updateExpense: (id: string, data: UpdateExpenseData) => Promise<void>
     deleteExpense: (id: string) => Promise<void>
     refreshExpenses: () => Promise<void>
+    setLimit: (limit: number) => void
+    setOffset: (offset: number) => void
+    loadMore: () => Promise<void>
 }
 
 const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined)
@@ -32,25 +25,15 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const supabase = createClient()
+    const [limit, setLimit] = useState(50)
+    const [offset, setOffset] = useState(0)
 
     const fetchExpenses = async () => {
         try {
             setLoading(true)
             setError(null)
-
-            const { data, error: fetchError } = await supabase
-                .from('expenses')
-                .select(`
-          *,
-          category:categories(id, name, color, icon),
-          subcategory:subcategories(id, name, category_id)
-        `)
-                .order('date', { ascending: false })
-                .order('created_at', { ascending: false })
-
-            if (fetchError) throw fetchError
-            setExpenses(data as ExpenseWithDetails[])
+            const data = await ExpenseService.getAll(limit, offset)
+            setExpenses(data)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al cargar gastos')
         } finally {
@@ -58,63 +41,31 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    const createExpense = async (data: ExpenseData) => {
+    const loadMore = async () => {
         try {
-            // Get the current user
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Usuario no autenticado')
+            setError(null)
+            const newOffset = offset + limit
+            const data = await ExpenseService.getAll(limit, newOffset)
+            setExpenses(prev => [...prev, ...data])
+            setOffset(newOffset)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Error al cargar más gastos')
+        }
+    }
 
-            const expenseData = {
-                ...data,
-                date: new Date(data.date).toISOString(),
-                payment_method: mapPaymentMethodToDb(data.payment_method),
-                user_id: user.id, // Add the user_id for RLS
-                source: 'manual'
-            }
-            console.log(expenseData)
-            const { data: newExpense, error: createError } = await supabase
-                .from('expenses')
-                .insert(expenseData)
-                .select(`
-          *,
-          category:categories(id, name, color, icon),
-          subcategory:subcategories(id, name, category_id)
-        `)
-                .single()
-
-            if (createError) throw createError
-            setExpenses(prev => [newExpense as ExpenseWithDetails, ...prev])
+    const createExpense = async (data: CreateExpenseData) => {
+        try {
+            const newExpense = await ExpenseService.create(data)
+            setExpenses(prev => [newExpense, ...prev])
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')
         }
     }
 
-    const updateExpense = async (id: string, data: Partial<ExpenseData>) => {
+    const updateExpense = async (id: string, data: UpdateExpenseData) => {
         try {
-            const updateData = {
-                ...data,
-                ...(data.payment_method && {
-                    payment_method: mapPaymentMethodToDb(data.payment_method)
-                })
-            }
-
-            if (updateData.date) {
-                updateData.date = new Date(updateData.date).toISOString()
-            }
-
-            const { data: updatedExpense, error: updateError } = await supabase
-                .from('expenses')
-                .update(updateData)
-                .eq('id', id)
-                .select(`
-          *,
-          category:categories(id, name, color, icon),
-          subcategory:subcategories(id, name, category_id)
-        `)
-                .single()
-
-            if (updateError) throw updateError
-            setExpenses(prev => prev.map(exp => exp.id === id ? updatedExpense as ExpenseWithDetails : exp))
+            const updatedExpense = await ExpenseService.update(id, data)
+            setExpenses(prev => prev.map(exp => exp.id === id ? updatedExpense : exp))
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al actualizar gasto')
         }
@@ -122,12 +73,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
     const deleteExpense = async (id: string) => {
         try {
-            const { error: deleteError } = await supabase
-                .from('expenses')
-                .delete()
-                .eq('id', id)
-
-            if (deleteError) throw deleteError
+            await ExpenseService.delete(id)
             setExpenses(prev => prev.filter(exp => exp.id !== id))
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al eliminar gasto')
@@ -136,17 +82,22 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchExpenses()
-    }, [])
+    }, [limit, offset])
 
     return (
         <ExpenseContext.Provider value={{
             expenses,
             loading,
             error,
+            limit,
+            offset,
             createExpense,
             updateExpense,
             deleteExpense,
-            refreshExpenses: fetchExpenses
+            refreshExpenses: fetchExpenses,
+            setLimit,
+            setOffset,
+            loadMore
         }}>
             {children}
         </ExpenseContext.Provider>

@@ -73,7 +73,6 @@ export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
             },
             cell: ({ row }) => {
                 const date = new TZDate(row.getValue('date'), 'America/Lima')
-                console.log(date)
                 return (
                     <span className="text-sm">
                         {format(date.toLocaleString(undefined, { timeZone: 'America/Lima' }), "PPpp")}
