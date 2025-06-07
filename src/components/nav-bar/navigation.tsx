@@ -119,7 +119,7 @@ export default function Navigation({ user, children }: NavigationProps) {
         { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
         { icon: PieChart, label: 'Presupuestos', href: '/presupuesto' },
         { icon: TrendingUp, label: 'Análisis', href: '/analytics' },
-        { icon: Target, label: 'Metas', href: '/goals' },
+        { icon: Target, label: 'Metas', href: '/metas' },
     ]
 
     return (
