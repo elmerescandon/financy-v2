@@ -24,6 +24,9 @@ export default function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps
     const isOverBudget = budget.spent_amount > budget.budget_amount
     const isNearLimit = budget.spent_percentage >= 80 && !isOverBudget
 
+    const startDate = budget.period_start.split('-')
+    const endDate = budget.period_end.split('-')
+
     const getProgressColor = () => {
         if (isOverBudget) return 'bg-destructive'
         if (isNearLimit) return 'bg-yellow-500'
@@ -64,12 +67,14 @@ export default function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps
                         <div>
                             <CardTitle className="text-lg">{budget.category_name}</CardTitle>
                             <p className="text-sm text-muted-foreground">
-                                {new Date(budget.period_start).toLocaleDateString('es-ES', {
-                                    month: 'short',
-                                    year: 'numeric'
-                                })} - {new Date(budget.period_end).toLocaleDateString('es-ES', {
-                                    month: 'short',
-                                    year: 'numeric'
+                                {new Date(Number(startDate[0]), Number(startDate[1]) - 1, Number(startDate[2])).toLocaleDateString('es-ES', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: '2-digit'
+                                })} - {new Date(Number(endDate[0]), Number(endDate[1]) - 1, Number(endDate[2])).toLocaleDateString('es-ES', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: '2-digit'
                                 })}
                             </p>
                         </div>

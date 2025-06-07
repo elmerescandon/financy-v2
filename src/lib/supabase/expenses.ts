@@ -34,7 +34,6 @@ export class ExpenseService {
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1)
 
-        console.log('data', data)
         if (error) throw error
         return data as ExpenseWithDetails[]
     }

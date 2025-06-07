@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Plus, TrendingUp, TrendingDown, AlertTriangle, PieChart } from 'lucide-react'
@@ -11,55 +11,34 @@ import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/utils'
 import BudgetCard from '../../../components/budgets/BudgetCard'
 import BudgetForm from '@/components/budgets/BudgetForm'
-import { CategoryService } from '@/lib/supabase/categories'
-import { BudgetService } from '@/lib/supabase/budgets'
+import { useBudgetContext } from '@/lib/context/BudgetContext'
 import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
-import type { CategoryWithSubcategories } from '@/types/category'
 
 export default function PresupuestoPage() {
-    const [budgets, setBudgets] = useState<BudgetInsight[]>([])
-    const [categories, setCategories] = useState<CategoryWithSubcategories[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [isCreating, setIsCreating] = useState(false)
+    const {
+        budgets,
+        categories,
+        loading,
+        error,
+        stats,
+        createBudget,
+        updateBudget,
+        deleteBudget,
+        refreshBudgets
+    } = useBudgetContext()
+
     const [editingBudget, setEditingBudget] = useState<BudgetInsight | null>(null)
     const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null)
     const [showForm, setShowForm] = useState(false)
 
-    // Load data
-    useEffect(() => {
-        loadData()
-    }, [])
-
-    const loadData = async () => {
-        try {
-            setIsLoading(true)
-            const [budgetsData, categoriesData] = await Promise.all([
-                BudgetService.getInsights(),
-                CategoryService.getAll()
-            ])
-
-            setBudgets(budgetsData)
-            setCategories(categoriesData)
-        } catch (error) {
-            console.error('Error loading data:', error)
-            toast.error('Error al cargar los datos')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
     const handleCreateBudget = async (data: CreateBudgetData) => {
         try {
-            setIsCreating(true)
-            await BudgetService.create(data)
+            await createBudget(data)
             toast.success('Presupuesto creado exitosamente')
             setShowForm(false)
-            await loadData()
         } catch (error) {
             console.error('Error creating budget:', error)
-            toast.error('Error al crear presupuesto')
-        } finally {
-            setIsCreating(false)
+            toast.error(error instanceof Error ? error.message : 'Error al crear presupuesto')
         }
     }
 
@@ -67,36 +46,35 @@ export default function PresupuestoPage() {
         if (!editingBudget) return
 
         try {
-            await BudgetService.update(editingBudget.id, data)
+            const updateData = { ...data, id: editingBudget.id }
+            await updateBudget(editingBudget.id, updateData)
             toast.success('Presupuesto actualizado exitosamente')
             setEditingBudget(null)
             setShowForm(false)
-            await loadData()
         } catch (error) {
             console.error('Error updating budget:', error)
-            toast.error('Error al actualizar presupuesto')
+            toast.error(error instanceof Error ? error.message : 'Error al actualizar presupuesto')
         }
     }
 
     const handleDeleteBudget = async (id: string) => {
         try {
-            await BudgetService.delete(id)
+            await deleteBudget(id)
             toast.success('Presupuesto eliminado exitosamente')
             setDeletingBudgetId(null)
-            await loadData()
         } catch (error) {
             console.error('Error deleting budget:', error)
-            toast.error('Error al eliminar presupuesto')
+            toast.error(error instanceof Error ? error.message : 'Error al eliminar presupuesto')
         }
     }
 
-    // Calculate summary stats
-    const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget_amount, 0)
-    const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent_amount, 0)
-    const totalRemaining = totalBudget - totalSpent
-    const overBudgetCount = budgets.filter(b => b.spent_amount > b.budget_amount).length
+    // Calculate summary stats from context stats or compute from budgets
+    const totalBudget = stats?.total_budget || budgets.reduce((sum, budget) => sum + budget.budget_amount, 0)
+    const totalSpent = stats?.total_spent || budgets.reduce((sum, budget) => sum + budget.spent_amount, 0)
+    const totalRemaining = stats?.total_remaining || (totalBudget - totalSpent)
+    const overBudgetCount = stats?.over_budget_count || budgets.filter(b => b.spent_amount > b.budget_amount).length
 
-    if (isLoading) {
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
@@ -125,6 +103,9 @@ export default function PresupuestoPage() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto">
+                        <SheetHeader>
+                            <SheetTitle>Nuevo Presupuesto</SheetTitle>
+                        </SheetHeader>
                         <BudgetForm
                             categories={categories}
                             initialData={editingBudget}
