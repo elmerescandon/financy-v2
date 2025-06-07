@@ -88,7 +88,7 @@ export default function IncresosPage() {
     })
     const monthlyTotal = monthlyIncomes.reduce((sum, income) => sum + income.amount, 0)
     const recurringIncomes = filteredIncomes.filter(income => income.is_recurring)
-    const averageIncome = filteredIncomes.length > 0 ? totalIncome / filteredIncomes.length : 0
+    // const averageIncome = filteredIncomes.length > 0 ? totalIncome / filteredIncomes.length : 0
 
     if (loading) {
         return (
@@ -113,9 +113,9 @@ export default function IncresosPage() {
     }
 
     return (
-        <div className="space-y-4 sm:space-y-6">
+        <div>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
                 <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">Ingresos</h1>
                 <Button
                     onClick={() => router.push('/ingresos/new')}
@@ -127,7 +127,7 @@ export default function IncresosPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Ingresos</CardTitle>
@@ -173,7 +173,7 @@ export default function IncresosPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                {/* <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Promedio</CardTitle>
                         <Calculator className="h-4 w-4 text-muted-foreground" />
@@ -186,7 +186,7 @@ export default function IncresosPage() {
                             Por ingreso registrado
                         </p>
                     </CardContent>
-                </Card>
+                </Card> */}
             </div>
 
             {/* Filters */}

@@ -57,8 +57,8 @@ export function IncomeFilters({ filters, onFiltersChange, categories = [], onCle
     }
 
     return (
-        <Card>
-            <CardHeader className="pb-3">
+        <div className="mb-4 p-0">
+            <div className="pb-3 p-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg flex items-center gap-2">
                         <Filter className="h-5 w-5" />
@@ -89,9 +89,9 @@ export function IncomeFilters({ filters, onFiltersChange, categories = [], onCle
                         </Button>
                     </div>
                 </div>
-            </CardHeader>
+            </div>
 
-            <CardContent className="space-y-4">
+            <div className="space-y-4">
                 {/* Search */}
                 <div>
                     <Label htmlFor="search" className="text-sm font-medium mb-2">
@@ -273,7 +273,7 @@ export function IncomeFilters({ filters, onFiltersChange, categories = [], onCle
                         </div>
                     </>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 } 

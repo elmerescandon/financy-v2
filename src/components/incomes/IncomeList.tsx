@@ -85,11 +85,11 @@ export function IncomeList({ incomes, onEdit, onDelete, loading }: IncomeListPro
     }
 
     return (
-        <div className="space-y-4">
+        <div>
             {incomes.map((income) => (
-                <Card key={income.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
+                <Card key={income.id} className="hover:shadow-md transition-shadow m-0 p-2 mb-2">
+                    <CardContent className="p-2">
+                        < div className="flex items-start justify-between" >
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <h3 className="font-semibold text-lg">
@@ -127,7 +127,7 @@ export function IncomeList({ incomes, onEdit, onDelete, loading }: IncomeListPro
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-2">
                                     <Badge
                                         variant="secondary"
                                         className={`text-xs ${SOURCE_COLORS[income.source]}`}
@@ -192,9 +192,10 @@ export function IncomeList({ incomes, onEdit, onDelete, loading }: IncomeListPro
                                 )}
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
+                    </CardContent >
+                </Card >
+            ))
+            }
+        </div >
     )
 } 
