@@ -5,8 +5,6 @@ export interface Goal {
     target_amount: number
     current_amount: number
     target_date: string
-    category_id?: string
-    budget_id?: string
     created_at: string
     updated_at: string
 }
@@ -44,8 +42,6 @@ export interface CreateGoalData {
     name: string
     target_amount: number
     target_date: string
-    category_id?: string
-    budget_id?: string
 }
 
 export interface CreateGoalEntryData {

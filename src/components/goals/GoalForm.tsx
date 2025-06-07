@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { createGoalSchema, type CreateGoalFormData } from '@/lib/validation/goal'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Loader2 } from 'lucide-react'
 import type { CreateGoalData } from '@/types/goal'
 import type { GoalInsight } from '@/types/goal'
 
@@ -19,30 +17,57 @@ interface GoalFormProps {
 
 export function GoalForm({ initialData, onSubmit, onCancel }: GoalFormProps) {
     const [loading, setLoading] = useState(false)
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset
-    } = useForm<CreateGoalFormData>({
-        resolver: zodResolver(createGoalSchema),
-        defaultValues: {
-            name: initialData?.name || '',
-            target_amount: initialData?.target_amount || 0,
-            target_date: initialData?.target_date || '',
-            category_id: initialData?.category_id || '',
-            budget_id: initialData?.budget_id || ''
-        }
+    const [formData, setFormData] = useState<CreateGoalData>({
+        name: initialData?.name || '',
+        target_amount: initialData?.target_amount || 0,
+        target_date: initialData?.target_date || ''
     })
+    const [errors, setErrors] = useState<Record<string, string>>({})
 
-    const handleFormSubmit = async (data: CreateGoalFormData) => {
+    // Set minimum date to tomorrow
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const minDate = tomorrow.toISOString().split('T')[0]
+
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {}
+
+        if (!formData.name.trim()) {
+            newErrors.name = 'El nombre es requerido'
+        } else if (formData.name.length > 100) {
+            newErrors.name = 'El nombre no puede exceder 100 caracteres'
+        }
+
+        if (!formData.target_amount || formData.target_amount <= 0) {
+            newErrors.target_amount = 'El monto objetivo debe ser mayor a 0'
+        } else if (formData.target_amount > 999999999.99) {
+            newErrors.target_amount = 'El monto es demasiado grande'
+        }
+
+        if (!formData.target_date) {
+            newErrors.target_date = 'La fecha objetivo es requerida'
+        } else if (new Date(formData.target_date) <= new Date()) {
+            newErrors.target_date = 'La fecha objetivo debe ser futura'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
+    const handleInputChange = (field: keyof CreateGoalData, value: string | number) => {
+        setFormData(prev => ({ ...prev, [field]: value }))
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: '' }))
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!validateForm()) return
+
         setLoading(true)
         try {
-            await onSubmit(data)
-            if (!initialData) {
-                reset()
-            }
+            await onSubmit(formData)
         } catch (error) {
             console.error('Error submitting form:', error)
         } finally {
@@ -50,75 +75,85 @@ export function GoalForm({ initialData, onSubmit, onCancel }: GoalFormProps) {
         }
     }
 
-    // Set minimum date to tomorrow
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const minDate = tomorrow.toISOString().split('T')[0]
-
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-            <div className="space-y-4">
-                <div>
-                    <Label htmlFor="name">Nombre de la Meta</Label>
-                    <Input
-                        id="name"
-                        placeholder="Ej: Fondo de emergencia"
-                        {...register('name')}
-                        className={errors.name ? 'border-destructive' : ''}
-                    />
-                    {errors.name && (
-                        <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
-                    )}
-                </div>
+        <Card className="w-full max-w-4xl">
+            <CardHeader>
+                <CardTitle>
+                    {initialData ? 'Editar Meta' : 'Crear Nueva Meta'}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="name" className="text-sm font-medium pb-2">Nombre de la Meta *</Label>
+                            <Input
+                                id="name"
+                                placeholder="Ej: Fondo de emergencia"
+                                value={formData.name}
+                                onChange={(e) => handleInputChange('name', e.target.value)}
+                                className={errors.name ? 'border-destructive' : ''}
+                                required
+                            />
+                            {errors.name && (
+                                <p className="text-sm text-destructive mt-1">{errors.name}</p>
+                            )}
+                        </div>
 
-                <div>
-                    <Label htmlFor="target_amount">Monto Objetivo</Label>
-                    <Input
-                        id="target_amount"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        {...register('target_amount', { valueAsNumber: true })}
-                        className={errors.target_amount ? 'border-destructive' : ''}
-                    />
-                    {errors.target_amount && (
-                        <p className="text-sm text-destructive mt-1">{errors.target_amount.message}</p>
-                    )}
-                </div>
+                        <div>
+                            <Label htmlFor="target_amount" className="text-sm font-medium pb-2">Monto Objetivo *</Label>
+                            <Input
+                                id="target_amount"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                value={formData.target_amount || ''}
+                                onChange={(e) => handleInputChange('target_amount', parseFloat(e.target.value) || 0)}
+                                className={errors.target_amount ? 'border-destructive' : ''}
+                                required
+                            />
+                            {errors.target_amount && (
+                                <p className="text-sm text-destructive mt-1">{errors.target_amount}</p>
+                            )}
+                        </div>
 
-                <div>
-                    <Label htmlFor="target_date">Fecha Objetivo</Label>
-                    <Input
-                        id="target_date"
-                        type="date"
-                        min={minDate}
-                        {...register('target_date')}
-                        className={errors.target_date ? 'border-destructive' : ''}
-                    />
-                    {errors.target_date && (
-                        <p className="text-sm text-destructive mt-1">{errors.target_date.message}</p>
-                    )}
-                </div>
-            </div>
+                        <div>
+                            <Label htmlFor="target_date" className="text-sm font-medium pb-2">Fecha Objetivo *</Label>
+                            <Input
+                                id="target_date"
+                                type="date"
+                                min={minDate}
+                                value={formData.target_date}
+                                onChange={(e) => handleInputChange('target_date', e.target.value)}
+                                className={errors.target_date ? 'border-destructive' : ''}
+                                required
+                            />
+                            {errors.target_date && (
+                                <p className="text-sm text-destructive mt-1">{errors.target_date}</p>
+                            )}
+                        </div>
+                    </div>
 
-            <div className="flex gap-2 pt-4">
-                <Button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1"
-                >
-                    {loading ? 'Guardando...' : initialData ? 'Actualizar Meta' : 'Crear Meta'}
-                </Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onCancel}
-                    disabled={loading}
-                    className="flex-1"
-                >
-                    Cancelar
-                </Button>
-            </div>
-        </form>
+                    <div className="flex gap-2 justify-end">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onCancel}
+                            disabled={loading}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={loading || !formData.name || !formData.target_amount}
+                        >
+                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {initialData ? 'Actualizar' : 'Crear'} Meta
+                        </Button>
+                    </div>
+                </form>
+            </CardContent>
+        </Card>
     )
 } 

@@ -9,9 +9,7 @@ export const createGoalSchema = z.object({
         .max(999999999.99, 'El monto es demasiado grande'),
     target_date: z.string()
         .min(1, 'La fecha objetivo es requerida')
-        .refine(date => new Date(date) > new Date(), 'La fecha objetivo debe ser futura'),
-    category_id: z.string().uuid().optional(),
-    budget_id: z.string().uuid().optional()
+        .refine(date => new Date(date) > new Date(), 'La fecha objetivo debe ser futura')
 })
 
 export const updateGoalSchema = createGoalSchema.partial()

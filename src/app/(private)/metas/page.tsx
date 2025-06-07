@@ -114,22 +114,20 @@ export default function MetasPage() {
                             Nueva Meta
                         </Button>
                     </SheetTrigger>
-                    <SheetContent className="w-full max-w-lg sm:max-w-lg overflow-y-auto">
+                    <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto px-4">
                         <SheetHeader>
-                            <SheetTitle>
+                            <SheetTitle className='text-left text-2xl font-bold'>
                                 {editingGoal ? 'Editar Meta' : 'Nueva Meta'}
                             </SheetTitle>
                         </SheetHeader>
-                        <div className="mt-6">
-                            <GoalForm
-                                initialData={editingGoal}
-                                onSubmit={editingGoal ? handleEditGoal : handleCreateGoal}
-                                onCancel={() => {
-                                    setShowForm(false)
-                                    setEditingGoal(null)
-                                }}
-                            />
-                        </div>
+                        <GoalForm
+                            initialData={editingGoal}
+                            onSubmit={editingGoal ? handleEditGoal : handleCreateGoal}
+                            onCancel={() => {
+                                setShowForm(false)
+                                setEditingGoal(null)
+                            }}
+                        />
                     </SheetContent>
                 </Sheet>
             </div>

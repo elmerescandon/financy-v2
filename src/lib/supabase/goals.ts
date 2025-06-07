@@ -58,9 +58,13 @@ function calculateProgress(goal: Goal, targetDate: string): GoalProgress {
 
 export class GoalService {
     static async getGoals(): Promise<GoalInsight[]> {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) throw new Error('User not authenticated')
+
         const { data: goals, error } = await supabase
             .from('savings_goals')
             .select('*')
+            .eq('user_id', user.id)
             .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -100,10 +104,14 @@ export class GoalService {
     }
 
     static async getGoal(id: string): Promise<GoalInsight | null> {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) throw new Error('User not authenticated')
+
         const { data: goal, error } = await supabase
             .from('savings_goals')
             .select('*')
             .eq('id', id)
+            .eq('user_id', user.id)
             .single()
 
         if (error) throw error
@@ -137,7 +145,7 @@ export class GoalService {
     static async createGoal(data: CreateGoalData): Promise<Goal> {
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) throw new Error('User not authenticated')
-
+        console.log(data)
         const { data: goal, error } = await supabase
             .from('savings_goals')
             .insert({
@@ -148,8 +156,7 @@ export class GoalService {
             .select()
             .single()
 
-        if (error) throw error
-        return goal
+        return {} as Goal
     }
 
     static async updateGoal(id: string, data: Partial<CreateGoalData>): Promise<Goal> {
@@ -175,10 +182,14 @@ export class GoalService {
 
     // Goal Entries
     static async createGoalEntry(data: CreateGoalEntryData): Promise<GoalEntry> {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) throw new Error('User not authenticated')
+
         const { data: entry, error } = await supabase
             .from('goal_entries')
             .insert({
                 ...data,
+                user_id: user.id,
                 date: data.date || new Date().toISOString().split('T')[0]
             })
             .select()

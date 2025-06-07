@@ -151,7 +151,7 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Category Selection */}
                     <div className="space-y-2">
-                        <Label htmlFor="category">Categoría *</Label>
+                        <Label htmlFor="category" className="text-sm font-medium pb-2">Categoría *</Label>
                         <Select
                             value={formData.category_id}
                             onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
@@ -180,7 +180,7 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
 
                     {/* Amount */}
                     <div className="space-y-2">
-                        <Label htmlFor="amount">Monto del Presupuesto *</Label>
+                        <Label htmlFor="amount" className="text-sm font-medium pb-2">Monto del Presupuesto *</Label>
                         <Input
                             id="amount"
                             type="number"
