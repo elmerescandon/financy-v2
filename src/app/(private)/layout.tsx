@@ -1,5 +1,6 @@
 import { NavWrapper } from "@/components/nav-bar"
 import { ExpenseProvider } from '@/lib/context/ExpenseContext'
+import { IncomeProvider } from '@/lib/context/IncomeContext'
 
 export default function PrivateLayout({
     children,
@@ -9,7 +10,9 @@ export default function PrivateLayout({
     return (
         <NavWrapper>
             <ExpenseProvider>
-                {children}
+                <IncomeProvider>
+                    {children}
+                </IncomeProvider>
             </ExpenseProvider>
         </NavWrapper>
     )

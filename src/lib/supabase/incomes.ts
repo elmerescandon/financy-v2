@@ -6,18 +6,27 @@ const supabase = createClient()
 export class IncomeService {
     // Create income (using expenses table with type: 'income')
     static async create(income: CreateIncomeData) {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('User not authenticated')
+
+        // Extract income-specific fields that need mapping
+        console.log('income', income)
+        const { employer_client, is_recurring, is_taxable, recurring_end_date, source, ...baseData } = income
+
         const incomeData = {
-            ...income,
+            ...baseData,
+            user_id: user.id,
             type: 'income',
             // Map income-specific fields to expense table columns
-            merchant: income.employer_client,
-            recurring: income.is_recurring || false,
+            merchant: employer_client,
+            recurring: is_recurring || false,
             recurring_frequency: income.recurring_frequency,
             source: 'manual', // ExpenseSource type
             source_metadata: {
-                income_source: income.source,
-                is_taxable: income.is_taxable || false,
-                recurring_end_date: income.recurring_end_date
+                income_source: source,
+                is_taxable: is_taxable || false,
+                recurring_end_date: recurring_end_date
             },
             confidence_score: 1.0,
             needs_review: false
@@ -95,16 +104,19 @@ export class IncomeService {
 
     // Update income
     static async update(id: string, updates: UpdateIncomeData) {
+        // Extract income-specific fields that need mapping
+        const { employer_client, is_recurring, is_taxable, recurring_end_date, source, ...baseUpdates } = updates
+
         const updateData = {
-            ...updates,
+            ...baseUpdates,
             // Map income-specific fields to expense table columns
-            merchant: updates.employer_client,
-            recurring: updates.is_recurring,
+            merchant: employer_client,
+            recurring: is_recurring,
             recurring_frequency: updates.recurring_frequency,
             source_metadata: {
-                income_source: updates.source,
-                is_taxable: updates.is_taxable,
-                recurring_end_date: updates.recurring_end_date
+                income_source: source,
+                is_taxable: is_taxable,
+                recurring_end_date: recurring_end_date
             }
         }
 
