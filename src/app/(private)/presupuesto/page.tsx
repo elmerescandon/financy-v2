@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
-import { Plus, TrendingUp, TrendingDown, AlertTriangle, PieChart } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, AlertTriangle, PieChart, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/utils'
 import BudgetCard from '../../../components/budgets/BudgetCard'
 import BudgetForm from '@/components/budgets/BudgetForm'
+import SmartBudgetWizard from '@/components/budget/SmartBudgetWizard'
 import { useBudgetContext } from '@/lib/context/BudgetContext'
 import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
 
@@ -30,6 +31,7 @@ export default function PresupuestoPage() {
     const [editingBudget, setEditingBudget] = useState<BudgetInsight | null>(null)
     const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null)
     const [showForm, setShowForm] = useState(false)
+    const [showWizard, setShowWizard] = useState(false)
 
     const handleCreateBudget = async (data: CreateBudgetData) => {
         try {
