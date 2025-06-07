@@ -23,6 +23,7 @@ export interface Expense extends UserOwnedEntity {
 
 // Form types for creating/updating expenses
 export interface CreateExpenseData {
+    user_id: string
     amount: number
     currency?: Currency
     description: string
