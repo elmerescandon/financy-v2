@@ -36,6 +36,8 @@ export interface CreateExpenseData {
     notes?: string | null
     tags?: string[]
     receipt_url?: string | null
+    type: 'expense' | 'income'
+    source: 'manual' | 'email' | 'iphone' | 'web'
 }
 
 export interface UpdateExpenseData {

@@ -228,7 +228,11 @@ export class BudgetService {
             rolloverAmount?: number
         }
     ) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Usuario no autenticado')
+
         const budgetData: CreateBudgetData = {
+            user_id: user.id,
             category_id: categoryId,
             amount,
             period_start: periodStart,

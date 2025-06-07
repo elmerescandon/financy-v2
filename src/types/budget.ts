@@ -13,6 +13,7 @@ export interface Budget extends UserOwnedEntity {
 
 // Form types for creating/updating budgets
 export interface CreateBudgetData {
+    user_id: string
     category_id: string
     amount: number
     period_start: string

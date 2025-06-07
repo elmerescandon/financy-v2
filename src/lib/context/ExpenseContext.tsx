@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { ExpenseService } from '@/lib/supabase/expenses'
 import type { ExpenseWithDetails, CreateExpenseData, UpdateExpenseData } from '@/types/expense'
 import { createClient } from '../supabase/client'
+import { CURRENCY } from '../constants'
 
 interface ExpenseContextType {
     expenses: ExpenseWithDetails[]
@@ -61,7 +62,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             // Get current user
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error('Usuario no autenticado')
-            const newExpense = await ExpenseService.create({ ...data, user_id: user.id })
+            const newExpense = await ExpenseService.create({ ...data, user_id: user.id, currency: CURRENCY, type: 'expense', source: 'manual' })
             setExpenses(prev => [newExpense, ...prev])
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')

@@ -12,6 +12,7 @@ import type {
     BudgetFilters
 } from '@/types/budget'
 import type { CategoryWithSubcategories } from '@/types/category'
+import { createClient } from '../supabase/client'
 
 interface BudgetContextType {
     budgets: BudgetInsight[]
@@ -43,6 +44,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [stats, setStats] = useState<BudgetStats | null>(null)
+    const supabase = createClient()
 
     const fetchBudgets = async (filters?: BudgetFilters) => {
         try {
@@ -67,7 +69,11 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
     const createBudget = async (data: CreateBudgetData) => {
         try {
-            const newBudget = await BudgetService.create(data)
+            // Get current user
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Usuario no autenticado')
+
+            const newBudget = await BudgetService.create({ ...data, user_id: user.id })
             // Convert BudgetWithDetails to BudgetInsight for consistency
             const budgetInsight: BudgetInsight = {
                 id: newBudget.id,
