@@ -14,6 +14,7 @@ import {
     filterExpensesByDateRange,
     filterExpensesByCategory
 } from '@/components/expense-table'
+import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { toast } from 'sonner'
 
 export default function ExpensesPage() {
@@ -82,6 +83,9 @@ export default function ExpensesPage() {
                     Agregar Gasto
                 </Button>
             </div>
+
+            {/* Summary */}
+            <ExpenseSummary expenses={expenses} />
 
             {/* Filters */}
             <ExpenseFilters
