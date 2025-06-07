@@ -21,6 +21,8 @@ export interface CreateBudgetData {
     rollover_amount?: number
     allocation_percentage?: number
     priority?: number
+    assignToExisting?: boolean
+    previewData?: BudgetAssignmentPreview
 }
 
 export interface UpdateBudgetData {
@@ -113,6 +115,32 @@ export interface BudgetPeriodConfig {
     type: BudgetPeriod
     start_date?: string // For custom periods
     end_date?: string   // For custom periods
+}
+
+// Assignment preview data
+export interface BudgetAssignmentPreview {
+    matchingExpenses: number
+    totalAmount: number
+    hasConflicts: boolean
+    conflictCount: number
+}
+
+// Assignment result
+export interface BudgetAssignmentResult {
+    budgetId: string
+    assignedCount: number
+    totalAmount: number
+    skippedCount: number
+    conflicts: ExpenseConflict[]
+}
+
+// Expense conflict details
+export interface ExpenseConflict {
+    expenseId: string
+    description: string
+    amount: number
+    currentBudgetId: string
+    currentBudgetName: string
 }
 
 // Budget summary for dashboards

@@ -6,7 +6,10 @@ import type {
     CreateBudgetData,
     UpdateBudgetData,
     BudgetStats,
-    BudgetFilters
+    BudgetFilters,
+    BudgetAssignmentPreview,
+    BudgetAssignmentResult,
+    ExpenseConflict
 } from '@/types/budget'
 
 const supabase = createClient()
@@ -14,9 +17,11 @@ const supabase = createClient()
 export class BudgetService {
     // Create budget
     static async create(budget: CreateBudgetData) {
+        const { assignToExisting, previewData, ...budgetData } = budget
+
         const { data, error } = await supabase
             .from('budgets')
-            .insert(budget)
+            .insert(budgetData)
             .select(`
                 *,
                 category:categories(id, name, color, icon)
@@ -24,7 +29,20 @@ export class BudgetService {
             .single()
 
         if (error) throw error
-        return data as BudgetWithDetails
+
+        const newBudget = data as BudgetWithDetails
+
+        // If assignToExisting is true, assign existing expenses to this budget
+        if (assignToExisting) {
+            await this.assignToExistingExpenses(
+                newBudget.id,
+                newBudget.category_id,
+                newBudget.period_start,
+                newBudget.period_end
+            )
+        }
+
+        return newBudget
     }
 
     // Get all budgets for current user
@@ -272,5 +290,113 @@ export class BudgetService {
         }
 
         return alerts
+    }
+
+    // Preview assignment for existing expenses
+    static async previewAssignment(categoryId: string, startDate: string, endDate: string): Promise<BudgetAssignmentPreview> {
+        const { data, error } = await supabase
+            .from('expenses')
+            .select('id, amount, budget_id')
+            .eq('category_id', categoryId)
+            .eq('type', 'expense')
+            .gte('date', startDate)
+            .lte('date', endDate)
+
+        if (error) throw error
+
+        const expenses = data || []
+        const unassignedExpenses = expenses.filter(exp => !exp.budget_id)
+        const conflictExpenses = expenses.filter(exp => exp.budget_id)
+
+        return {
+            matchingExpenses: unassignedExpenses.length,
+            totalAmount: unassignedExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+            hasConflicts: conflictExpenses.length > 0,
+            conflictCount: conflictExpenses.length
+        }
+    }
+
+    // Assign budget to existing expenses
+    static async assignToExistingExpenses(
+        budgetId: string,
+        categoryId: string,
+        startDate: string,
+        endDate: string
+    ): Promise<BudgetAssignmentResult> {
+        // Get existing expenses in this category and period
+        const { data: expenses, error: fetchError } = await supabase
+            .from('expenses')
+            .select(`
+                id, 
+                amount, 
+                description, 
+                budget_id,
+                budget:budgets(id, category:categories(name))
+            `)
+            .eq('category_id', categoryId)
+            .eq('type', 'expense')
+            .gte('date', startDate)
+            .lte('date', endDate)
+
+        if (fetchError) throw fetchError
+
+        const allExpenses = expenses || []
+        const unassignedExpenses = allExpenses.filter(exp => !exp.budget_id)
+        const conflictExpenses = allExpenses.filter(exp => exp.budget_id)
+
+        // Update unassigned expenses
+        let assignedCount = 0
+        let totalAmount = 0
+
+        if (unassignedExpenses.length > 0) {
+            const expenseIds = unassignedExpenses.map(exp => exp.id)
+
+            const { error: updateError } = await supabase
+                .from('expenses')
+                .update({ budget_id: budgetId })
+                .in('id', expenseIds)
+
+            if (updateError) throw updateError
+
+            assignedCount = unassignedExpenses.length
+            totalAmount = unassignedExpenses.reduce((sum, exp) => sum + exp.amount, 0)
+        }
+
+        // Prepare conflict details
+        const conflicts: ExpenseConflict[] = conflictExpenses.map(exp => ({
+            expenseId: exp.id,
+            description: exp.description,
+            amount: exp.amount,
+            currentBudgetId: exp.budget_id,
+            currentBudgetName: (exp.budget as any)?.category?.name || 'Unknown Budget'
+        }))
+
+        return {
+            budgetId,
+            assignedCount,
+            totalAmount,
+            skippedCount: conflictExpenses.length,
+            conflicts
+        }
+    }
+
+    // Get detailed expenses for a budget (helper method)
+    static async getBudgetExpenses(budgetId: string) {
+        const { data, error } = await supabase
+            .from('expenses')
+            .select(`
+                id,
+                amount,
+                description,
+                date,
+                merchant,
+                category:categories(name, icon, color)
+            `)
+            .eq('budget_id', budgetId)
+            .eq('type', 'expense')
+            .order('date', { ascending: false })
+
+        if (error) throw error
+        return data || []
     }
 } 

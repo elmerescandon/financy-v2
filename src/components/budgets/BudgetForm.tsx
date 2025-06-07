@@ -11,9 +11,10 @@ import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cn } from '@/lib/utils'
+import { cn, formatCurrency } from '@/lib/utils'
 import type { CategoryWithSubcategories } from '@/types/category'
-import type { BudgetInsight, CreateBudgetData, BudgetPeriod } from '@/types/budget'
+import type { BudgetInsight, CreateBudgetData, BudgetPeriod, BudgetAssignmentPreview } from '@/types/budget'
+import { useBudgetContext } from '@/lib/context/BudgetContext'
 
 interface BudgetFormProps {
     categories: CategoryWithSubcategories[]
@@ -23,14 +24,18 @@ interface BudgetFormProps {
 }
 
 export default function BudgetForm({ categories, initialData, onSubmit, onCancel }: BudgetFormProps) {
+    const { previewAssignment } = useBudgetContext()
+
     const [formData, setFormData] = useState<CreateBudgetData>({
+        user_id: '', // Will be set by service
         category_id: initialData?.category_id || '',
         amount: initialData?.budget_amount || 0,
         period_start: initialData?.period_start || '',
         period_end: initialData?.period_end || '',
         allocation_percentage: initialData?.allocation_percentage || undefined,
         priority: 5,
-        rollover_amount: initialData?.rollover_amount || 0
+        rollover_amount: initialData?.rollover_amount || 0,
+        assignToExisting: false
     })
 
     const [period, setPeriod] = useState<BudgetPeriod>('monthly')
@@ -41,6 +46,8 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
         initialData?.period_end ? new Date(initialData.period_end) : undefined
     )
     const [isLoading, setIsLoading] = useState(false)
+    const [previewData, setPreviewData] = useState<BudgetAssignmentPreview | null>(null)
+    const [loadingPreview, setLoadingPreview] = useState(false)
 
     // Update dates when period changes
     useEffect(() => {
@@ -94,6 +101,29 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
                 ...prev,
                 period_end: date.toISOString().split('T')[0]
             }))
+        }
+    }
+
+    // Load preview when category and dates change
+    useEffect(() => {
+        if (formData.category_id && formData.period_start && formData.period_end) {
+            loadPreview()
+        }
+    }, [formData.category_id, formData.period_start, formData.period_end])
+
+    const loadPreview = async () => {
+        if (!formData.category_id || !formData.period_start || !formData.period_end) return
+
+        try {
+            setLoadingPreview(true)
+            const preview = await previewAssignment(formData.category_id, formData.period_start, formData.period_end)
+            setPreviewData(preview)
+            setFormData(prev => ({ ...prev, previewData: preview }))
+        } catch (error) {
+            console.error('Error loading preview:', error)
+            setPreviewData(null)
+        } finally {
+            setLoadingPreview(false)
         }
     }
 
@@ -291,6 +321,54 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
                             placeholder="0.00"
                         />
                     </div>
+
+                    {/* Assignment to Existing Expenses */}
+                    {previewData && previewData.matchingExpenses > 0 && (
+                        <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="assignToExisting"
+                                    checked={formData.assignToExisting}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        assignToExisting: e.target.checked
+                                    }))}
+                                    className="h-4 w-4 rounded border-gray-300"
+                                />
+                                <Label htmlFor="assignToExisting" className="font-medium">
+                                    Asignar a gastos existentes
+                                </Label>
+                            </div>
+
+                            {loadingPreview ? (
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                                    Cargando gastos...
+                                </div>
+                            ) : (
+                                <div className="text-sm text-muted-foreground space-y-1">
+                                    <p>
+                                        Se encontraron <strong>{previewData.matchingExpenses}</strong> gastos sin presupuesto asignado
+                                        por un total de <strong>{formatCurrency(previewData.totalAmount)}</strong>
+                                    </p>
+                                    {previewData.hasConflicts && (
+                                        <p className="text-yellow-600">
+                                            ⚠️ {previewData.conflictCount} gastos ya tienen presupuesto asignado y serán omitidos
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {previewData && previewData.matchingExpenses === 0 && (
+                        <div className="p-4 border rounded-lg bg-muted/50">
+                            <p className="text-sm text-muted-foreground">
+                                No se encontraron gastos sin asignar para esta categoría y período
+                            </p>
+                        </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex gap-2 justify-end">

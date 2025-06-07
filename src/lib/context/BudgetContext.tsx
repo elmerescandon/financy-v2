@@ -9,7 +9,9 @@ import type {
     CreateBudgetData,
     UpdateBudgetData,
     BudgetStats,
-    BudgetFilters
+    BudgetFilters,
+    BudgetAssignmentPreview,
+    BudgetAssignmentResult
 } from '@/types/budget'
 import type { CategoryWithSubcategories } from '@/types/category'
 import { createClient } from '../supabase/client'
@@ -34,6 +36,8 @@ interface BudgetContextType {
         severity: 'low' | 'medium' | 'high'
     }>>
     applyFilters: (filters: BudgetFilters) => Promise<void>
+    previewAssignment: (categoryId: string, startDate: string, endDate: string) => Promise<BudgetAssignmentPreview>
+    getBudgetExpenses: (budgetId: string) => Promise<any[]>
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined)
@@ -164,6 +168,22 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
         await fetchBudgets()
     }
 
+    const previewAssignment = async (categoryId: string, startDate: string, endDate: string): Promise<BudgetAssignmentPreview> => {
+        try {
+            return await BudgetService.previewAssignment(categoryId, startDate, endDate)
+        } catch (err) {
+            throw new Error(err instanceof Error ? err.message : 'Error al obtener vista previa de asignación')
+        }
+    }
+
+    const getBudgetExpenses = async (budgetId: string) => {
+        try {
+            return await BudgetService.getBudgetExpenses(budgetId)
+        } catch (err) {
+            throw new Error(err instanceof Error ? err.message : 'Error al obtener gastos del presupuesto')
+        }
+    }
+
     useEffect(() => {
         fetchBudgets()
     }, [])
@@ -183,7 +203,9 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
             getActiveBudgets,
             getBudgetsByCategory,
             getBudgetAlerts,
-            applyFilters
+            applyFilters,
+            previewAssignment,
+            getBudgetExpenses
         }}>
             {children}
         </BudgetContext.Provider>
