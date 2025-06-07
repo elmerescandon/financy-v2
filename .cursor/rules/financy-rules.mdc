@@ -1,3 +1,8 @@
+---
+description: Use this rule each time you want to know information about the project, workflows, tables, components, API, functionalities, etc. Mostly recommended when you are asked to complete a development task, so use it frequently.
+globs: 
+alwaysApply: false
+---
 # Financy v2 - Personal Finance Tracker
 
 A comprehensive expense tracking application with intelligent automation features including iPhone Shortcuts integration and email-based transaction parsing.
