@@ -1,0 +1,254 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Plus, TrendingUp, TrendingDown, AlertTriangle, PieChart } from 'lucide-react'
+import { toast } from 'sonner'
+import { formatCurrency } from '@/lib/utils'
+import BudgetCard from '../../../components/budgets/BudgetCard'
+import BudgetForm from '@/components/budgets/BudgetForm'
+import { CategoryService } from '@/lib/supabase/categories'
+import { BudgetService } from '@/lib/supabase/budgets'
+import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
+import type { CategoryWithSubcategories } from '@/types/category'
+
+export default function PresupuestoPage() {
+    const [budgets, setBudgets] = useState<BudgetInsight[]>([])
+    const [categories, setCategories] = useState<CategoryWithSubcategories[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [isCreating, setIsCreating] = useState(false)
+    const [editingBudget, setEditingBudget] = useState<BudgetInsight | null>(null)
+    const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null)
+    const [showForm, setShowForm] = useState(false)
+
+    // Load data
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    const loadData = async () => {
+        try {
+            setIsLoading(true)
+            const [budgetsData, categoriesData] = await Promise.all([
+                BudgetService.getInsights(),
+                CategoryService.getAll()
+            ])
+
+            setBudgets(budgetsData)
+            setCategories(categoriesData)
+        } catch (error) {
+            console.error('Error loading data:', error)
+            toast.error('Error al cargar los datos')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleCreateBudget = async (data: CreateBudgetData) => {
+        try {
+            setIsCreating(true)
+            await BudgetService.create(data)
+            toast.success('Presupuesto creado exitosamente')
+            setShowForm(false)
+            await loadData()
+        } catch (error) {
+            console.error('Error creating budget:', error)
+            toast.error('Error al crear presupuesto')
+        } finally {
+            setIsCreating(false)
+        }
+    }
+
+    const handleEditBudget = async (data: CreateBudgetData) => {
+        if (!editingBudget) return
+
+        try {
+            await BudgetService.update(editingBudget.id, data)
+            toast.success('Presupuesto actualizado exitosamente')
+            setEditingBudget(null)
+            setShowForm(false)
+            await loadData()
+        } catch (error) {
+            console.error('Error updating budget:', error)
+            toast.error('Error al actualizar presupuesto')
+        }
+    }
+
+    const handleDeleteBudget = async (id: string) => {
+        try {
+            await BudgetService.delete(id)
+            toast.success('Presupuesto eliminado exitosamente')
+            setDeletingBudgetId(null)
+            await loadData()
+        } catch (error) {
+            console.error('Error deleting budget:', error)
+            toast.error('Error al eliminar presupuesto')
+        }
+    }
+
+    // Calculate summary stats
+    const totalBudget = budgets.reduce((sum, budget) => sum + budget.budget_amount, 0)
+    const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent_amount, 0)
+    const totalRemaining = totalBudget - totalSpent
+    const overBudgetCount = budgets.filter(b => b.spent_amount > b.budget_amount).length
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Cargando presupuestos...</p>
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className="container mx-auto p-6 space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold">Presupuestos</h1>
+                    <p className="text-muted-foreground">
+                        Gestiona tus presupuestos y controla tus gastos
+                    </p>
+                </div>
+                <Sheet open={showForm} onOpenChange={setShowForm}>
+                    <SheetTrigger asChild>
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nuevo Presupuesto
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto">
+                        <BudgetForm
+                            categories={categories}
+                            initialData={editingBudget}
+                            onSubmit={editingBudget ? handleEditBudget : handleCreateBudget}
+                            onCancel={() => {
+                                setShowForm(false)
+                                setEditingBudget(null)
+                            }}
+                        />
+                    </SheetContent>
+                </Sheet>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Presupuesto Total</CardTitle>
+                        <PieChart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(totalBudget)}</div>
+                        <p className="text-xs text-muted-foreground">
+                            {budgets.length} presupuestos activos
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Gastado</CardTitle>
+                        <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(totalSpent)}</div>
+                        <p className="text-xs text-muted-foreground">
+                            {totalBudget > 0 ? ((totalSpent / totalBudget) * 100).toFixed(1) : 0}% del presupuesto
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Restante</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className={`text-2xl font-bold ${totalRemaining < 0 ? 'text-destructive' : 'text-green-600'}`}>
+                            {formatCurrency(Math.abs(totalRemaining))}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {totalRemaining < 0 ? 'Excedido' : 'Disponible'}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Alertas</CardTitle>
+                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{overBudgetCount}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Presupuestos excedidos
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Budget Grid */}
+            {budgets.length === 0 ? (
+                <Card className="p-8">
+                    <div className="text-center">
+                        <PieChart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No hay presupuestos</h3>
+                        <p className="text-muted-foreground mb-4">
+                            Crea tu primer presupuesto para comenzar a controlar tus gastos
+                        </p>
+                        <Button onClick={() => setShowForm(true)}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Crear Presupuesto
+                        </Button>
+                    </div>
+                </Card>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {budgets.map((budget) => (
+                        <BudgetCard
+                            key={budget.id}
+                            budget={budget}
+                            onEdit={(budget: BudgetInsight) => {
+                                setEditingBudget(budget)
+                                setShowForm(true)
+                            }}
+                            onDelete={(id: string) => setDeletingBudgetId(id)}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog
+                open={!!deletingBudgetId}
+                onOpenChange={() => setDeletingBudgetId(null)}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Eliminar presupuesto?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción no se puede deshacer. El presupuesto será eliminado permanentemente.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => deletingBudgetId && handleDeleteBudget(deletingBudgetId)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Eliminar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    )
+} 

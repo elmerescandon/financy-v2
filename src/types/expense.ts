@@ -8,6 +8,7 @@ export interface Expense extends UserOwnedEntity {
     date: string // ISO date string (YYYY-MM-DD)
     category_id: string | null
     subcategory_id: string | null
+    budget_id: string | null
     merchant: string | null
     payment_method: PaymentMethod
     notes: string | null
@@ -28,6 +29,7 @@ export interface CreateExpenseData {
     date: string
     category_id?: string | null
     subcategory_id?: string | null
+    budget_id?: string | null
     merchant?: string | null
     payment_method?: PaymentMethod
     notes?: string | null
@@ -43,6 +45,7 @@ export interface UpdateExpenseData {
     date?: string
     category_id?: string | null
     subcategory_id?: string | null
+    budget_id?: string | null
     merchant?: string | null
     payment_method?: PaymentMethod
     notes?: string | null

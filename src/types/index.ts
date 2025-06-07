@@ -5,6 +5,7 @@ export * from './shared'
 export * from './category'
 export * from './subcategory'
 export * from './expense'
+export * from './budget'
 
 // Type guards for runtime type checking
 export function isCategory(obj: any): obj is import('./category').Category {

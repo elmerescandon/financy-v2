@@ -83,6 +83,7 @@ export const CreateExpenseSchema = z.object({
     date: DateSchema,
     category_id: UUIDSchema.optional(),
     subcategory_id: UUIDSchema.optional(),
+    budget_id: UUIDSchema.optional(),
     merchant: z.string()
         .max(VALIDATION_CONSTRAINTS.MERCHANT_MAX_LENGTH,
             `Merchant must be ${VALIDATION_CONSTRAINTS.MERCHANT_MAX_LENGTH} characters or less`)
@@ -128,6 +129,42 @@ export const BulkExpenseOperationSchema = z.object({
     expense_ids: z.array(UUIDSchema).min(1, 'At least one expense ID is required'),
     data: UpdateExpenseSchema.optional(),
 })
+
+// Budget validation schemas
+export const CreateBudgetSchema = z.object({
+    category_id: UUIDSchema,
+    amount: z.number()
+        .min(VALIDATION_CONSTRAINTS.AMOUNT_MIN, `Amount must be at least ${VALIDATION_CONSTRAINTS.AMOUNT_MIN}`)
+        .max(VALIDATION_CONSTRAINTS.AMOUNT_MAX, `Amount must be at most ${VALIDATION_CONSTRAINTS.AMOUNT_MAX}`),
+    period_start: DateSchema,
+    period_end: DateSchema,
+    rollover_amount: z.number()
+        .min(0, 'Rollover amount cannot be negative')
+        .default(0),
+    allocation_percentage: z.number()
+        .min(0, 'Allocation percentage must be at least 0')
+        .max(100, 'Allocation percentage cannot exceed 100')
+        .optional(),
+    priority: z.number()
+        .min(1, 'Priority must be at least 1')
+        .max(10, 'Priority cannot exceed 10')
+        .default(5),
+})
+
+export const UpdateBudgetSchema = CreateBudgetSchema.partial()
+
+export const BudgetFiltersSchema = z.object({
+    category_id: UUIDSchema.optional(),
+    category_ids: z.array(UUIDSchema).optional(),
+    period_start: DateSchema.optional(),
+    period_end: DateSchema.optional(),
+    is_active: z.coerce.boolean().optional(),
+    is_over_budget: z.coerce.boolean().optional(),
+    priority_min: z.coerce.number().min(1).max(10).optional(),
+    priority_max: z.coerce.number().min(1).max(10).optional(),
+    sort: z.enum(['category_name', 'amount', 'spent_amount', 'remaining_amount', 'spent_percentage', 'period_start', 'period_end', 'priority', 'created_at']).default('category_name'),
+    order: SortDirectionSchema,
+}).merge(PaginationSchema)
 
 // Integration schemas
 export const iPhoneShortcutExpenseSchema = z.object({
