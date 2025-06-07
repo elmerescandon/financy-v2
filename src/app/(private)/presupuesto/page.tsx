@@ -97,28 +97,53 @@ export default function PresupuestoPage() {
                         Gestiona tus presupuestos y controla tus gastos
                     </p>
                 </div>
-                <Sheet open={showForm} onOpenChange={setShowForm}>
-                    <SheetTrigger asChild>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Nuevo Presupuesto
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto">
-                        <SheetHeader>
-                            <SheetTitle>Nuevo Presupuesto</SheetTitle>
-                        </SheetHeader>
-                        <BudgetForm
-                            categories={categories}
-                            initialData={editingBudget}
-                            onSubmit={editingBudget ? handleEditBudget : handleCreateBudget}
-                            onCancel={() => {
-                                setShowForm(false)
-                                setEditingBudget(null)
-                            }}
-                        />
-                    </SheetContent>
-                </Sheet>
+                <div className="flex gap-3">
+                    {/* Smart Budget Wizard */}
+                    <Sheet open={showWizard} onOpenChange={setShowWizard}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100">
+                                <Sparkles className="mr-2 h-4 w-4 text-blue-600" />
+                                Asistente Inteligente
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent className="w-full max-w-6xl sm:max-w-6xl overflow-y-auto p-0">
+                            <div className="p-6">
+                                <SmartBudgetWizard
+                                    onComplete={() => {
+                                        setShowWizard(false)
+                                        refreshBudgets() // Refresh to show new budgets
+                                        toast.success('¡Presupuestos inteligentes creados exitosamente!')
+                                    }}
+                                    onCancel={() => setShowWizard(false)}
+                                />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+
+                    {/* Regular Budget Form */}
+                    <Sheet open={showForm} onOpenChange={setShowForm}>
+                        <SheetTrigger asChild>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Nuevo Presupuesto
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto">
+                            <SheetHeader>
+                                <SheetTitle>Nuevo Presupuesto</SheetTitle>
+                            </SheetHeader>
+                            <BudgetForm
+                                categories={categories}
+                                initialData={editingBudget}
+                                onSubmit={editingBudget ? handleEditBudget : handleCreateBudget}
+                                onCancel={() => {
+                                    setShowForm(false)
+                                    setEditingBudget(null)
+                                }}
+                            />
+                        </SheetContent>
+                    </Sheet>
+                </div>
             </div>
 
             {/* Summary Cards */}
