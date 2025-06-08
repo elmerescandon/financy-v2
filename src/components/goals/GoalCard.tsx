@@ -66,7 +66,7 @@ export function GoalCard({ goal, onEdit, onDelete, onAddEntry }: GoalCardProps) 
     }
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('es-ES', {
+        return new Date(dateString).toLocaleDateString('es-PE', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'

@@ -106,7 +106,9 @@ export default function PresupuestoPage() {
                                 Asistente Inteligente
                             </Button>
                         </SheetTrigger>
+
                         <SheetContent className="w-full max-w-6xl sm:max-w-6xl overflow-y-auto p-0">
+                            <SheetTitle className='hidden'>Asistente Inteligente</SheetTitle>
                             <div className="p-6">
                                 <SmartBudgetWizard
                                     onComplete={() => {

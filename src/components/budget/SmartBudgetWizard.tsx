@@ -307,39 +307,37 @@ export default function SmartBudgetWizard({ onComplete, onCancel }: SmartBudgetW
             </Card>
 
             {/* Navigation */}
-            <Card>
-                <CardContent className="flex justify-between items-center p-4">
-                    <Button
-                        variant="outline"
-                        onClick={handleBack}
-                        disabled={currentStep === 1}
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back
+            <div className="flex justify-between items-center p-4">
+                <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                </Button>
+
+                <div className="flex gap-2">
+                    {STEPS.map((step) => (
+                        <div
+                            key={step.id}
+                            className={`w-2 h-2 rounded-full ${step.id <= currentStep ? 'bg-primary' : 'bg-muted'
+                                }`}
+                        />
+                    ))}
+                </div>
+
+                {currentStep < 5 ? (
+                    <Button onClick={handleNext} disabled={loading}>
+                        Next
+                        <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-
-                    <div className="flex gap-2">
-                        {STEPS.map((step) => (
-                            <div
-                                key={step.id}
-                                className={`w-2 h-2 rounded-full ${step.id <= currentStep ? 'bg-primary' : 'bg-muted'
-                                    }`}
-                            />
-                        ))}
-                    </div>
-
-                    {currentStep < 5 ? (
-                        <Button onClick={handleNext} disabled={loading}>
-                            Next
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                    ) : (
-                        <Button onClick={handleComplete} disabled={loading}>
-                            {loading ? 'Creating...' : 'Create Budgets'}
-                        </Button>
-                    )}
-                </CardContent>
-            </Card>
+                ) : (
+                    <Button onClick={handleComplete} disabled={loading}>
+                        {loading ? 'Creating...' : 'Create Budgets'}
+                    </Button>
+                )}
+            </div>
         </div>
     )
 } 

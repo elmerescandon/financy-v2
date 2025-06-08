@@ -22,9 +22,9 @@ interface ConflictResolutionStepProps {
 
 export default function ConflictResolutionStep({ conflicts, onConflictsChange }: ConflictResolutionStepProps) {
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('es-PE', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'PEN',
         }).format(amount)
     }
 

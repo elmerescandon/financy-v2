@@ -34,6 +34,8 @@ export interface UpdateBudgetData {
     rollover_amount?: number
     allocation_percentage?: number
     priority?: number
+    assignToExisting?: boolean
+    previewData?: BudgetAssignmentPreview
 }
 
 // Budget with category information

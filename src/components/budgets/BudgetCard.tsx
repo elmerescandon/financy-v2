@@ -67,11 +67,11 @@ export default function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps
                         <div>
                             <CardTitle className="text-lg">{budget.category_name}</CardTitle>
                             <p className="text-sm text-muted-foreground">
-                                {new Date(Number(startDate[0]), Number(startDate[1]) - 1, Number(startDate[2])).toLocaleDateString('es-ES', {
+                                {new Date(Number(startDate[0]), Number(startDate[1]) - 1, Number(startDate[2])).toLocaleDateString('es-PE', {
                                     day: '2-digit',
                                     month: '2-digit',
                                     year: '2-digit'
-                                })} - {new Date(Number(endDate[0]), Number(endDate[1]) - 1, Number(endDate[2])).toLocaleDateString('es-ES', {
+                                })} - {new Date(Number(endDate[0]), Number(endDate[1]) - 1, Number(endDate[2])).toLocaleDateString('es-PE', {
                                     day: '2-digit',
                                     month: '2-digit',
                                     year: '2-digit'

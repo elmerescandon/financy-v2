@@ -78,9 +78,14 @@ export class BudgetService {
 
     // Update budget
     static async update(id: string, updates: Partial<UpdateBudgetData>) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Usuario no autenticado')
+
+        const { assignToExisting, previewData, ...budgetData } = updates
+        console.log(budgetData)
         const { data, error } = await supabase
             .from('budgets')
-            .update(updates)
+            .update({ ...budgetData, user_id: user.id })
             .eq('id', id)
             .select(`
                 *,

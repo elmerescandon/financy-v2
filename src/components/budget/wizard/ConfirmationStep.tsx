@@ -40,9 +40,9 @@ interface ConfirmationStepProps {
 
 export default function ConfirmationStep({ allocations, conflicts, summary }: ConfirmationStepProps) {
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('es-PE', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'PEN',
         }).format(amount)
     }
 

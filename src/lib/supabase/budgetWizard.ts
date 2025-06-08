@@ -1,4 +1,3 @@
-import { createClient } from './client'
 import {
     FinancialSummary,
     SpendingInsights,
@@ -12,8 +11,12 @@ import {
     MINIMUM_SPENDING_THRESHOLD
 } from '@/types/budgetWizard'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
-
-const supabase = createClient()
+import { IncomeService } from './incomes'
+import { ExpenseService } from './expenses'
+import { CategoryService } from './categories'
+import { BudgetService } from './budgets'
+import { GoalService } from './goals'
+import { createClient } from './client'
 
 export async function getFinancialSummary(
     userId: string,
@@ -21,31 +24,20 @@ export async function getFinancialSummary(
     year?: number
 ): Promise<FinancialSummary> {
     const targetDate = new Date(year || new Date().getFullYear(), (month || new Date().getMonth()), 1)
-    const startDate = startOfMonth(targetDate)
-    const endDate = endOfMonth(targetDate)
+    const startDate = format(startOfMonth(targetDate), 'yyyy-MM-dd')
+    const endDate = format(endOfMonth(targetDate), 'yyyy-MM-dd')
 
-    // Get current month income
-    const { data: incomes, error: incomeError } = await supabase
-        .from('incomes')
-        .select('amount')
-        .eq('user_id', userId)
-        .gte('date', format(startDate, 'yyyy-MM-dd'))
-        .lte('date', format(endDate, 'yyyy-MM-dd'))
+    // Get current month income using existing service
+    const incomes = await IncomeService.getByDateRange(startDate, endDate)
+    const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0)
 
-    if (incomeError) throw incomeError
-
-    // Get current month goal savings
-    const { data: goalEntries, error: goalError } = await supabase
-        .from('goal_entries')
-        .select('amount, goals!inner(user_id)')
-        .eq('goals.user_id', userId)
-        .gte('date', format(startDate, 'yyyy-MM-dd'))
-        .lte('date', format(endDate, 'yyyy-MM-dd'))
-
-    if (goalError) throw goalError
-
-    const totalIncome = incomes?.reduce((sum, income) => sum + income.amount, 0) || 0
-    const goalSavings = goalEntries?.reduce((sum, entry) => sum + entry.amount, 0) || 0
+    // Get current month goal savings using existing service
+    const goals = await GoalService.getGoals()
+    const goalSavings = goals.reduce((sum, goal) => {
+        return sum + goal.recent_entries
+            .filter(entry => entry.date >= startDate && entry.date <= endDate)
+            .reduce((entrySum, entry) => entrySum + entry.amount, 0)
+    }, 0)
 
     return {
         totalIncome,
@@ -65,39 +57,27 @@ export async function getSpendingInsights(
     const lastMonth = subMonths(currentDate, 1)
     const quarterStart = subMonths(currentDate, 3)
 
-    // Get last month spending
-    const { data: lastMonthExpenses, error: lastMonthError } = await supabase
-        .from('expenses')
-        .select(`
-            amount,
-            categories!inner(id, name, icon, color)
-        `)
-        .eq('user_id', userId)
-        .gte('date', format(startOfMonth(lastMonth), 'yyyy-MM-dd'))
-        .lte('date', format(endOfMonth(lastMonth), 'yyyy-MM-dd'))
+    // Get last month spending using existing service
+    const lastMonthExpenses = await ExpenseService.getByDateRange(
+        format(startOfMonth(lastMonth), 'yyyy-MM-dd'),
+        format(endOfMonth(lastMonth), 'yyyy-MM-dd')
+    )
 
-    if (lastMonthError) throw lastMonthError
-
-    // Get quarter spending
-    const { data: quarterExpenses, error: quarterError } = await supabase
-        .from('expenses')
-        .select(`
-            amount,
-            categories!inner(id, name, icon, color)
-        `)
-        .eq('user_id', userId)
-        .gte('date', format(quarterStart, 'yyyy-MM-dd'))
-        .lt('date', format(currentDate, 'yyyy-MM-dd'))
-
-    if (quarterError) throw quarterError
+    // Get quarter spending using existing service
+    const quarterExpenses = await ExpenseService.getByDateRange(
+        format(quarterStart, 'yyyy-MM-dd'),
+        format(subMonths(currentDate, 1), 'yyyy-MM-dd') // Up to last month
+    )
 
     // Process last month data
     const lastMonthByCategory = new Map<string, CategorySpending>()
     let totalLastMonth = 0
 
-    lastMonthExpenses?.forEach((expense: any) => {
-        const category = expense.categories
+    lastMonthExpenses.forEach(expense => {
+        const category = expense.category
         totalLastMonth += expense.amount
+
+        if (!category) return
 
         const existing = lastMonthByCategory.get(category.id) || {
             categoryId: category.id,
@@ -124,8 +104,10 @@ export async function getSpendingInsights(
     let totalQuarter = 0
 
     quarterExpenses?.forEach(expense => {
-        const category = expense.categories
+        const category = expense.category
         totalQuarter += expense.amount
+
+        if (!category) return
 
         const existing = quarterByCategory.get(category.id) || {
             categoryId: category.id,
@@ -181,23 +163,19 @@ export async function getSpendingInsights(
 export async function getEligibleCategories(userId: string): Promise<EligibleCategory[]> {
     const threeMonthsAgo = subMonths(new Date(), 3)
 
-    // Get categories with recent spending
-    const { data: categorySpending, error } = await supabase
-        .from('expenses')
-        .select(`
-            amount,
-            categories!inner(id, name, icon, color)
-        `)
-        .eq('user_id', userId)
-        .gte('date', format(threeMonthsAgo, 'yyyy-MM-dd'))
-
-    if (error) throw error
+    // Get categories with recent spending (exclude income)
+    const categorySpending = await ExpenseService.getByDateRange(
+        format(threeMonthsAgo, 'yyyy-MM-dd'),
+        format(new Date(), 'yyyy-MM-dd')
+    )
 
     // Process spending by category
     const spendingByCategory = new Map<string, EligibleCategory>()
 
     categorySpending?.forEach(expense => {
-        const category = expense.categories
+        const category = expense.category
+
+        if (!category) return
         const existing = spendingByCategory.get(category.id) || {
             id: category.id,
             name: category.name,
@@ -236,6 +214,8 @@ export async function detectBudgetConflicts(
     const startDate = startOfMonth(targetDate)
     const endDate = endOfMonth(targetDate)
 
+    const supabase = createClient()
+
     const { data: existingBudgets, error } = await supabase
         .from('budgets')
         .select('id, category_id, amount, period_start, period_end, categories!inner(name)')
@@ -247,7 +227,7 @@ export async function detectBudgetConflicts(
 
     return existingBudgets?.map(budget => ({
         categoryId: budget.category_id,
-        categoryName: budget.categories.name,
+        categoryName: budget.categories[0].name,
         existingAmount: budget.amount,
         existingPeriodStart: budget.period_start,
         existingPeriodEnd: budget.period_end,
@@ -272,12 +252,7 @@ export async function generateBudgets(
     for (const conflict of conflicts) {
         if (conflict.action === 'replace') {
             // Delete existing budget
-            const { error } = await supabase
-                .from('budgets')
-                .delete()
-                .eq('id', conflict.budgetId)
-
-            if (error) throw error
+            await BudgetService.delete(conflict.budgetId)
         }
     }
 
@@ -296,11 +271,10 @@ export async function generateBudgets(
         }))
 
     if (budgetsToCreate.length > 0) {
-        const { error } = await supabase
-            .from('budgets')
-            .insert(budgetsToCreate)
-
-        if (error) throw error
+        await Promise.all(budgetsToCreate.map(async budget => {
+            const createdBudget = await BudgetService.create(budget)
+            await BudgetService.assignToExistingExpenses(createdBudget.id, budget.category_id, periodStart, periodEnd)
+        }))
     }
 }
 
