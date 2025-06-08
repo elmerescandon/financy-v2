@@ -1,18 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
-import { Plus, TrendingUp, TrendingDown, AlertTriangle, PieChart, Sparkles } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, DollarSign, PieChart, Sparkles, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/lib/utils'
 import BudgetCard from '../../../components/budgets/BudgetCard'
 import BudgetForm from '@/components/budgets/BudgetForm'
 import SmartBudgetWizard from '@/components/budget/SmartBudgetWizard'
 import { useBudgetContext } from '@/lib/context/BudgetContext'
+import { IncomeService } from '@/lib/supabase/incomes'
+import { GoalService } from '@/lib/supabase/goals'
 import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
 
 export default function PresupuestoPage() {
@@ -32,6 +34,7 @@ export default function PresupuestoPage() {
     const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null)
     const [showForm, setShowForm] = useState(false)
     const [showWizard, setShowWizard] = useState(false)
+    const [unbudgetedIncome, setUnbudgetedIncome] = useState<number>(0)
 
     const handleCreateBudget = async (data: CreateBudgetData) => {
         try {
@@ -75,6 +78,39 @@ export default function PresupuestoPage() {
     const totalSpent = stats?.total_spent || budgets.reduce((sum, budget) => sum + budget.spent_amount, 0)
     const totalRemaining = stats?.total_remaining || (totalBudget - totalSpent)
     const overBudgetCount = stats?.over_budget_count || budgets.filter(b => b.spent_amount > b.budget_amount).length
+
+    // Calculate unbudgeted income (total income - goal savings - total budget allocation)
+    useEffect(() => {
+        const calculateUnbudgetedIncome = async () => {
+            try {
+                const currentDate = new Date()
+                const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+                const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+                const startDate = startOfMonth.toISOString().split('T')[0]
+                const endDate = endOfMonth.toISOString().split('T')[0]
+
+                // Get current month income
+                const incomeStats = await IncomeService.getStats(startDate, endDate)
+
+                // Get current month goal savings
+                const goals = await GoalService.getGoals()
+                const goalSavings = goals.reduce((sum, goal) => {
+                    return sum + goal.recent_entries
+                        .filter(entry => entry.date >= startDate && entry.date <= endDate)
+                        .reduce((entrySum, entry) => entrySum + entry.amount, 0)
+                }, 0)
+
+                // Unbudgeted income = total income - goal savings - total budget
+                const unbudgeted = incomeStats.total_amount - goalSavings - totalBudget
+                setUnbudgetedIncome(Math.max(0, unbudgeted))
+            } catch (error) {
+                console.error('Error calculating unbudgeted income:', error)
+                setUnbudgetedIncome(0)
+            }
+        }
+
+        calculateUnbudgetedIncome()
+    }, [totalBudget])
 
     if (loading) {
         return (
@@ -178,7 +214,7 @@ export default function PresupuestoPage() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Restante</CardTitle>
+                        <CardTitle className="text-sm font-medium">Presupuesto Disponible</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -193,13 +229,13 @@ export default function PresupuestoPage() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Alertas</CardTitle>
-                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Ingresos No Presupuestados</CardTitle>
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{overBudgetCount}</div>
+                        <div className="text-2xl font-bold text-blue-600">{formatCurrency(unbudgetedIncome)}</div>
                         <p className="text-xs text-muted-foreground">
-                            Presupuestos excedidos
+                            Sin asignar a presupuesto
                         </p>
                     </CardContent>
                 </Card>
