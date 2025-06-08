@@ -100,7 +100,7 @@ export function GoalCard({ goal, onEdit, onDelete, onAddEntry }: GoalCardProps) 
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className={getStatusColor()}>
+                    <Badge variant="default" className={getStatusColor()}>
                         {getStatusText()}
                     </Badge>
                     {goal.progress.days_remaining !== null && (

@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { Edit, MoreHorizontal, Trash2, AlertTriangle } from 'lucide-react'
+import { Edit, MoreHorizontal, Trash2, AlertTriangle, CheckCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { BudgetInsight } from '@/types/budget'
 
@@ -22,7 +22,8 @@ interface BudgetCardProps {
 
 export default function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
     const isOverBudget = budget.spent_amount > budget.budget_amount
-    const isNearLimit = budget.spent_percentage >= 80 && !isOverBudget
+    const isReachedLimit = budget.spent_amount === budget.budget_amount
+    const isNearLimit = budget.spent_percentage >= 80 && !isOverBudget && !isReachedLimit
 
     const startDate = budget.period_start.split('-')
     const endDate = budget.period_end.split('-')
@@ -41,12 +42,18 @@ export default function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps
                     Excedido
                 </Badge>
             )
-        }
-        if (isNearLimit) {
+        } else if (isNearLimit) {
             return (
                 <Badge variant="secondary" className="gap-1 bg-yellow-100 text-yellow-800">
                     <AlertTriangle className="w-3 h-3" />
                     Cerca del límite
+                </Badge>
+            )
+        } else if (isReachedLimit) {
+            return (
+                <Badge variant="default" className="gap-1 bg-green-100 text-green-800">
+                    <CheckCircle className="w-3 h-3" />
+                    Límite alcanzado
                 </Badge>
             )
         }
