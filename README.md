@@ -86,6 +86,18 @@ Goal-oriented savings tracking:
 - `category_id` (UUID, FK): Optional category link
 - `budget_id` (UUID, FK): Optional budget link
 
+#### `goal_entries`
+
+Individual contributions to savings goals:
+
+- `id` (UUID, PK): Unique identifier
+- `goal_id` (UUID, FK): References savings_goals
+- `amount` (DECIMAL): Contribution amount
+- `description` (TEXT): Entry description
+- `date` (DATE): Contribution date
+- `created_at` (TIMESTAMP): Entry creation timestamp
+- `updated_at` (TIMESTAMP): Last update timestamp
+
 ### Views
 
 #### `budget_insights`
@@ -109,6 +121,7 @@ Comprehensive budget analysis view combining:
 | expenses      | budget_id      | budgets       | id        | SET NULL    |
 | savings_goals | category_id    | categories    | id        | NO ACTION   |
 | savings_goals | budget_id      | budgets       | id        | NO ACTION   |
+| goal_entries  | goal_id        | savings_goals | id        | CASCADE     |
 
 **Key Relationships:**
 
@@ -117,6 +130,7 @@ Comprehensive budget analysis view combining:
 - Budgets are tied to specific categories
 - Expenses can be associated with budgets
 - Savings goals can link to categories or budgets (optional)
+- Goal entries track individual contributions to savings goals
 
 ### Database Indexes
 
@@ -130,6 +144,7 @@ Comprehensive budget analysis view combining:
 - **Data sources**: Index on `source` field for filtering by import method
 - **Type filtering**: Indexes on `type` and `recurring` fields for expense categorization
 - **Foreign key performance**: All FK columns indexed for join optimization
+- **Goal tracking**: Indexes on `goal_id`, `date`, and `created_at` for goal entry queries
 
 ## 📱 Key Features
 
