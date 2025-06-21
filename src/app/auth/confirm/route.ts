@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
         if (!error) {
             // Check if user has categories (indicates if they've completed onboarding)
             const { data: { user } } = await supabase.auth.getUser()
+            console.log('user', user)
             if (user) {
                 const { data: categories } = await supabase
                     .from('categories')
