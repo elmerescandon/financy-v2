@@ -58,15 +58,13 @@ export async function getSpendingInsights(
     const quarterStart = subMonths(currentDate, 3)
 
     // Get last month spending using existing service
-    const lastMonthExpenses = await ExpenseService.getByDateRange(
-        format(startOfMonth(lastMonth), 'yyyy-MM-dd'),
-        format(endOfMonth(lastMonth), 'yyyy-MM-dd')
+    const lastMonthExpenses = await ExpenseService.getAllFiltered(
+        { date_from: format(startOfMonth(lastMonth), 'yyyy-MM-dd'), date_to: format(endOfMonth(lastMonth), 'yyyy-MM-dd') }
     )
 
     // Get quarter spending using existing service
-    const quarterExpenses = await ExpenseService.getByDateRange(
-        format(quarterStart, 'yyyy-MM-dd'),
-        format(subMonths(currentDate, 1), 'yyyy-MM-dd') // Up to last month
+    const quarterExpenses = await ExpenseService.getAllFiltered(
+        { date_from: format(quarterStart, 'yyyy-MM-dd'), date_to: format(subMonths(currentDate, 1), 'yyyy-MM-dd') } // Up to last month
     )
 
     // Process last month data
@@ -164,9 +162,8 @@ export async function getEligibleCategories(userId: string): Promise<EligibleCat
     const threeMonthsAgo = subMonths(new Date(), 3)
 
     // Get categories with recent spending (exclude income)
-    const categorySpending = await ExpenseService.getByDateRange(
-        format(threeMonthsAgo, 'yyyy-MM-dd'),
-        format(new Date(), 'yyyy-MM-dd')
+    const categorySpending = await ExpenseService.getAllFiltered(
+        { date_from: format(threeMonthsAgo, 'yyyy-MM-dd'), date_to: format(new Date(), 'yyyy-MM-dd') }
     )
 
     // Process spending by category

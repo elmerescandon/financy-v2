@@ -27,6 +27,11 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
+    // Skip session refresh for email confirmation to prevent refresh token errors
+    if (request.nextUrl.pathname.startsWith('/auth/confirm')) {
+        return supabaseResponse
+    }
+
     // Do not run code between createServerClient and
     // supabase.auth.getUser(). A simple mistake could make it very hard to debug
     // issues with users being randomly logged out.

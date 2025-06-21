@@ -5,12 +5,35 @@ import { signup } from '@/app/login/actions'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { UserPlus, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { UserPlus, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
+import { useFormStatus } from 'react-dom'
 
 interface SignupProps {
     onSignupSuccess: (email: string) => void
 }
+
+function Submit() {
+    const { pending } = useFormStatus();
+    return (
+        <Button
+            type="submit"
+            className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0 cursor-pointer"
+            disabled={pending}
+        >
+            {pending ? (
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : (
+                <>
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Crear Cuenta
+                </>
+            )}
+
+        </Button>
+    );
+}
+
 
 export default function Signup({ onSignupSuccess }: SignupProps) {
     const [showPassword, setShowPassword] = useState(false)
@@ -89,23 +112,8 @@ export default function Signup({ onSignupSuccess }: SignupProps) {
                     </ul>
                 </div>
 
-                <Button
-                    type="submit"
-                    className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0 cursor-pointer"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                            <span>Creando Cuenta...</span>
-                        </div>
-                    ) : (
-                        <>
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Crear Cuenta
-                        </>
-                    )}
-                </Button>
+                <Submit />
+
             </form>
         </div>
     )
