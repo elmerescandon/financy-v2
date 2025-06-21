@@ -8,43 +8,28 @@ import { CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 import CategorySelection from '@/components/onboarding/CategorySelection'
 import SubcategorySetup from '@/components/onboarding/SubcategorySetup'
 import OnboardingComplete from '@/components/onboarding/OnboardingComplete'
+import { CategoryData } from '@/components/onboarding/types'
+import { defaultCategories } from '@/components/onboarding/constants'
 
 type OnboardingStep = 'categories' | 'subcategories' | 'complete'
 
-interface CategoryData {
-    id: string
-    name: string
-    icon: string
-    color: string
-    isSelected: boolean
-    subcategories: string[]
-}
 
 export default function OnboardingPage() {
+
     const [currentStep, setCurrentStep] = useState<OnboardingStep>('categories')
-    const [selectedCategories, setSelectedCategories] = useState<CategoryData[]>([])
+    const [selectedCategories, setSelectedCategories] = useState<CategoryData[]>(defaultCategories)
     const [customCategories, setCustomCategories] = useState<CategoryData[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
-    const defaultCategories: CategoryData[] = [
-        { id: 'comida', name: 'Comida y Restaurantes', icon: '🍲', color: '#FF6B6B', isSelected: true, subcategories: ['Supermercado', 'Restaurantes', 'Delivery', 'Café'] },
-        { id: 'transporte', name: 'Transporte', icon: '🚗', color: '#4ECDC4', isSelected: true, subcategories: ['Gasolina', 'Transporte público', 'Taxi/Uber', 'Mantenimiento'] },
-        { id: 'entretenimiento', name: 'Entretenimiento', icon: '🎭', color: '#96CEB4', isSelected: true, subcategories: ['Cine', 'Conciertos', 'Videojuegos', 'Deportes'] },
-        { id: 'servicios', name: 'Servicios y Facturas', icon: '🧾', color: '#FECA57', isSelected: true, subcategories: ['Luz', 'Agua', 'Internet', 'Teléfono', 'Suscripciones'] },
-        { id: 'salud', name: 'Salud', icon: '⚕️', color: '#FF9FF3', isSelected: true, subcategories: ['Médico', 'Farmacia', 'Seguro', 'Gimnasio'] },
-        { id: 'educacion', name: 'Educación', icon: '📚', color: '#54A0FF', isSelected: true, subcategories: ['Cursos', 'Libros', 'Material escolar', 'Certificaciones'] },
-        { id: 'viajes', name: 'Viajes', icon: '✈️', color: '#5F27CD', isSelected: true, subcategories: ['Vuelos', 'Alojamiento', 'Actividades', 'Comida'] },
-        { id: 'compras', name: 'Compras', icon: '🛍️', color: '#45B7D1', isSelected: true, subcategories: ['Ropa', 'Electrónicos', 'Hogar', 'Regalos', 'Otros'] }
-    ]
+
 
     const handleCategoryToggle = (categoryId: string) => {
-        setSelectedCategories(prev =>
-            prev.map(cat =>
-                cat.id === categoryId
-                    ? { ...cat, isSelected: !cat.isSelected }
-                    : cat
-            )
+        const newSelectedCategories = selectedCategories.map(cat =>
+            cat.id === categoryId
+                ? { ...cat, isSelected: !cat.isSelected }
+                : cat
         )
+        setSelectedCategories(newSelectedCategories)
     }
 
     const handleAddCustomCategory = (category: Omit<CategoryData, 'id' | 'isSelected'>) => {
@@ -54,6 +39,10 @@ export default function OnboardingPage() {
             isSelected: true
         }
         setCustomCategories(prev => [...prev, newCategory])
+    }
+
+    const handleRemoveCustomCategory = (categoryId: string) => {
+        setCustomCategories(prev => prev.filter(cat => cat.id !== categoryId))
     }
 
     const handleNext = () => {
@@ -127,8 +116,10 @@ export default function OnboardingPage() {
                             <CategorySelection
                                 defaultCategories={defaultCategories}
                                 customCategories={customCategories}
+                                selectedCategories={selectedCategories}
                                 onCategoryToggle={handleCategoryToggle}
                                 onAddCustomCategory={handleAddCustomCategory}
+                                onRemoveCustomCategory={handleRemoveCustomCategory}
                             />
                         )}
 

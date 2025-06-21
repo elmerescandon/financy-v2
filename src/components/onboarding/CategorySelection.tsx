@@ -9,21 +9,16 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { CategoryData } from './types'
 
-interface CategoryData {
-    id: string
-    name: string
-    icon: string
-    color: string
-    isSelected: boolean
-    subcategories: string[]
-}
 
 interface CategorySelectionProps {
     defaultCategories: CategoryData[]
     customCategories: CategoryData[]
+    selectedCategories: CategoryData[]
     onCategoryToggle: (categoryId: string) => void
     onAddCustomCategory: (category: Omit<CategoryData, 'id' | 'isSelected'>) => void
+    onRemoveCustomCategory: (categoryId: string) => void
 }
 
 const ICON_OPTIONS = ['🍽️', '🚗', '🎬', '🛍️', '🏥', '📚', '💡', '❓', '🏠', '✈️', '🎮', '💻', '📱', '🎵', '🎨', '🏃', '🐕', '🌱', '💎', '🎁']
@@ -37,8 +32,10 @@ const COLOR_OPTIONS = [
 export default function CategorySelection({
     defaultCategories,
     customCategories,
+    selectedCategories,
     onCategoryToggle,
-    onAddCustomCategory
+    onAddCustomCategory,
+    onRemoveCustomCategory
 }: CategorySelectionProps) {
     const [showAddForm, setShowAddForm] = useState(false)
     const [newCategory, setNewCategory] = useState({
@@ -66,7 +63,6 @@ export default function CategorySelection({
     }
 
     const allCategories = [...defaultCategories, ...customCategories]
-
     return (
         <div className="space-y-6">
             <div className="text-center">
@@ -86,11 +82,11 @@ export default function CategorySelection({
                     >
                         <CardContent className="p-4">
                             <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    checked={category.isSelected}
+                                {!category.id.startsWith('custom-') && <Checkbox
+                                    checked={selectedCategories.find(c => c.id === category.id)?.isSelected || false}
                                     onChange={() => onCategoryToggle(category.id)}
                                     className="flex-shrink-0"
-                                />
+                                />}
                                 <div
                                     className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
                                     style={{ backgroundColor: category.color + '20' }}
@@ -107,6 +103,11 @@ export default function CategorySelection({
                                     <Badge variant="secondary" className="text-xs">
                                         Personalizada
                                     </Badge>
+                                )}
+                                {category.id.startsWith('custom-') && (
+                                    <Button variant="ghost" size="icon" onClick={() => onRemoveCustomCategory(category.id)}>
+                                        <X className="w-4 h-4" />
+                                    </Button>
                                 )}
                             </div>
                         </CardContent>

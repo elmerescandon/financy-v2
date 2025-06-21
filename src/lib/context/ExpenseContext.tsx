@@ -36,7 +36,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         try {
             setLoading(true)
             setError(null)
+            console.log('fetching expenses')
             const data = await ExpenseService.getAll(limit, offset)
+            console.log('data', data)
             setExpenses(data)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al cargar gastos')
