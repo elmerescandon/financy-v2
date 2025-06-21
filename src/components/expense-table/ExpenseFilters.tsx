@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
@@ -27,12 +26,53 @@ const DATE_RANGE_LABELS = {
     this_year: 'Este año'
 }
 
+// Helper function to convert UI filters to database filters
+export const convertToDatabaseFilters = (uiFilters: ExpenseFilters) => {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+
+    let date_from: string | undefined
+    let date_to: string | undefined
+
+    switch (uiFilters.dateRange) {
+        case 'this_month':
+            date_from = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
+            date_to = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+            break
+        case 'prev_month':
+            date_from = new Date(currentYear, currentMonth - 1, 1).toISOString().split('T')[0]
+            date_to = new Date(currentYear, currentMonth, 0).toISOString().split('T')[0]
+            break
+        case 'last_3_months':
+            date_from = new Date(currentYear, currentMonth - 2, 1).toISOString().split('T')[0]
+            date_to = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+            break
+        case 'this_year':
+            date_from = new Date(currentYear, 0, 1).toISOString().split('T')[0]
+            date_to = new Date(currentYear, 11, 31).toISOString().split('T')[0]
+            break
+        case 'all':
+        default:
+            date_from = undefined
+            date_to = undefined
+            break
+    }
+
+    return {
+        date_from,
+        date_to,
+        category_id: uiFilters.categoryId
+    }
+}
+
 export function ExpenseFilters({ categories, filters, onFiltersChange }: ExpenseFiltersProps) {
     const handleDateRangeChange = (range: ExpenseFilters['dateRange']) => {
         onFiltersChange({ ...filters, dateRange: range })
     }
 
     const handleCategoryChange = (categoryId: string) => {
+        console.log('Category changed:', categoryId)
         onFiltersChange({
             ...filters,
             categoryId: categoryId === 'all' ? undefined : categoryId
@@ -44,7 +84,6 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     }
 
     const hasActiveFilters = filters.dateRange !== 'all' || filters.categoryId
-
     const selectedCategory = categories.find(c => c.id === filters.categoryId)
 
     return (
@@ -75,10 +114,15 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                         onValueChange={handleCategoryChange}
                     >
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Filtrar por categoría" />
+                            <SelectValue placeholder="Escoge una categoría">
+                                {filters.categoryId ?
+                                    categories.find(c => c.id === filters.categoryId)?.name || 'Categoría no encontrada' :
+                                    'Escoge una categoría'
+                                }
+                            </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Escoge una categoría</SelectItem>
+                            <SelectItem value="all">Todas las categorías</SelectItem>
                             {categories.map((category) => (
                                 <SelectItem key={category.id} value={category.id}>
                                     <div className="flex items-center gap-2">

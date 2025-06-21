@@ -3,6 +3,23 @@ import type { ExpenseWithDetails, CreateExpenseData, UpdateExpenseData } from '@
 
 const supabase = createClient()
 
+// Simple pagination result interface
+interface PaginationResult {
+    page: number
+    limit: number
+    total: number
+    total_pages: number
+}
+
+// Simple filter interface
+interface SimpleFilters {
+    date_from?: string
+    date_to?: string
+    category_id?: string
+    page?: number
+    limit?: number
+}
+
 export class ExpenseService {
     // Create expense
     static async create(expense: CreateExpenseData) {
@@ -20,22 +37,63 @@ export class ExpenseService {
         return data as ExpenseWithDetails
     }
 
-    // Get all expenses for current user
-    static async getAll(limit = 50, offset = 0) {
-        const { data, error } = await supabase
+    // Get filtered expenses with pagination (simplified)
+    static async getFilteredWithPagination(
+        filters: SimpleFilters = {},
+        page = 1,
+        limit = 20
+    ): Promise<{ data: ExpenseWithDetails[], pagination: PaginationResult }> {
+        console.log('Service received filters:', filters)
+
+        let query = supabase
             .from('expenses')
             .select(`
-        *,
-        category:categories(id, name, color, icon),
-        subcategory:subcategories(id, name, category_id)
-      `)
+                *,
+                category:categories(id, name, color, icon),
+                subcategory:subcategories(id, name, category_id)
+            `, { count: 'exact' })
             .eq('type', 'expense')
-            .order('date', { ascending: false })
-            .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1)
+
+        // Apply date filters
+        if (filters.date_from) {
+            query = query.gte('date', filters.date_from)
+        }
+        if (filters.date_to) {
+            query = query.lte('date', filters.date_to)
+        }
+
+        // Apply category filter
+        if (filters.category_id) {
+            console.log('Applying category filter:', filters.category_id)
+            query = query.eq('category_id', filters.category_id)
+        }
+
+        // Apply sorting
+        query = query.order('date', { ascending: false })
+
+        // Apply pagination
+        const from = (page - 1) * limit
+        const to = from + limit - 1
+        query = query.range(from, to)
+
+        const { data, error, count } = await query
 
         if (error) throw error
-        return data as ExpenseWithDetails[]
+
+        const total = count || 0
+        const total_pages = Math.ceil(total / limit)
+
+        console.log('Query result:', { total, total_pages, dataCount: data?.length })
+
+        return {
+            data: data || [],
+            pagination: {
+                page,
+                limit,
+                total,
+                total_pages
+            }
+        }
     }
 
     // Get expense by ID
@@ -82,40 +140,5 @@ export class ExpenseService {
             .eq('type', 'expense')
 
         if (error) throw error
-    }
-
-    // Get expenses by date range
-    static async getByDateRange(startDate: string, endDate: string) {
-        const { data, error } = await supabase
-            .from('expenses')
-            .select(`
-        *,
-        category:categories(id, name, color, icon),
-        subcategory:subcategories(id, name, category_id)
-      `)
-            .eq('type', 'expense')
-            .gte('date', startDate)
-            .lte('date', endDate)
-            .order('date', { ascending: false })
-
-        if (error) throw error
-        return data as ExpenseWithDetails[]
-    }
-
-    // Get expenses by category
-    static async getByCategory(categoryId: string) {
-        const { data, error } = await supabase
-            .from('expenses')
-            .select(`
-        *,
-        category:categories(id, name, color, icon),
-        subcategory:subcategories(id, name, category_id)
-      `)
-            .eq('type', 'expense')
-            .eq('category_id', categoryId)
-            .order('date', { ascending: false })
-
-        if (error) throw error
-        return data as ExpenseWithDetails[]
     }
 } 

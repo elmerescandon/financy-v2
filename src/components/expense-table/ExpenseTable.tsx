@@ -1,19 +1,6 @@
 'use client'
-import { format } from "date-fns";
-import { TZDate } from "@date-fns/tz";
 
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from '@tanstack/react-table'
-import { useState } from 'react'
+import { format } from "date-fns"
 import { useRouter } from 'next/navigation'
 import {
     Table,
@@ -23,321 +10,245 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
-    ArrowUpDown,
-    ChevronDown,
     Edit,
     Trash2,
-    Eye,
-    MoreHorizontal,
-    EllipsisVertical,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { ExpenseWithDetails } from '@/types/expense'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+
+// Simple pagination result interface
+interface PaginationResult {
+    page: number
+    limit: number
+    total: number
+    total_pages: number
+}
 
 interface ExpenseTableProps {
     expenses: ExpenseWithDetails[]
     onDelete: (id: string) => void
+    pagination: PaginationResult | null
+    onPageChange?: (page: number) => void
+    onPageSizeChange?: (pageSize: number) => void
 }
 
-export function ExpenseTable({ expenses, onDelete }: ExpenseTableProps) {
+// Simple pagination component
+function Pagination({
+    pagination,
+    onPageChange,
+    onPageSizeChange
+}: {
+    pagination: PaginationResult | null
+    onPageChange?: (page: number) => void
+    onPageSizeChange?: (pageSize: number) => void
+}) {
+    if (!pagination) return null
+
+    const { page, limit, total, total_pages } = pagination
+    const startItem = (page - 1) * limit + 1
+    const endItem = Math.min(page * limit, total)
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= total_pages && onPageChange) {
+            onPageChange(newPage)
+        }
+    }
+
+    const handlePageSizeChange = (newPageSize: string) => {
+        if (onPageSizeChange) {
+            onPageSizeChange(parseInt(newPageSize))
+        }
+    }
+
+    return (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>
+                    Mostrando {startItem} a {endItem} de {total} resultados
+                </span>
+            </div>
+
+            <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Por página:</span>
+                    <Select value={limit.toString()} onValueChange={handlePageSizeChange}>
+                        <SelectTrigger className="w-20">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(1)}
+                        disabled={page <= 1}
+                    >
+                        <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page <= 1}
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, total_pages) }, (_, i) => {
+                            let pageNum: number
+                            if (total_pages <= 5) {
+                                pageNum = i + 1
+                            } else if (page <= 3) {
+                                pageNum = i + 1
+                            } else if (page >= total_pages - 2) {
+                                pageNum = total_pages - 4 + i
+                            } else {
+                                pageNum = page - 2 + i
+                            }
+
+                            return (
+                                <Button
+                                    key={pageNum}
+                                    variant={page === pageNum ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => handlePageChange(pageNum)}
+                                    className="w-8 h-8"
+                                >
+                                    {pageNum}
+                                </Button>
+                            )
+                        })}
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= total_pages}
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(total_pages)}
+                        disabled={page >= total_pages}
+                    >
+                        <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export function ExpenseTable({ expenses, onDelete, pagination, onPageChange, onPageSizeChange }: ExpenseTableProps) {
     const router = useRouter()
-    const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-
-    const columns: ColumnDef<ExpenseWithDetails>[] = [
-        {
-            accessorKey: 'date',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                        className="h-8 px-2"
-                    >
-                        Fecha
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => {
-                const date = new TZDate(row.getValue('date'), 'America/Lima')
-                return (
-                    <span className="text-sm">
-                        {format(date.toLocaleString(undefined, { timeZone: 'America/Lima' }), "PPpp")}
-                    </span>
-                )
-            },
-            size: 120,
-        },
-
-        {
-            accessorKey: 'amount',
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                        className="h-8 px-2"
-                    >
-                        Cantidad
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => {
-                const amount = parseFloat(row.getValue('amount'))
-                return (
-                    <div className="text-left ml-4 font-medium">
-                        {formatCurrency(amount)}
-                    </div>
-                )
-            },
-            // size: 100,
-        },
-        {
-            accessorKey: 'category',
-            header: 'Categoría',
-            cell: ({ row }) => {
-                const expense = row.original
-                if (!expense.category) return <span className="text-muted-foreground">-</span>
-
-                return (
-                    <div className="flex items-center gap-2">
-                        <div
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: expense.category.color }}
-                        />
-                        <div>
-                            <div className="flex items-center gap-1">
-                                <span>{expense.category.icon}</span>
-                                <span className="text-sm">{expense.category.name}</span>
-                            </div>
-                            {expense.subcategory && (
-                                <div className="text-xs text-muted-foreground">
-                                    {expense.subcategory.name}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )
-            },
-            size: 150,
-        },
-        {
-            accessorKey: 'payment_method',
-            header: 'Método de Pago',
-            cell: ({ row }) => {
-                const paymentMethods = {
-                    cash: 'Efectivo',
-                    debit_card: 'T. Débito',
-                    credit_card: 'T. Crédito',
-                    bank_transfer: 'Transferencia',
-                    other: 'Otro'
-                }
-
-                const method = row.getValue('payment_method') as keyof typeof paymentMethods
-                return (
-                    <Badge variant="outline" className="text-xs">
-                        {paymentMethods[method] || method}
-                    </Badge>
-                )
-            },
-            size: 120,
-        },
-        {
-            accessorKey: 'description',
-            header: 'Descripción',
-            cell: ({ row }) => {
-                const expense = row.original
-                return (
-                    <div>
-                        <div className="font-medium">{row.getValue('description')}</div>
-                        {expense.merchant && (
-                            <div className="text-xs text-muted-foreground">
-                                📍 {expense.merchant}
-                            </div>
-                        )}
-                        {expense.tags && expense.tags.length > 0 && (
-                            <div className="flex gap-1 mt-1">
-                                {expense.tags.slice(0, 2).map((tag, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
-                                        #{tag}
-                                    </Badge>
-                                ))}
-                                {expense.tags.length > 2 && (
-                                    <Badge variant="outline" className="text-xs px-1 py-0">
-                                        +{expense.tags.length - 2}
-                                    </Badge>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )
-            },
-        },
-        {
-            id: 'actions',
-            header: 'Acciones',
-            cell: ({ row }) => {
-                const expense = row.original
-
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                            >
-                                <EllipsisVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                                <DropdownMenuItem className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(expense.id)}>
-                                    <Trash2 className="h-4 w-4 mr-2 text-destructive" />
-                                    Eliminar
-                                </DropdownMenuItem>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push(`/gastos/editar/${expense.id}`)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Editar
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu >
-
-                )
-            },
-            size: 80,
-        },
-
-    ]
-
-    const table = useReactTable({
-        data: expenses,
-        columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-        },
-    })
 
     return (
         <div className="space-y-4">
-            {/* Column Visibility */}
-            <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                    {expenses.length} gastos encontrados
-                </div>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4 mr-2" />
-                            Columnas
-                            <ChevronDown className="w-4 h-4 ml-2" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[150px]">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                const columnLabels: Record<string, string> = {
-                                    date: 'Fecha',
-                                    description: 'Descripción',
-                                    amount: 'Cantidad',
-                                    category: 'Categoría',
-                                    payment_method: 'Método Pago',
-                                    actions: 'Acciones'
-                                }
-
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {columnLabels[column.id] || column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
-            {/* Table */}
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id} className="h-12">
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
+                        <TableRow>
+                            <TableHead>Fecha</TableHead>
+                            <TableHead>Descripción</TableHead>
+                            <TableHead>Categoría</TableHead>
+                            <TableHead className="text-right">Monto</TableHead>
+                            <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && 'selected'}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No se encontraron gastos.
+                        {expenses.map((expense) => (
+                            <TableRow key={expense.id}>
+                                <TableCell>
+                                    {format(new Date(expense.date), 'dd/MM/yyyy')}
+                                </TableCell>
+                                <TableCell>
+                                    <div>
+                                        <div className="font-medium">{expense.description}</div>
+                                        {expense.merchant && (
+                                            <div className="text-sm text-muted-foreground">
+                                                {expense.merchant}
+                                            </div>
+                                        )}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {expense.category && (
+                                        <Badge variant="secondary" className="gap-1">
+                                            <span>{expense.category.icon}</span>
+                                            {expense.category.name}
+                                        </Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {formatCurrency(expense.amount)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => router.push(`/gastos/editar/${expense.id}`)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="sm">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>¿Eliminar gasto?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Esta acción no se puede deshacer. Se eliminará permanentemente este gasto.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => onDelete(expense.id)}
+                                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                    >
+                                                        Eliminar
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
                                 </TableCell>
                             </TableRow>
-                        )}
+                        ))}
                     </TableBody>
                 </Table>
             </div>
+
+            <Pagination
+                pagination={pagination}
+                onPageChange={onPageChange}
+                onPageSizeChange={onPageSizeChange}
+            />
         </div>
     )
 } 

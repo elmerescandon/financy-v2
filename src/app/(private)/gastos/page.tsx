@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useExpenseContext } from '@/lib/context/ExpenseContext'
 import { useCategories } from '@/hooks/useCategories'
@@ -10,19 +9,29 @@ import { Plus } from 'lucide-react'
 import {
     ExpenseTable,
     ExpenseFilters,
-    type ExpenseFiltersType,
-    filterExpensesByDateRange,
-    filterExpensesByCategory
+    type ExpenseFilters as UIExpenseFilters
 } from '@/components/expense-table'
+import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { toast } from 'sonner'
+import { useState } from 'react'
 
 export default function ExpensesPage() {
     const router = useRouter()
-    const { expenses, loading, error, deleteExpense } = useExpenseContext()
+    const {
+        expenses,
+        loading,
+        error,
+        deleteExpense,
+        pagination,
+        updateFilters,
+        setPage,
+        setPageSize
+    } = useExpenseContext()
     const { categories } = useCategories()
 
-    const [filters, setFilters] = useState<ExpenseFiltersType>({
+    // UI filter state (date range, category)
+    const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
         dateRange: 'all'
     })
 
@@ -36,17 +45,20 @@ export default function ExpensesPage() {
         }
     }
 
-    const filteredExpenses = useMemo(() => {
-        let filtered = expenses
+    // When UI filters change, update context filters (database filters)
+    const handleFiltersChange = (filters: UIExpenseFilters) => {
+        setUiFilters(filters)
+        const dbFilters = convertToDatabaseFilters(filters)
+        updateFilters(dbFilters)
+    }
 
-        // Apply date range filter
-        filtered = filterExpensesByDateRange(filtered, filters.dateRange)
-
-        // Apply category filter
-        filtered = filterExpensesByCategory(filtered, filters.categoryId)
-
-        return filtered
-    }, [expenses, filters])
+    // Pagination handlers
+    const handlePageChange = (page: number) => {
+        setPage(page)
+    }
+    const handlePageSizeChange = (pageSize: number) => {
+        setPageSize(pageSize)
+    }
 
     if (loading) {
         return (
@@ -90,12 +102,12 @@ export default function ExpensesPage() {
             {/* Filters */}
             <ExpenseFilters
                 categories={categories}
-                filters={filters}
-                onFiltersChange={setFilters}
+                filters={uiFilters}
+                onFiltersChange={handleFiltersChange}
             />
 
             {/* Expenses Table */}
-            {filteredExpenses.length === 0 ? (
+            {expenses.length === 0 ? (
                 <div className="text-center py-8">
                     <p className="text-muted-foreground mb-4">
                         {expenses.length === 0
@@ -113,8 +125,11 @@ export default function ExpensesPage() {
                 </div>
             ) : (
                 <ExpenseTable
-                    expenses={filteredExpenses}
+                    expenses={expenses}
                     onDelete={handleDeleteExpense}
+                    pagination={pagination}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
                 />
             )}
         </div>
