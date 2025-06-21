@@ -103,7 +103,23 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         }
     }
 
+
+    const handleDateChange = (date: string) => {
+        const dateObj = new Date(date)
+        handleInputChange('date', dateObj)
+    }
+
+    const formatDate = (date: Date) => {
+        const dateString = date.toISOString().split('T')[0]
+        const hours = date.getHours().toString().padStart(2, '0')
+        const minutes = date.getMinutes().toString().padStart(2, '0')
+        console.log(dateString, hours, minutes)
+        return `${dateString}T${hours}:${minutes}`
+    }
+
     const handleInputChange = (field: string, value: string | Date) => {
+        console.log(field, value)
+
         setFormData(prev => ({ ...prev, [field]: value }))
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }))
@@ -197,7 +213,12 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             <div>
                 <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
-                <DateTimePicker24h date={formData.date} onDateChange={(date) => handleInputChange('date', date)} />
+                <Input type="datetime-local"
+                    value={formatDate(formData.date)}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                    className='text-sm w-full'
+                />
+                {/* <DateTimePicker24h date={formData.date} onDateChange={(date) => handleInputChange('date', date)} /> */}
                 {errors.date && (
                     <p className="text-sm text-destructive mt-1">{errors.date}</p>
                 )}
