@@ -30,7 +30,7 @@ export default function AddExpensePage() {
     }
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 lg:mx-auto lg:w-fit">
             <div>
                 <Button
                     variant="ghost"
@@ -41,11 +41,12 @@ export default function AddExpensePage() {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Volver
                 </Button>
-                <h1 className="text-3xl font-bold text-warm-gray-900">Agregar Gasto</h1>
+                <h1 className="text-3xl font-bold text-warm-gray-900 pt-6 text-left lg:text-center">Agregar Gasto</h1>
             </div>
 
-            <Card>
-                <CardContent className="pt-6">
+
+            <Card className="w-fit mr-auto lg:ml-auto ">
+                <CardContent className="pt-4">
                     <ExpenseForm
                         categories={categories}
                         onSubmit={handleCreateExpense}

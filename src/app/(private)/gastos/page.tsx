@@ -106,7 +106,7 @@ export default function ExpensesPage() {
                     <Button
                         onClick={() => router.push('/gastos/agregar')}
                         variant="outline"
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto cursor-pointer"
                     >
                         Agregar tu primer gasto
                     </Button>

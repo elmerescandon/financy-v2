@@ -255,7 +255,7 @@ export default function Navigation({ user, children }: NavigationProps) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between">
-                            <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+                            <SidebarTrigger className="text-muted-foreground hover:text-foreground cursor-pointer" />
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm text-muted-foreground hidden sm:block">
                                     ¡Hola, {getUserDisplayName()}!
