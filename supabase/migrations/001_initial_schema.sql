@@ -239,22 +239,6 @@ CREATE TRIGGER update_expenses_updated_at BEFORE UPDATE ON expenses
 CREATE TRIGGER update_savings_goals_updated_at BEFORE UPDATE ON savings_goals
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Create function to initialize default categories for new users
-CREATE OR REPLACE FUNCTION initialize_user_categories(user_uuid UUID)
-RETURNS VOID AS $$
-BEGIN
-    INSERT INTO categories (user_id, name, icon, color, is_default) VALUES
-    (user_uuid, 'Alimentación', '🍽️', '#FF6B6B', true),
-    (user_uuid, 'Transporte', '🚗', '#4ECDC4', true),
-    (user_uuid, 'Entretenimiento', '🎬', '#45B7D1', true),
-    (user_uuid, 'Compras', '🛍️', '#96CEB4', true),
-    (user_uuid, 'Salud', '🏥', '#FFEAA7', true),
-    (user_uuid, 'Educación', '📚', '#DDA0DD', true),
-    (user_uuid, 'Servicios', '💡', '#98D8C8', true),
-    (user_uuid, 'Otros', '❓', '#F7DC6F', true);
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
 -- Grant necessary permissions
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
