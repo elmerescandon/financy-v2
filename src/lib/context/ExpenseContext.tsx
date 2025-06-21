@@ -54,7 +54,6 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             setLoading(true)
             setError(null)
             const result = await ExpenseService.getFilteredWithPagination(filters, page, pageSize)
-            console.log("Results of ExpenseContext", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {

@@ -145,7 +145,6 @@ export class GoalService {
     static async createGoal(data: CreateGoalData): Promise<Goal> {
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) throw new Error('User not authenticated')
-        console.log(data)
         const { data: goal, error } = await supabase
             .from('savings_goals')
             .insert({

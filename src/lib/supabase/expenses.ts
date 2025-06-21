@@ -43,7 +43,6 @@ export class ExpenseService {
         page = 1,
         limit = 20
     ): Promise<{ data: ExpenseWithDetails[], pagination: PaginationResult }> {
-        console.log('Service received filters:', filters)
 
         let query = supabase
             .from('expenses')
@@ -64,7 +63,6 @@ export class ExpenseService {
 
         // Apply category filter
         if (filters.category_id) {
-            console.log('Applying category filter:', filters.category_id)
             query = query.eq('category_id', filters.category_id)
         }
 
@@ -83,7 +81,6 @@ export class ExpenseService {
         const total = count || 0
         const total_pages = Math.ceil(total / limit)
 
-        console.log('Query result:', { total, total_pages, dataCount: data?.length })
 
         return {
             data: data || [],

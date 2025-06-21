@@ -11,7 +11,6 @@ export class IncomeService {
         if (!user) throw new Error('User not authenticated')
 
         // Extract income-specific fields that need mapping
-        console.log('income', income)
         const { employer_client, is_recurring, is_taxable, recurring_end_date, source, ...baseData } = income
 
         const incomeData = {

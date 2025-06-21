@@ -30,10 +30,8 @@ export function DateTimePicker24h({ date, onDateChange }: { date: Date, onDateCh
     ) => {
         if (date) {
             const newDate = new Date(date);
-            console.log(newDate)
             if (type === "hour") {
                 newDate.setHours(parseInt(value));
-                console.log(newDate)
             } else if (type === "minute") {
                 newDate.setMinutes(parseInt(value));
             }

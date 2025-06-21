@@ -72,7 +72,6 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     }
 
     const handleCategoryChange = (categoryId: string) => {
-        console.log('Category changed:', categoryId)
         onFiltersChange({
             ...filters,
             categoryId: categoryId === 'all' ? undefined : categoryId

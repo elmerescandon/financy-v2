@@ -82,7 +82,6 @@ export class BudgetService {
         if (!user) throw new Error('Usuario no autenticado')
 
         const { assignToExisting, previewData, ...budgetData } = updates
-        console.log(budgetData)
         const { data, error } = await supabase
             .from('budgets')
             .update({ ...budgetData, user_id: user.id })
