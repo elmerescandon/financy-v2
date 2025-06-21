@@ -29,6 +29,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     const [error, setError] = useState<string | null>(null)
     const [limit, setLimit] = useState(50)
     const [offset, setOffset] = useState(0)
+    const [page, setPage] = useState(1)
 
     const supabase = createClient()
 
@@ -50,10 +51,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     const loadMore = async () => {
         try {
             setError(null)
-            const newOffset = offset + limit
-            const data = await ExpenseService.getAll(limit, newOffset)
+            const data = await ExpenseService.getAll(limit, (page - 1) * limit)
             setExpenses(prev => [...prev, ...data])
-            setOffset(newOffset)
+            setPage(page + 1)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al cargar más gastos')
         }
