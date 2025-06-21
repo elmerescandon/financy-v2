@@ -113,13 +113,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         const dateString = date.toISOString().split('T')[0]
         const hours = date.getHours().toString().padStart(2, '0')
         const minutes = date.getMinutes().toString().padStart(2, '0')
-        console.log(dateString, hours, minutes)
         return `${dateString}T${hours}:${minutes}`
     }
 
     const handleInputChange = (field: string, value: string | Date) => {
-        console.log(field, value)
-
         setFormData(prev => ({ ...prev, [field]: value }))
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }))
