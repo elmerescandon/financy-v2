@@ -19,7 +19,7 @@ function Submit() {
     return (
         <Button
             type="submit"
-            className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0"
+            className="w-full h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 warm-gradient border-0 cursor-pointer"
             disabled={pending}
         >
             {pending ? (
@@ -91,29 +91,33 @@ export default function Login({ onPasswordRecovery }: LoginProps) {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                     </div>
                 </div>
 
-                <div className="text-right">
-                    <button
-                        type="button"
-                        onClick={onPasswordRecovery}
-                        className="text-sm text-primary hover:text-primary/80 transition-colors hover:underline"
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </button>
-                </div>
 
-                {/* Spacer to maintain consistent height with signup form */}
-                <div className="h-16 flex items-center justify-center">
-                    <div className="text-xs text-muted-foreground text-center">
-                        <p>Inicia sesión para acceder a tu cuenta</p>
+                <div className="h-[100px] mb-4">
+                    <div className="text-right">
+                        <button
+                            type="button"
+                            onClick={onPasswordRecovery}
+                            className="text-sm text-primary hover:text-primary/80 transition-colors hover:underline cursor-pointer  "
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </button>
+                    </div>
+
+                    {/* Spacer to maintain consistent height with signup form */}
+                    <div className="h-16 flex items-center justify-center">
+                        <div className="text-xs text-muted-foreground text-center">
+                            <p>Inicia sesión para acceder a tu cuenta</p>
+                        </div>
                     </div>
                 </div>
+
 
                 <Submit />
             </form>

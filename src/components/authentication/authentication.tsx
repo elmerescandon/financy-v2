@@ -49,11 +49,11 @@ export default function Authentication() {
                 return (
                     <Tabs defaultValue="login" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50">
-                            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer">
                                 <LogIn className="w-4 h-4 mr-2" />
                                 Iniciar Sesión
                             </TabsTrigger>
-                            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground cursor-pointer">
                                 <UserPlus className="w-4 h-4 mr-2" />
                                 Registrarse
                             </TabsTrigger>
@@ -76,10 +76,10 @@ export default function Authentication() {
     return (
         <div className="min-h-screen flex items-center justify-center earth-gradient p-4">
             <div className="w-full max-w-md">
-                <Card className="backdrop-blur-sm bg-card/95 shadow-2xl border-0 rounded-2xl">
+                <Card className=" border rounded-2xl shadow-none">
                     <CardHeader className="space-y-2 text-center pb-8">
-                        <div className="mx-auto w-16 h-16 rounded-full warm-gradient flex items-center justify-center mb-4">
-                            <LogIn className="w-8 h-8 text-white" />
+                        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <LogIn className="w-8 h-8 text-primary" />
                         </div>
                         <CardTitle className="text-2xl font-bold text-foreground">
                             Bienvenido a Financy
@@ -102,9 +102,6 @@ export default function Authentication() {
                     </CardContent>
                 </Card>
 
-                {/* Decorative elements */}
-                <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-primary/10 blur-xl"></div>
-                <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-secondary/10 blur-xl"></div>
             </div>
         </div>
     )

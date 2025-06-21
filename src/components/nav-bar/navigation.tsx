@@ -118,7 +118,6 @@ export default function Navigation({ user, children }: NavigationProps) {
         { icon: Receipt, label: 'Gastos', href: '/gastos' },
         { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
         { icon: PieChart, label: 'Presupuestos', href: '/presupuesto' },
-        // { icon: TrendingUp, label: 'Análisis', href: '/analytics' },
         { icon: Target, label: 'Metas', href: '/metas' },
     ]
 
@@ -150,7 +149,7 @@ export default function Navigation({ user, children }: NavigationProps) {
                                         <SidebarMenuItem key={item.href}>
                                             <SidebarMenuButton
                                                 onClick={() => router.push(item.href)}
-                                                className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors group"
+                                                className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors group cursor-pointer"
                                             >
                                                 <item.icon className="w-5 h-5 mr-3 group-hover:text-primary transition-colors" />
                                                 <span className="font-medium">{item.label}</span>
@@ -167,7 +166,7 @@ export default function Navigation({ user, children }: NavigationProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="w-full justify-start p-3 h-auto hover:bg-muted/50 transition-colors"
+                                    className="w-full justify-start p-3 h-auto hover:bg-muted/50 transition-colors cursor-pointer"
                                 >
                                     <Avatar className="h-8 w-8 mr-3">
                                         <AvatarImage src={user?.user_metadata?.avatar_url} alt="Avatar" />
@@ -203,25 +202,25 @@ export default function Navigation({ user, children }: NavigationProps) {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => router.push('/profile')}>
+                                <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Perfil</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/configuracion')}>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion')} className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Configuración</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>
-                                        <Palette className="mr-2 h-4 w-4" />
-                                        <span>Tema</span>
+                                    <DropdownMenuSubTrigger className="cursor-pointer">
+                                        <Palette className="mr-2 h-4 w-4 text-muted-foreground" />
+                                        <span className='ml-2'>Tema</span>
                                     </DropdownMenuSubTrigger>
                                     <DropdownMenuSubContent>
-                                        <DropdownMenuItem onClick={() => setTheme("light")}>
+                                        <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
                                             <Sun className="mr-2 h-4 w-4" />
                                             <span>Claro</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                        <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
                                             <Moon className="mr-2 h-4 w-4" />
                                             <span>Oscuro</span>
                                         </DropdownMenuItem>
@@ -231,11 +230,11 @@ export default function Navigation({ user, children }: NavigationProps) {
                                         </DropdownMenuItem>
                                     </DropdownMenuSubContent>
                                 </DropdownMenuSub>
-                                <DropdownMenuItem onClick={() => router.push('/configuracion/api')}>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion/api')} className="cursor-pointer">
                                     <CreditCard className="mr-2 h-4 w-4" />
                                     <span>API Keys</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/configuracion/gmail')}>
+                                <DropdownMenuItem onClick={() => router.push('/configuracion/gmail')} className="cursor-pointer">
                                     <Mail className="mr-2 h-4 w-4" />
                                     <span>Gmail Integration</span>
                                 </DropdownMenuItem>
@@ -243,7 +242,7 @@ export default function Navigation({ user, children }: NavigationProps) {
                                 <DropdownMenuItem
                                     onClick={handleLogout}
                                     disabled={isLoggingOut}
-                                    className="text-destructive focus:text-destructive"
+                                    className="text-destructive focus:text-destructive cursor-pointer"
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <span>{isLoggingOut ? 'Cerrando...' : 'Cerrar Sesión'}</span>
