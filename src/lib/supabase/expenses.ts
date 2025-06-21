@@ -138,4 +138,37 @@ export class ExpenseService {
 
         if (error) throw error
     }
+
+    // Get all filtered expenses without pagination (for summary calculations)
+    static async getAllFiltered(filters: SimpleFilters = {}): Promise<ExpenseWithDetails[]> {
+        let query = supabase
+            .from('expenses')
+            .select(`
+                *,
+                category:categories(id, name, color, icon),
+                subcategory:subcategories(id, name, category_id)
+            `)
+            .eq('type', 'expense')
+
+        // Apply date filters
+        if (filters.date_from) {
+            query = query.gte('date', filters.date_from)
+        }
+        if (filters.date_to) {
+            query = query.lte('date', filters.date_to)
+        }
+
+        // Apply category filter
+        if (filters.category_id) {
+            query = query.eq('category_id', filters.category_id)
+        }
+
+        // Apply sorting
+        query = query.order('date', { ascending: false })
+
+        const { data, error } = await query
+
+        if (error) throw error
+        return data || []
+    }
 } 

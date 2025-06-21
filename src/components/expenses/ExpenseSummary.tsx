@@ -6,20 +6,20 @@ import { formatAmount } from '@/lib/utils/formats'
 import type { Expense } from '@/types/expense'
 
 interface ExpenseSummaryProps {
-    expenses: Expense[]
+    allFilteredExpenses: Expense[]
 }
 
-export function ExpenseSummary({ expenses }: ExpenseSummaryProps) {
-    const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0)
+export function ExpenseSummary({ allFilteredExpenses }: ExpenseSummaryProps) {
+    const totalExpenses = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
-    const monthlyExpenses = expenses.filter(expense => {
+    const monthlyExpenses = allFilteredExpenses.filter(expense => {
         const expenseDate = new Date(expense.date)
         const now = new Date()
         return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear()
     })
     const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
-    const uniqueCategories = new Set(expenses.map(expense => expense.category_id)).size
+    const uniqueCategories = new Set(allFilteredExpenses.map(expense => expense.category_id)).size
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
@@ -33,7 +33,7 @@ export function ExpenseSummary({ expenses }: ExpenseSummaryProps) {
                         {formatAmount(totalExpenses)}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {expenses.length} gastos registrados
+                        {allFilteredExpenses.length} gastos registrados
                     </p>
                 </CardContent>
             </Card>

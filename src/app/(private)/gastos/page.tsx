@@ -20,6 +20,7 @@ export default function ExpensesPage() {
     const router = useRouter()
     const {
         expenses,
+        allFilteredExpenses,
         loading,
         error,
         deleteExpense,
@@ -97,7 +98,7 @@ export default function ExpensesPage() {
             </div>
 
             {/* Summary */}
-            <ExpenseSummary expenses={expenses} />
+            <ExpenseSummary allFilteredExpenses={allFilteredExpenses} />
 
             {/* Filters */}
             <ExpenseFilters

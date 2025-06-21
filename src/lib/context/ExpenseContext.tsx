@@ -23,6 +23,7 @@ interface SimpleFilters {
 
 interface ExpenseContextType {
     expenses: ExpenseWithDetails[]
+    allFilteredExpenses: ExpenseWithDetails[]
     loading: boolean
     error: string | null
     pagination: PaginationResult | null
@@ -40,6 +41,7 @@ const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined)
 
 export function ExpenseProvider({ children }: { children: ReactNode }) {
     const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
+    const [allFilteredExpenses, setAllFilteredExpenses] = useState<ExpenseWithDetails[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [pagination, setPagination] = useState<PaginationResult | null>(null)
@@ -63,10 +65,19 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         }
     }, [filters, page, pageSize])
 
+    const fetchAllFilteredExpenses = useCallback(async () => {
+        try {
+            const allExpenses = await ExpenseService.getAllFiltered(filters)
+            setAllFilteredExpenses(allExpenses)
+        } catch (err) {
+            console.error('Error fetching all filtered expenses:', err)
+        }
+    }, [filters])
+
     const updateFilters = async (newFilters: SimpleFilters) => {
         setFilters(newFilters)
         setPageState(1) // Reset to first page when filters change
-        await fetchExpenses()
+        await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
     }
 
     const setPage = async (newPage: number) => {
@@ -109,13 +120,18 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    const refreshExpenses = async () => {
+        await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+    }
+
     useEffect(() => {
-        fetchExpenses()
-    }, [fetchExpenses])
+        Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+    }, [fetchExpenses, fetchAllFilteredExpenses])
 
     return (
         <ExpenseContext.Provider value={{
             expenses,
+            allFilteredExpenses,
             loading,
             error,
             pagination,
@@ -123,7 +139,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             createExpense,
             updateExpense,
             deleteExpense,
-            refreshExpenses: fetchExpenses,
+            refreshExpenses,
             updateFilters,
             setPage,
             setPageSize
