@@ -26,6 +26,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar'
@@ -115,7 +118,7 @@ export default function Navigation({ user, children }: NavigationProps) {
     }
 
     const navigationItems = [
-        { icon: Receipt, label: 'Gastos', href: '/gastos' },
+        // { icon: Receipt, label: 'Gastos', href: '/gastos' },
         { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
         { icon: PieChart, label: 'Presupuestos', href: '/presupuesto' },
         { icon: Target, label: 'Metas', href: '/metas' },
@@ -144,6 +147,25 @@ export default function Navigation({ user, children }: NavigationProps) {
                                 Navegación
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
+                                <SidebarMenuItem className='list-none'>
+                                    <SidebarMenuButton>
+                                        <Receipt className="w-5 h-5 mr-3 group-hover:text-primary transition-colors" />
+                                        <span className="font-medium">Gastos</span>
+                                    </SidebarMenuButton>
+                                    <SidebarMenuSub>
+                                        <SidebarMenuSubItem className='list-none'>
+                                            <SidebarMenuSubButton onClick={() => router.push('/gastos')} className='cursor-pointer'>
+                                                Por consumo
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem className='list-none'>
+                                            <SidebarMenuSubButton onClick={() => router.push('/gastos/categorias')} className='cursor-pointer'>
+                                                Por categoría
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSub>
+                                </SidebarMenuItem>
+
                                 <SidebarMenu>
                                     {navigationItems.map((item) => (
                                         <SidebarMenuItem key={item.href}>
