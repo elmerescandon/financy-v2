@@ -55,7 +55,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         try {
             setLoading(true)
             setError(null)
+            console.log("This is the filters", filters)
             const result = await ExpenseService.getFilteredWithPagination(filters, page, pageSize)
+            console.log("This is the result", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {
@@ -75,9 +77,8 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }, [filters])
 
     const updateFilters = async (newFilters: SimpleFilters) => {
-        setFilters(newFilters)
         setPageState(1) // Reset to first page when filters change
-        await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        setFilters(newFilters)
     }
 
     const setPage = async (newPage: number) => {
@@ -126,7 +127,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
-    }, [fetchExpenses, fetchAllFilteredExpenses])
+    }, [fetchExpenses, fetchAllFilteredExpenses, filters])
 
     return (
         <ExpenseContext.Provider value={{

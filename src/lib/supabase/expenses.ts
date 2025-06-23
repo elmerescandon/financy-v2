@@ -75,7 +75,6 @@ export class ExpenseService {
         query = query.range(from, to)
 
         const { data, error, count } = await query
-
         if (error) throw error
 
         const total = count || 0
