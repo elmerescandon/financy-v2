@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Loader2, PartyPopper } from 'lucide-react'
+import { Loader2, PartyPopper, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -18,6 +19,27 @@ interface CategoryData {
 interface OnboardingCompleteProps {
     categories: CategoryData[]
     onComplete: () => void
+}
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2
+        }
+    }
+}
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.5
+        }
+    }
 }
 
 export default function OnboardingComplete({
@@ -116,30 +138,146 @@ export default function OnboardingComplete({
     }
 
     return (
-        <div className="text-center space-y-6 flex flex-col items-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <PartyPopper className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold">¡Estás listo para empezar!</h3>
-            <p className="text-muted-foreground">
-                Hemos guardado tus preferencias. Ahora puedes empezar a registrar tus gastos y tomar el control de tus finanzas.
-            </p>
-            <div className="w-full pt-4">
-                <Button
-                    onClick={handleFinishOnboarding}
-                    disabled={isLoading}
-                    className="w-full max-w-xs h-12 text-base warm-gradient"
+        <motion.div
+            className="flex flex-col items-center justify-center h-full space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <motion.div
+                className="relative"
+                variants={itemVariants}
+            >
+                <motion.div
+                    className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 20,
+                        delay: 0.3
+                    }}
                 >
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Finalizando...
-                        </>
-                    ) : (
-                        'Ir a mi panel'
-                    )}
-                </Button>
-            </div>
-        </div>
+                    <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{
+                            delay: 0.5,
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 10
+                        }}
+                    >
+                        <CheckCircle className="w-12 h-12 text-primary" />
+                    </motion.div>
+                </motion.div>
+
+                {/* Success particles effect */}
+                <motion.div
+                    className="absolute inset-0"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                >
+                    {[...Array(6)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute w-2 h-2 bg-primary rounded-full"
+                            style={{
+                                left: '50%',
+                                top: '50%',
+                                marginLeft: '-4px',
+                                marginTop: '-4px'
+                            }}
+                            initial={{
+                                x: 0,
+                                y: 0,
+                                opacity: 0,
+                                scale: 0
+                            }}
+                            animate={{
+                                x: Math.cos(i * 60 * Math.PI / 180) * 40,
+                                y: Math.sin(i * 60 * Math.PI / 180) * 40,
+                                opacity: [0, 1, 0],
+                                scale: [0, 1, 0]
+                            }}
+                            transition={{
+                                delay: 0.8 + i * 0.1,
+                                duration: 1.5,
+                                ease: "easeOut"
+                            }}
+                        />
+                    ))}
+                </motion.div>
+            </motion.div>
+
+            <motion.div
+                className="text-center space-y-4"
+                variants={itemVariants}
+            >
+                <motion.h3
+                    className="text-3xl font-bold"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                >
+                    ¡Estás listo para empezar!
+                </motion.h3>
+                <motion.p
+                    className="text-muted-foreground text-lg max-w-md"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                >
+                    Hemos guardado tus preferencias. Ahora puedes empezar a registrar tus gastos y tomar el control de tus finanzas.
+                </motion.p>
+            </motion.div>
+
+            <motion.div
+                className="w-full max-w-xs"
+                variants={itemVariants}
+            >
+                <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                >
+                    <Button
+                        onClick={handleFinishOnboarding}
+                        disabled={isLoading}
+                        className="w-full h-12 text-base"
+                        size="lg"
+                    >
+                        {isLoading ? (
+                            <motion.div
+                                className="flex items-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                            >
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                Finalizando...
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                className="flex items-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                            >
+                                Ir a mi panel
+                            </motion.div>
+                        )}
+                    </Button>
+                </motion.div>
+            </motion.div>
+
+            <motion.div
+                className="text-center"
+                variants={itemVariants}
+            >
+                <p className="text-sm text-muted-foreground">
+                    Configurado {categories.length} categorías con {categories.reduce((acc, cat) => acc + cat.subcategories.length, 0)} subcategorías
+                </p>
+            </motion.div>
+        </motion.div>
     )
 } 
