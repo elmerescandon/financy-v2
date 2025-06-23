@@ -1,15 +1,18 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { X } from 'lucide-react'
+import { X, Check, ChevronDown } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
 import { Label } from '../ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useState } from 'react'
 
 export interface ExpenseFilters {
     dateRange: 'all' | 'this_month' | 'prev_month' | 'last_3_months' | 'this_year'
-    categoryId?: string
+    categoryIds?: string[]
 }
 
 interface ExpenseFiltersProps {
@@ -62,19 +65,26 @@ export const convertToDatabaseFilters = (uiFilters: ExpenseFilters) => {
     return {
         date_from,
         date_to,
-        category_id: uiFilters.categoryId
+        category_ids: uiFilters.categoryIds?.length ? uiFilters.categoryIds : undefined
     }
 }
 
 export function ExpenseFilters({ categories, filters, onFiltersChange }: ExpenseFiltersProps) {
+    const [open, setOpen] = useState(false)
+
     const handleDateRangeChange = (range: ExpenseFilters['dateRange']) => {
         onFiltersChange({ ...filters, dateRange: range })
     }
 
-    const handleCategoryChange = (categoryId: string) => {
+    const handleCategoryToggle = (categoryId: string) => {
+        const currentCategoryIds = filters.categoryIds || []
+        const newCategoryIds = currentCategoryIds.includes(categoryId)
+            ? currentCategoryIds.filter(id => id !== categoryId)
+            : [...currentCategoryIds, categoryId]
+
         onFiltersChange({
             ...filters,
-            categoryId: categoryId === 'all' ? undefined : categoryId
+            categoryIds: newCategoryIds.length > 0 ? newCategoryIds : undefined
         })
     }
 
@@ -82,11 +92,30 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
         onFiltersChange({ dateRange: 'all' })
     }
 
-    const hasActiveFilters = filters.dateRange !== 'all' || filters.categoryId
-    const selectedCategory = categories.find(c => c.id === filters.categoryId)
+    const removeCategory = (categoryId: string) => {
+        const newCategoryIds = (filters.categoryIds || []).filter(id => id !== categoryId)
+        onFiltersChange({
+            ...filters,
+            categoryIds: newCategoryIds.length > 0 ? newCategoryIds : undefined
+        })
+    }
+
+    const hasActiveFilters = filters.dateRange !== 'all' || (filters.categoryIds && filters.categoryIds.length > 0)
+    const selectedCategories = categories.filter(c => filters.categoryIds?.includes(c.id) || false)
+
+    const getCategoryDisplayText = () => {
+        if (!filters.categoryIds || filters.categoryIds.length === 0) {
+            return "Todas las categorías"
+        }
+        if (filters.categoryIds.length === 1) {
+            const category = categories.find(c => c.id === filters.categoryIds![0])
+            return category?.name || "Categoría seleccionada"
+        }
+        return `${filters.categoryIds.length} categorías seleccionadas`
+    }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 p-4">
             {/* Date Range Buttons */}
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
                 <div className="flex-1 min-w-0">
@@ -107,31 +136,50 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                 </div>
 
                 <div className="flex-1 min-w-0 sm:max-w-xs">
-                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Categoría</Label>
-                    <Select
-                        value={filters.categoryId || 'all'}
-                        onValueChange={handleCategoryChange}
-                    >
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Escoge una categoría">
-                                {filters.categoryId ?
-                                    categories.find(c => c.id === filters.categoryId)?.name || 'Categoría no encontrada' :
-                                    'Escoge una categoría'
-                                }
-                            </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas las categorías</SelectItem>
-                            {categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
-                                    <div className="flex items-center gap-2">
-                                        <span>{category.icon}</span>
-                                        <span>{category.name}</span>
+                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Categorías</Label>
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-full justify-between"
+                            >
+                                <span className="truncate">{getCategoryDisplayText()}</span>
+                                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full sm:w-[300px] p-0" align="start">
+                            <div className="p-2">
+                                <div className="text-sm font-medium mb-2 px-2">Seleccionar categorías</div>
+                                <ScrollArea className="h-[200px]">
+                                    <div className="space-y-1">
+                                        {categories.map((category) => {
+                                            const isSelected = filters.categoryIds?.includes(category.id) || false
+                                            return (
+                                                <div
+                                                    key={category.id}
+                                                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
+                                                    onClick={() => handleCategoryToggle(category.id)}
+                                                >
+                                                    <Checkbox
+                                                        checked={isSelected}
+                                                        onChange={() => handleCategoryToggle(category.id)}
+                                                        className="mr-2"
+                                                    />
+                                                    <span className="text-lg">{category.icon}</span>
+                                                    <span className="flex-1 text-sm">{category.name}</span>
+                                                    {isSelected && (
+                                                        <Check className="h-4 w-4 text-primary" />
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
                                     </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                                </ScrollArea>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </div>
 
@@ -148,15 +196,20 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                                 />
                             </Badge>
                         )}
-                        {selectedCategory && (
-                            <Badge variant="secondary" className="gap-1">
-                                <span>{selectedCategory.icon}</span>
-                                {selectedCategory.name}
-                                <Button variant="ghost" size="icon" onClick={() => handleCategoryChange('all')} className='cursor-pointer hover:text-destructive p-0 h-auto'>
+                        {selectedCategories.map((category) => (
+                            <Badge key={category.id} variant="secondary" className="gap-1">
+                                <span>{category.icon}</span>
+                                {category.name}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeCategory(category.id)}
+                                    className='cursor-pointer hover:text-destructive p-0 h-auto'
+                                >
                                     <X className="w-4 h-4" />
                                 </Button>
                             </Badge>
-                        )}
+                        ))}
                     </div>
                     <Button
                         variant="ghost"

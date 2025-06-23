@@ -11,11 +11,12 @@ interface PaginationResult {
     total_pages: number
 }
 
-// Simple filter interface
+// Simple filter interface - updated to support multiple categories
 interface SimpleFilters {
     date_from?: string
     date_to?: string
     category_id?: string
+    category_ids?: string[]
     page?: number
     limit?: number
 }
@@ -61,8 +62,10 @@ export class ExpenseService {
             query = query.lte('date', filters.date_to)
         }
 
-        // Apply category filter
-        if (filters.category_id) {
+        // Apply category filters - support both single and multiple categories
+        if (filters.category_ids && Array.isArray(filters.category_ids) && filters.category_ids.length > 0) {
+            query = query.in('category_id', filters.category_ids)
+        } else if (filters.category_id) {
             query = query.eq('category_id', filters.category_id)
         }
 
@@ -75,11 +78,15 @@ export class ExpenseService {
         query = query.range(from, to)
 
         const { data, error, count } = await query
-        if (error) throw error
+        if (error) {
+            console.error('ExpenseService - Query error:', error)
+            throw error
+        }
 
         const total = count || 0
         const total_pages = Math.ceil(total / limit)
 
+        console.log('ExpenseService - Query result:', { total, dataLength: data?.length })
 
         return {
             data: data || [],
@@ -140,6 +147,9 @@ export class ExpenseService {
 
     // Get all filtered expenses without pagination (for summary calculations)
     static async getAllFiltered(filters: SimpleFilters = {}): Promise<ExpenseWithDetails[]> {
+        console.log('ExpenseService getAllFiltered - Filters received:', filters)
+        console.log('ExpenseService getAllFiltered - category_ids:', filters.category_ids)
+
         let query = supabase
             .from('expenses')
             .select(`
@@ -157,9 +167,15 @@ export class ExpenseService {
             query = query.lte('date', filters.date_to)
         }
 
-        // Apply category filter
-        if (filters.category_id) {
+        // Apply category filters - support both single and multiple categories
+        if (filters.category_ids && Array.isArray(filters.category_ids) && filters.category_ids.length > 0) {
+            console.log('ExpenseService getAllFiltered - Applying multiple category filter with:', filters.category_ids)
+            query = query.in('category_id', filters.category_ids)
+        } else if (filters.category_id) {
+            console.log('ExpenseService getAllFiltered - Applying single category filter with:', filters.category_id)
             query = query.eq('category_id', filters.category_id)
+        } else {
+            console.log('ExpenseService getAllFiltered - No category filter applied')
         }
 
         // Apply sorting
@@ -167,7 +183,12 @@ export class ExpenseService {
 
         const { data, error } = await query
 
-        if (error) throw error
+        if (error) {
+            console.error('ExpenseService getAllFiltered - Query error:', error)
+            throw error
+        }
+
+        console.log('ExpenseService getAllFiltered - Query result length:', data?.length)
         return data || []
     }
 } 

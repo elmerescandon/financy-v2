@@ -14,11 +14,12 @@ interface PaginationResult {
     total_pages: number
 }
 
-// Simple filter interface
+// Simple filter interface - updated to support multiple categories
 interface SimpleFilters {
     date_from?: string
     date_to?: string
     category_id?: string
+    category_ids?: string[]
 }
 
 interface ExpenseContextType {
@@ -55,9 +56,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         try {
             setLoading(true)
             setError(null)
-            console.log("This is the filters", filters)
+            console.log("ExpenseContext - fetchExpenses called with filters:", filters)
+            console.log("ExpenseContext - category_ids in filters:", filters.category_ids)
             const result = await ExpenseService.getFilteredWithPagination(filters, page, pageSize)
-            console.log("This is the result", result)
+            console.log("ExpenseContext - fetchExpenses result:", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {
