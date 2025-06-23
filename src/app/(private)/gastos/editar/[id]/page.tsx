@@ -37,9 +37,9 @@ export default function EditExpensePage() {
 
     if (loading) {
         return (
-            <div className="p-6">
-                <div className="flex justify-center items-center h-64">
-                    <div className="text-muted-foreground">Cargando gasto...</div>
+            <div className="min-h-screen bg-gray-50/30 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="text-gray-500 text-lg">Cargando gasto...</div>
                 </div>
             </div>
         )
@@ -47,50 +47,58 @@ export default function EditExpensePage() {
 
     if (!expense) {
         return (
-            <div className="p-6">
-                <Card className="border-destructive">
-                    <CardContent className="pt-6 text-center">
-                        <p className="text-destructive">No se encontró el gasto</p>
-                        <Button
-                            variant="outline"
-                            onClick={handleCancel}
-                            className="mt-4"
-                        >
-                            Volver a gastos
-                        </Button>
-                    </CardContent>
-                </Card>
+            <div className="min-h-screen bg-gray-50/30">
+                <div className="px-4 py-6 max-w-2xl mx-auto">
+                    <Card className="border-red-200 bg-red-50/50">
+                        <CardContent className="p-6 text-center">
+                            <p className="text-red-600 font-medium mb-4">No se encontró el gasto</p>
+                            <Button
+                                variant="outline"
+                                onClick={handleCancel}
+                                className="h-12 px-6"
+                                size="lg"
+                            >
+                                Volver a gastos
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCancel}
-                    className="hover:bg-sage-100"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Volver
-                </Button>
-                <h1 className="text-3xl font-bold text-warm-gray-900">Editar Gasto</h1>
-            </div>
+        <div className="min-h-screen bg-gray-50/30">
+            <div className="px-4 py-6 max-w-2xl mx-auto">
+                {/* Header - Mobile optimized */}
+                <div className="mb-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancel}
+                            className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                            Editar Gasto
+                        </h1>
+                    </div>
+                </div>
 
-            {/* Form */}
-            <Card>
-                <CardContent className="pt-6">
-                    <ExpenseForm
-                        categories={categories}
-                        initialData={expense}
-                        onSubmit={handleUpdateExpense}
-                        onCancel={handleCancel}
-                    />
-                </CardContent>
-            </Card>
+                {/* Form Card - Mobile optimized */}
+                <Card className="shadow-sm border border-gray-100">
+                    <CardContent className="p-6">
+                        <ExpenseForm
+                            categories={categories}
+                            initialData={expense}
+                            onSubmit={handleUpdateExpense}
+                            onCancel={handleCancel}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     )
 } 

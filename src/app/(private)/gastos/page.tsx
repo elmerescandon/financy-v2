@@ -35,25 +35,38 @@ export default function ExpensesPage() {
 
 
     return (
-        <div className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">Gastos</h1>
-                <Button
-                    onClick={() => router.push('/gastos/agregar')}
-                    className="w-full sm:w-auto"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agregar Gasto
-                </Button>
-            </div>
+        <div className="min-h-screen bg-gray-50/30">
+            <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
+                {/* Header - Mobile optimized */}
+                <div className="flex flex-col gap-4">
+                    <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                        Gastos
+                    </h1>
+                    <Button
+                        onClick={() => router.push('/gastos/agregar')}
+                        className="w-full h-12 text-base font-medium shadow-sm hover:shadow-md transition-shadow duration-200"
+                        size="lg"
+                    >
+                        <Plus className="w-5 h-5 mr-3" />
+                        Agregar Gasto
+                    </Button>
+                </div>
 
-            <ExpenseSummary allFilteredExpenses={allFilteredExpenses} />
-            <ExpenseFilters
-                categories={categories}
-                filters={uiFilters}
-                onFiltersChange={handleFiltersChange}
-            />
-            <ExpenseTable />
+                {/* Content with improved mobile spacing */}
+                <div className="space-y-6">
+                    <ExpenseSummary allFilteredExpenses={allFilteredExpenses} />
+
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <ExpenseFilters
+                            categories={categories}
+                            filters={uiFilters}
+                            onFiltersChange={handleFiltersChange}
+                        />
+                    </div>
+
+                    <ExpenseTable />
+                </div>
+            </div>
         </div>
     )
 } 

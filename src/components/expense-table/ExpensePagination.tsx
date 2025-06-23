@@ -37,19 +37,48 @@ export function ExpensePagination({
         }
     }
 
+    // Generate page numbers with responsive logic
+    const getPageNumbers = () => {
+        const pages = []
+
+        if (total_pages <= 5) {
+            for (let i = 1; i <= total_pages; i++) {
+                pages.push(i)
+            }
+        } else if (page <= 3) {
+            for (let i = 1; i <= 5; i++) {
+                pages.push(i)
+            }
+        } else if (page >= total_pages - 2) {
+            for (let i = total_pages - 4; i <= total_pages; i++) {
+                pages.push(i)
+            }
+        } else {
+            for (let i = page - 2; i <= page + 2; i++) {
+                pages.push(i)
+            }
+        }
+
+        return pages
+    }
+
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>
+        <div className="flex flex-col gap-4 py-4">
+            {/* Results info */}
+            <div className="flex items-center justify-center sm:justify-start">
+                <span className="text-sm text-muted-foreground text-center sm:text-left">
                     Mostrando {startItem} a {endItem} de {total} resultados
                 </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Pagination controls */}
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+                {/* Page size selector */}
                 <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Por página:</span>
+                    <span className="text-sm text-muted-foreground hidden sm:inline">Por página:</span>
+                    <span className="text-sm text-muted-foreground sm:hidden">Página:</span>
                     <Select value={limit.toString()} onValueChange={handlePageSizeChange}>
-                        <SelectTrigger className="w-20">
+                        <SelectTrigger className="w-16 sm:w-20">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -61,49 +90,40 @@ export function ExpensePagination({
                     </Select>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Navigation buttons */}
+                <div className="flex items-center gap-1 sm:gap-2">
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handlePageChange(1)}
                         disabled={page <= 1}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                     >
-                        <ChevronsLeft className="h-4 w-4" />
+                        <ChevronsLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handlePageChange(page - 1)}
                         disabled={page <= 1}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                     >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
 
+                    {/* Page numbers - responsive */}
                     <div className="flex items-center gap-1">
-                        {Array.from({ length: Math.min(5, total_pages) }, (_, i) => {
-                            let pageNum: number
-                            if (total_pages <= 5) {
-                                pageNum = i + 1
-                            } else if (page <= 3) {
-                                pageNum = i + 1
-                            } else if (page >= total_pages - 2) {
-                                pageNum = total_pages - 4 + i
-                            } else {
-                                pageNum = page - 2 + i
-                            }
-
-                            return (
-                                <Button
-                                    key={pageNum}
-                                    variant={page === pageNum ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => handlePageChange(pageNum)}
-                                    className="w-8 h-8"
-                                >
-                                    {pageNum}
-                                </Button>
-                            )
-                        })}
+                        {getPageNumbers().map(pageNum => (
+                            <Button
+                                key={pageNum}
+                                variant={page === pageNum ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handlePageChange(pageNum)}
+                                className="h-8 w-8 p-0 text-xs sm:h-9 sm:w-9 sm:text-sm"
+                            >
+                                {pageNum}
+                            </Button>
+                        ))}
                     </div>
 
                     <Button
@@ -111,16 +131,18 @@ export function ExpensePagination({
                         size="sm"
                         onClick={() => handlePageChange(page + 1)}
                         disabled={page >= total_pages}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                     >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handlePageChange(total_pages)}
                         disabled={page >= total_pages}
+                        className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                     >
-                        <ChevronsRight className="h-4 w-4" />
+                        <ChevronsRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                 </div>
             </div>

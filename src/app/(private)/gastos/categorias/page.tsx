@@ -31,31 +31,40 @@ export default function CategoriesPage() {
     }
 
     return (
-        <div className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push('/gastos')}
-                        className="w-auto"
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Volver
-                    </Button>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">
-                        Análisis por Categorías
-                    </h1>
+        <div className="min-h-screen bg-gray-50/30">
+            <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
+                {/* Header - Mobile optimized */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push('/gastos')}
+                            className="h-10 w-10 p-0 rounded-full shadow-sm hover:shadow-md transition-shadow duration-200"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                            Análisis por Categorías
+                        </h1>
+                    </div>
+                </div>
+
+                {/* Content with improved mobile spacing */}
+                <div className="space-y-6">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <ExpenseFilters
+                            categories={categories}
+                            filters={uiFilters}
+                            onFiltersChange={handleFiltersChange}
+                        />
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <CategoryOverview />
+                    </div>
                 </div>
             </div>
-
-            <ExpenseFilters
-                categories={categories}
-                filters={uiFilters}
-                onFiltersChange={handleFiltersChange}
-            />
-
-            <CategoryOverview />
         </div>
     )
 } 

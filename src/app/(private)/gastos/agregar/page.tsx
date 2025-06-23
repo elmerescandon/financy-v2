@@ -30,30 +30,36 @@ export default function AddExpensePage() {
     }
 
     return (
-        <div className="p-6 space-y-6 lg:mx-auto lg:w-fit">
-            <div>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCancel}
-                    className="hover:bg-sage-100"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Volver
-                </Button>
-                <h1 className="text-3xl font-bold text-warm-gray-900 pt-6 text-left lg:text-center">Agregar Gasto</h1>
+        <div className="min-h-screen bg-gray-50/30">
+            <div className="px-4 py-6 max-w-2xl mx-auto">
+                {/* Header - Mobile optimized */}
+                <div className="mb-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancel}
+                            className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                            Agregar Gasto
+                        </h1>
+                    </div>
+                </div>
+
+                {/* Form Card - Mobile optimized */}
+                <Card className="shadow-sm border border-gray-100">
+                    <CardContent className="p-6">
+                        <ExpenseForm
+                            categories={categories}
+                            onSubmit={handleCreateExpense}
+                            onCancel={handleCancel}
+                        />
+                    </CardContent>
+                </Card>
             </div>
-
-
-            <Card className="w-fit mr-auto lg:ml-auto ">
-                <CardContent className="pt-4">
-                    <ExpenseForm
-                        categories={categories}
-                        onSubmit={handleCreateExpense}
-                        onCancel={handleCancel}
-                    />
-                </CardContent>
-            </Card>
         </div>
     )
 } 
