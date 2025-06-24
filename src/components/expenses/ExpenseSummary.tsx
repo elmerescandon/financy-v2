@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingDown, Calendar, Tag } from 'lucide-react'
 import { formatAmount } from '@/lib/utils/formats'
 import type { Expense } from '@/types/expense'
+import { useExpenseContext } from '@/lib/context/ExpenseContext'
 
-interface ExpenseSummaryProps {
-    allFilteredExpenses: Expense[]
-}
 
-export function ExpenseSummary({ allFilteredExpenses }: ExpenseSummaryProps) {
+export function ExpenseSummary() {
+
+    const { allFilteredExpenses } = useExpenseContext()
+
+
     const totalExpenses = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
     const monthlyExpenses = allFilteredExpenses.filter(expense => {

@@ -17,7 +17,6 @@ import { useRouter } from 'next/navigation'
 export default function ExpensesPage() {
     const {
         updateFilters,
-        allFilteredExpenses,
     } = useExpenseContext()
     const { categories } = useCategories()
     const router = useRouter()
@@ -54,7 +53,7 @@ export default function ExpensesPage() {
 
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
-                    <ExpenseSummary allFilteredExpenses={allFilteredExpenses} />
+                    <ExpenseSummary />
 
                     <ExpenseFilters
                         categories={categories}

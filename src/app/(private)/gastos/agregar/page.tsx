@@ -30,7 +30,7 @@ export default function AddExpensePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/30">
+        <div className="min-h-screen bg-background">
             <div className="px-4 py-6 max-w-2xl mx-auto">
                 {/* Header - Mobile optimized */}
                 <div className="mb-6">
@@ -43,14 +43,14 @@ export default function AddExpensePage() {
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
-                        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                        <h1 className="text-2xl font-bold text-foreground leading-tight">
                             Agregar Gasto
                         </h1>
                     </div>
                 </div>
 
                 {/* Form Card - Mobile optimized */}
-                <Card className="shadow-sm border border-gray-100">
+                <Card className="shadow-sm border">
                     <CardContent className="p-6">
                         <ExpenseForm
                             categories={categories}

@@ -119,7 +119,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
         try {
             await expenseService.create({ ...data, currency: CURRENCY, type: 'expense', source: 'manual' })
-            await fetchExpenses()
+            await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')
         }
