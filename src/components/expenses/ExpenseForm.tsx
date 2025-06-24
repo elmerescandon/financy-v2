@@ -55,6 +55,8 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     const [tags, setTags] = useState<string[]>(initialData?.tags || [])
     const [tagInput, setTagInput] = useState('')
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [showTimeInput, setShowTimeInput] = useState(false)
+    const [hasModifiedDate, setHasModifiedDate] = useState(false)
 
     const selectedCategory = categories.find(cat => cat.id === formData.category_id)
     const subcategories = selectedCategory?.subcategories || []
@@ -103,17 +105,37 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         }
     }
 
+    const handleDateChange = (dateString: string) => {
+        const dateObj = new Date(dateString)
 
-    const handleDateChange = (date: string) => {
-        const dateObj = new Date(date)
+        // If user selects a date, set time to 12:00 PM
+        if (dateString) {
+            dateObj.setHours(12, 0, 0, 0)
+            setHasModifiedDate(true)
+        } else {
+            // If no date, use current time
+            dateObj.setTime(Date.now())
+            setHasModifiedDate(false)
+        }
+
         handleInputChange('date', dateObj)
     }
 
+    const handleTimeChange = (timeString: string) => {
+        const [hours, minutes] = timeString.split(':').map(Number)
+        const newDate = new Date(formData.date)
+        newDate.setHours(hours, minutes, 0, 0)
+        handleInputChange('date', newDate)
+    }
+
     const formatDate = (date: Date) => {
-        const dateString = date.toISOString().split('T')[0]
+        return date.toISOString().split('T')[0]
+    }
+
+    const formatTime = (date: Date) => {
         const hours = date.getHours().toString().padStart(2, '0')
         const minutes = date.getMinutes().toString().padStart(2, '0')
-        return `${dateString}T${hours}:${minutes}`
+        return `${hours}:${minutes}`
     }
 
     const handleInputChange = (field: string, value: string | Date) => {
@@ -208,16 +230,35 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 </div>
             </div>
 
-            <div>
-                <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
-                <Input type="datetime-local"
-                    value={formatDate(formData.date)}
-                    onChange={(e) => handleDateChange(e.target.value)}
-                    className='text-sm w-full'
-                />
-                {/* <DateTimePicker24h date={formData.date} onDateChange={(date) => handleInputChange('date', date)} /> */}
-                {errors.date && (
-                    <p className="text-sm text-destructive mt-1">{errors.date}</p>
+            <div className={hasModifiedDate ? "grid grid-cols-2 gap-4 max-lg:grid-cols-1" : ""}>
+                {/* Date */}
+                <div>
+                    <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
+                    <Input
+                        type="date"
+                        value={formatDate(formData.date)}
+                        onChange={(e) => handleDateChange(e.target.value)}
+                        className='text-sm w-full'
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                        Deja sin modificar para usar la fecha y hora actual
+                    </p>
+                    {errors.date && (
+                        <p className="text-sm text-destructive mt-1">{errors.date}</p>
+                    )}
+                </div>
+
+                {/* Time - Only show if user modified the date */}
+                {hasModifiedDate && (
+                    <div>
+                        <Label htmlFor="time" className="text-sm font-medium mb-2">Hora</Label>
+                        <Input
+                            type="time"
+                            value={formatTime(formData.date)}
+                            onChange={(e) => handleTimeChange(e.target.value)}
+                            className='text-sm w-full'
+                        />
+                    </div>
                 )}
             </div>
 

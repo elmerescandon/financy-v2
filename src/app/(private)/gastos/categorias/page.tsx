@@ -31,7 +31,7 @@ export default function CategoriesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/30">
+        <div className="min-h-screen bg-background">
             <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
                 {/* Header - Mobile optimized */}
                 <div className="flex flex-col gap-4">
@@ -44,7 +44,7 @@ export default function CategoriesPage() {
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
-                        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                        <h1 className="text-2xl font-bold text-foreground leading-tight">
                             Análisis por Categorías
                         </h1>
                     </div>
@@ -52,7 +52,7 @@ export default function CategoriesPage() {
 
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-background rounded-xl shadow-sm border overflow-hidden">
                         <ExpenseFilters
                             categories={categories}
                             filters={uiFilters}
@@ -60,7 +60,7 @@ export default function CategoriesPage() {
                         />
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-background rounded-xl shadow-sm border overflow-hidden">
                         <CategoryOverview />
                     </div>
                 </div>

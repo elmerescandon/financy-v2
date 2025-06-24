@@ -118,3 +118,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Recharts axis label color fix */
+.recharts-cartesian-axis-tick-value {
+  fill: hsl(var(--foreground)) !important;
+}

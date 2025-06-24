@@ -35,11 +35,16 @@ export function WeeklySpendingChart({ weeklyData }: WeeklySpendingChartProps) {
     )
 
     const colors = [
-        'hsl(var(--chart-1))',
-        'hsl(var(--chart-2))',
-        'hsl(var(--chart-3))',
-        'hsl(var(--chart-4))',
-        'hsl(var(--chart-5))'
+        '#A8E6CF', // mint green
+        '#FFB3BA', // light pink
+        '#FFDAC1', // peach
+        '#C7CEEA', // lavender
+        '#E2F0CB', // light green
+        '#FFE5B4', // light orange
+        '#D4A5A5', // dusty rose
+        '#B8E0D2', // sage green
+        '#F4C2C2', // coral pink
+        '#C8E6C9'  // light mint
     ]
 
     const CustomTooltip = ({ active, payload, label }: any) => {
@@ -75,13 +80,15 @@ export function WeeklySpendingChart({ weeklyData }: WeeklySpendingChartProps) {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                             <XAxis
                                 dataKey="week"
-                                stroke="hsl(var(--muted-foreground))"
+                                stroke="hsl(var(--foreground))"
                                 fontSize={12}
+                                style={{ fill: 'hsl(var(--foreground))' }}
                             />
                             <YAxis
-                                stroke="hsl(var(--muted-foreground))"
+                                stroke="hsl(var(--foreground))"
                                 fontSize={12}
                                 tickFormatter={(value) => formatAmount(value)}
+                                style={{ fill: 'hsl(var(--foreground))' }}
                             />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend />

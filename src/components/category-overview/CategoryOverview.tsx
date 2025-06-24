@@ -62,7 +62,7 @@ export function CategoryOverview() {
 
             {/* Category Breakdown */}
             <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-warm-gray-900">
+                <h2 className="text-xl font-semibold text-foreground">
                     Desglose por Categorías
                 </h2>
                 <div className="space-y-4">
