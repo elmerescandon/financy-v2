@@ -110,7 +110,7 @@ export function IncomeList({ incomes, onEdit, onDelete, loading }: IncomeListPro
                                 <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                                     <div className="flex items-center gap-1">
                                         <span className="font-medium text-green-600">
-                                            {formatAmount(income.amount, income.currency)}
+                                            {formatAmount(income.amount, income.currency || 'PEN')}
                                         </span>
                                     </div>
 

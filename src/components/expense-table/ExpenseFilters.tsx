@@ -115,7 +115,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     }
 
     return (
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 p-4 bg-background rounded-xl border shadow-none">
             {/* Date Range Buttons */}
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
                 <div className="flex-1 min-w-0">

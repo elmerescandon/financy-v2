@@ -267,13 +267,12 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                 </div>
             )}
 
-            <Accordion type='single' collapsible>
+            {/* <Accordion type='single' collapsible>
                 <AccordionItem value="item-1" className='my-2 max-w-5xl w-full'>
                     <AccordionTrigger type='button' className='w-full'>
                         <span className="text-sm font-medium">Agregar detalles</span>
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4">
-                        {/* Employer/Client */}
                         <div>
                             <Label htmlFor="employer_client" className="text-sm font-medium mb-2">Empleador/Cliente</Label>
                             <Input
@@ -284,7 +283,6 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                             />
                         </div>
 
-                        {/* Category */}
                         <div>
                             <Label htmlFor="category" className="text-sm font-medium mb-2">Categoría</Label>
                             <Select value={formData.category_id} onValueChange={(value) => handleInputChange('category_id', value)}>
@@ -304,7 +302,6 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                             </Select>
                         </div>
 
-                        {/* Taxable */}
                         <div className="flex items-center space-x-2">
                             <input
                                 id="is_taxable"
@@ -318,7 +315,6 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                             </Label>
                         </div>
 
-                        {/* Notes */}
                         <div>
                             <Label htmlFor="notes" className="text-sm font-medium mb-2">Notas</Label>
                             <Textarea
@@ -329,7 +325,6 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                             />
                         </div>
 
-                        {/* Tags */}
                         <div>
                             <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
                             <div className="flex gap-2 mb-2">
@@ -358,9 +353,8 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-            </Accordion>
+            </Accordion> */}
 
-            {/* Form Actions */}
             <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

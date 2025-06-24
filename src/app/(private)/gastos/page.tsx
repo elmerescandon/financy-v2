@@ -35,11 +35,11 @@ export default function ExpensesPage() {
 
 
     return (
-        <div className="min-h-screen bg-gray-50/30">
+        <div className="min-h-screen bg-background">
             <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
                 {/* Header - Mobile optimized */}
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                    <h1 className="text-2xl font-bold text-foreground leading-tight">
                         Gastos
                     </h1>
                     <Button
@@ -56,13 +56,11 @@ export default function ExpensesPage() {
                 <div className="space-y-6">
                     <ExpenseSummary allFilteredExpenses={allFilteredExpenses} />
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <ExpenseFilters
-                            categories={categories}
-                            filters={uiFilters}
-                            onFiltersChange={handleFiltersChange}
-                        />
-                    </div>
+                    <ExpenseFilters
+                        categories={categories}
+                        filters={uiFilters}
+                        onFiltersChange={handleFiltersChange}
+                    />
 
                     <ExpenseTable />
                 </div>
