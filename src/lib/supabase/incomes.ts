@@ -4,18 +4,21 @@ import type { IncomeWithDetails, CreateIncomeData, UpdateIncomeData, IncomeListI
 const supabase = createClient()
 
 export class IncomeService {
-    // Create income (using expenses table with type: 'income')
-    static async create(income: CreateIncomeData) {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('User not authenticated')
+    private userId: string
 
+    constructor(userId: string) {
+        if (!userId) throw new Error('IncomeService requires a userId')
+        this.userId = userId
+    }
+
+    // Create income (using expenses table with type: 'income')
+    async create(income: CreateIncomeData) {
         // Extract income-specific fields that need mapping
         const { employer_client, is_recurring, is_taxable, recurring_end_date, source, ...baseData } = income
 
         const incomeData = {
             ...baseData,
-            user_id: user.id,
+            user_id: this.userId,
             type: 'income',
             // Map income-specific fields to expense table columns
             merchant: employer_client,
@@ -45,13 +48,14 @@ export class IncomeService {
     }
 
     // Get all incomes for current user
-    static async getAll(limit = 50, offset = 0, filters?: IncomeFilters, sort?: IncomeSort) {
+    async getAll(limit = 50, offset = 0, filters?: IncomeFilters, sort?: IncomeSort) {
         let query = supabase
             .from('expenses')
             .select(`
                 *,
                 category:categories(id, name, color, icon)
             `)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
 
         // Apply filters
@@ -86,7 +90,7 @@ export class IncomeService {
     }
 
     // Get income by ID
-    static async getById(id: string) {
+    async getById(id: string) {
         const { data, error } = await supabase
             .from('expenses')
             .select(`
@@ -94,6 +98,7 @@ export class IncomeService {
                 category:categories(id, name, color, icon)
             `)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
             .single()
 
@@ -102,7 +107,7 @@ export class IncomeService {
     }
 
     // Update income
-    static async update(id: string, updates: UpdateIncomeData) {
+    async update(id: string, updates: UpdateIncomeData) {
         // Extract income-specific fields that need mapping
         const { employer_client, is_recurring, is_taxable, recurring_end_date, source, ...baseUpdates } = updates
 
@@ -123,6 +128,7 @@ export class IncomeService {
             .from('expenses')
             .update(updateData)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
             .select(`
                 *,
@@ -135,24 +141,26 @@ export class IncomeService {
     }
 
     // Delete income
-    static async delete(id: string) {
+    async delete(id: string) {
         const { error } = await supabase
             .from('expenses')
             .delete()
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
 
         if (error) throw error
     }
 
     // Get incomes by date range
-    static async getByDateRange(startDate: string, endDate: string) {
+    async getByDateRange(startDate: string, endDate: string) {
         const { data, error } = await supabase
             .from('expenses')
             .select(`
                 *,
                 category:categories(id, name, color, icon)
             `)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
             .gte('date', startDate)
             .lte('date', endDate)
@@ -163,13 +171,14 @@ export class IncomeService {
     }
 
     // Get recurring incomes
-    static async getRecurring() {
+    async getRecurring() {
         const { data, error } = await supabase
             .from('expenses')
             .select(`
                 *,
                 category:categories(id, name, color, icon)
             `)
+            .eq('user_id', this.userId)
             .eq('type', 'income')
             .eq('recurring', true)
             .order('date', { ascending: false })
@@ -179,10 +188,11 @@ export class IncomeService {
     }
 
     // Get income statistics
-    static async getStats(startDate?: string, endDate?: string) {
+    async getStats(startDate?: string, endDate?: string) {
         let query = supabase
             .from('expenses')
             .select('amount, currency')
+            .eq('user_id', this.userId)
             .eq('type', 'income')
 
         if (startDate) query = query.gte('date', startDate)
@@ -209,7 +219,7 @@ export class IncomeService {
     }
 
     // Helper method to map expense data to income format
-    private static mapToIncomeWithDetails(data: any): IncomeWithDetails {
+    private mapToIncomeWithDetails(data: any): IncomeWithDetails {
         return {
             id: data.id,
             user_id: data.user_id,
