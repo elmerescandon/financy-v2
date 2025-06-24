@@ -106,26 +106,28 @@ export function ExpenseTable() {
                         ))}
                     </TableBody>
                     }
-                    {!loading && expenses.length === 0 && <TableBody>
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center">No se encontraron gastos</TableCell>
-                            <div className="text-center py-8">
-                                <p className="text-muted-foreground mb-4">
-                                    {expenses.length === 0
-                                        ? 'No tienes gastos registrados aún.'
-                                        : 'No se encontraron gastos con los filtros aplicados.'
-                                    }
-                                </p>
-                                <Button
-                                    onClick={() => router.push('/gastos/agregar')}
-                                    variant="outline"
-                                    className="w-full sm:w-auto cursor-pointer"
-                                >
-                                    Agregar tu primer gasto
-                                </Button>
-                            </div>
-                        </TableRow>
-                    </TableBody>}
+                    {!loading && expenses.length === 0 &&
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center">
+                                    <div className="flex flex-col items-center justify-center w-full my-10">
+                                        <p className="text-muted-foreground mb-4">
+                                            {expenses.length === 0
+                                                ? 'No tienes gastos registrados aún.'
+                                                : 'No se encontraron gastos con los filtros aplicados.'
+                                            }
+                                        </p>
+                                        <Button
+                                            onClick={() => router.push('/gastos/agregar')}
+                                            variant="outline"
+                                            className="w-full sm:w-auto cursor-pointer"
+                                        >
+                                            Agregar tu primer gasto
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>}
                 </Table>
             </div>
 
@@ -134,6 +136,6 @@ export function ExpenseTable() {
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
             />
-        </div>
+        </div >
     )
 } 

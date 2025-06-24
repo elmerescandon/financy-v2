@@ -15,22 +15,27 @@ interface UpdateSubcategoryData {
 }
 
 export class CategoryService {
+    private userId: string
+    constructor(userId: string) {
+        if (!userId) throw new Error('CategoryService requires a userId')
+        this.userId = userId
+    }
     // Get all categories with subcategories
-    static async getAll() {
+    async getAll() {
         const { data, error } = await supabase
             .from('categories')
             .select(`
         *,
         subcategories (*)
       `)
+            .eq('user_id', this.userId)
             .order('name')
 
         if (error) throw error
         return data as CategoryWithSubcategories[]
     }
-
     // Get category by ID with subcategories
-    static async getById(id: string) {
+    async getById(id: string) {
         const { data, error } = await supabase
             .from('categories')
             .select(`
@@ -38,92 +43,97 @@ export class CategoryService {
         subcategories (*)
       `)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .single()
 
         if (error) throw error
         return data as CategoryWithSubcategories
     }
-
     // Create category
-    static async create(category: CreateCategoryData) {
+    async create(category: CreateCategoryData) {
         const { data, error } = await supabase
             .from('categories')
-            .insert(category)
+            .insert({ ...category, user_id: this.userId })
             .select()
             .single()
 
         if (error) throw error
         return data as Category
     }
-
     // Update category
-    static async update(id: string, updates: UpdateCategoryData) {
+    async update(id: string, updates: UpdateCategoryData) {
         const { data, error } = await supabase
             .from('categories')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .select()
             .single()
 
         if (error) throw error
         return data as Category
     }
-
     // Delete category
-    static async delete(id: string) {
+    async delete(id: string) {
         const { error } = await supabase
             .from('categories')
             .delete()
             .eq('id', id)
+            .eq('user_id', this.userId)
 
         if (error) throw error
     }
 }
 
 export class SubcategoryService {
+    private userId: string
+    constructor(userId: string) {
+        if (!userId) throw new Error('SubcategoryService requires a userId')
+        this.userId = userId
+    }
     // Get subcategories by category
-    static async getByCategory(categoryId: string) {
+    async getByCategory(categoryId: string) {
         const { data, error } = await supabase
             .from('subcategories')
             .select('*')
             .eq('category_id', categoryId)
+            .eq('user_id', this.userId)
             .order('name')
 
         if (error) throw error
         return data as Subcategory[]
     }
-
     // Create subcategory
-    static async create(subcategory: CreateSubcategoryData) {
+    async create(subcategory: CreateSubcategoryData) {
         const { data, error } = await supabase
             .from('subcategories')
-            .insert(subcategory)
+            .insert({ ...subcategory, user_id: this.userId })
             .select()
             .single()
 
         if (error) throw error
         return data as Subcategory
     }
-
     // Update subcategory
-    static async update(id: string, updates: UpdateSubcategoryData) {
+    async update(id: string, updates: UpdateSubcategoryData) {
         const { data, error } = await supabase
             .from('subcategories')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .select()
             .single()
 
         if (error) throw error
         return data as Subcategory
     }
-
     // Delete subcategory
-    static async delete(id: string) {
+    async delete(id: string) {
         const { error } = await supabase
             .from('subcategories')
             .delete()
             .eq('id', id)
+            .eq('user_id', this.userId)
 
         if (error) throw error
     }

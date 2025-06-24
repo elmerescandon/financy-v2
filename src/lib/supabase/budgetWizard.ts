@@ -57,13 +57,15 @@ export async function getSpendingInsights(
     const lastMonth = subMonths(currentDate, 1)
     const quarterStart = subMonths(currentDate, 3)
 
+    const expenseService = new ExpenseService(userId)
+
     // Get last month spending using existing service
-    const lastMonthExpenses = await ExpenseService.getAllFiltered(
+    const lastMonthExpenses = await expenseService.getAllFiltered(
         { date_from: format(startOfMonth(lastMonth), 'yyyy-MM-dd'), date_to: format(endOfMonth(lastMonth), 'yyyy-MM-dd') }
     )
 
     // Get quarter spending using existing service
-    const quarterExpenses = await ExpenseService.getAllFiltered(
+    const quarterExpenses = await expenseService.getAllFiltered(
         { date_from: format(quarterStart, 'yyyy-MM-dd'), date_to: format(subMonths(currentDate, 1), 'yyyy-MM-dd') } // Up to last month
     )
 
@@ -160,9 +162,10 @@ export async function getSpendingInsights(
 
 export async function getEligibleCategories(userId: string): Promise<EligibleCategory[]> {
     const threeMonthsAgo = subMonths(new Date(), 3)
+    const expenseService = new ExpenseService(userId)
 
     // Get categories with recent spending (exclude income)
-    const categorySpending = await ExpenseService.getAllFiltered(
+    const categorySpending = await expenseService.getAllFiltered(
         { date_from: format(threeMonthsAgo, 'yyyy-MM-dd'), date_to: format(new Date(), 'yyyy-MM-dd') }
     )
 

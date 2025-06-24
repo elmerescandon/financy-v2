@@ -22,11 +22,20 @@ interface SimpleFilters {
 }
 
 export class ExpenseService {
+    private userId: string
+
+    constructor(userId: string) {
+        if (!userId) {
+            throw new Error('ExpenseService requires a userId to be initialized')
+        }
+        this.userId = userId
+    }
+
     // Create expense
-    static async create(expense: CreateExpenseData) {
+    async create(expense: CreateExpenseData) {
         const { data, error } = await supabase
             .from('expenses')
-            .insert(expense)
+            .insert({ ...expense, user_id: this.userId })
             .select(`
         *,
         category:categories(id, name, color, icon),
@@ -39,7 +48,7 @@ export class ExpenseService {
     }
 
     // Get filtered expenses with pagination (simplified)
-    static async getFilteredWithPagination(
+    async getFilteredWithPagination(
         filters: SimpleFilters = {},
         page = 1,
         limit = 20
@@ -52,6 +61,7 @@ export class ExpenseService {
                 category:categories(id, name, color, icon),
                 subcategory:subcategories(id, name, category_id)
             `, { count: 'exact' })
+            .eq('user_id', this.userId)
             .eq('type', 'expense')
 
         // Apply date filters
@@ -100,7 +110,7 @@ export class ExpenseService {
     }
 
     // Get expense by ID
-    static async getById(id: string) {
+    async getById(id: string) {
         const { data, error } = await supabase
             .from('expenses')
             .select(`
@@ -109,6 +119,7 @@ export class ExpenseService {
         subcategory:subcategories(id, name, category_id)
       `)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'expense')
             .single()
 
@@ -117,11 +128,12 @@ export class ExpenseService {
     }
 
     // Update expense
-    static async update(id: string, updates: UpdateExpenseData) {
+    async update(id: string, updates: UpdateExpenseData) {
         const { data, error } = await supabase
             .from('expenses')
             .update(updates)
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'expense')
             .select(`
         *,
@@ -135,18 +147,19 @@ export class ExpenseService {
     }
 
     // Delete expense
-    static async delete(id: string) {
+    async delete(id: string) {
         const { error } = await supabase
             .from('expenses')
             .delete()
             .eq('id', id)
+            .eq('user_id', this.userId)
             .eq('type', 'expense')
 
         if (error) throw error
     }
 
     // Get all filtered expenses without pagination (for summary calculations)
-    static async getAllFiltered(filters: SimpleFilters = {}): Promise<ExpenseWithDetails[]> {
+    async getAllFiltered(filters: SimpleFilters = {}): Promise<ExpenseWithDetails[]> {
         console.log('ExpenseService getAllFiltered - Filters received:', filters)
         console.log('ExpenseService getAllFiltered - category_ids:', filters.category_ids)
 
@@ -157,6 +170,7 @@ export class ExpenseService {
                 category:categories(id, name, color, icon),
                 subcategory:subcategories(id, name, category_id)
             `)
+            .eq('user_id', this.userId)
             .eq('type', 'expense')
 
         // Apply date filters

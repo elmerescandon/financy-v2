@@ -143,7 +143,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-2 max-w-5xl w-full min-w-2xl max-lg:min-w-2xs max-lg:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2 max-w-5xl w-full min-w-full max-lg:min-w-2xs max-lg:space-y-4">
             {/* Amount */}
             <div>
                 <Label htmlFor="amount" className="text-sm font-medium mb-2">Cantidad *</Label>

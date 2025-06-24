@@ -49,16 +49,34 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     const [filters, setFilters] = useState<SimpleFilters>({})
     const [page, setPageState] = useState(1)
     const [pageSize, setPageSizeState] = useState(20)
+    const [expenseService, setExpenseService] = useState<ExpenseService | null>(null)
 
     const supabase = createClient()
 
+    // Initialize ExpenseService with userId
+    useEffect(() => {
+        const initializeService = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    setExpenseService(new ExpenseService(user.id))
+                }
+            } catch (err) {
+                console.error('Error initializing ExpenseService:', err)
+            }
+        }
+        initializeService()
+    }, [supabase.auth])
+
     const fetchExpenses = useCallback(async () => {
+        if (!expenseService) return
+
         try {
             setLoading(true)
             setError(null)
             console.log("ExpenseContext - fetchExpenses called with filters:", filters)
             console.log("ExpenseContext - category_ids in filters:", filters.category_ids)
-            const result = await ExpenseService.getFilteredWithPagination(filters, page, pageSize)
+            const result = await expenseService.getFilteredWithPagination(filters, page, pageSize)
             console.log("ExpenseContext - fetchExpenses result:", result)
             setExpenses(result.data)
             setPagination(result.pagination)
@@ -67,16 +85,18 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         } finally {
             setLoading(false)
         }
-    }, [filters, page, pageSize])
+    }, [expenseService, filters, page, pageSize])
 
     const fetchAllFilteredExpenses = useCallback(async () => {
+        if (!expenseService) return
+
         try {
-            const allExpenses = await ExpenseService.getAllFiltered(filters)
+            const allExpenses = await expenseService.getAllFiltered(filters)
             setAllFilteredExpenses(allExpenses)
         } catch (err) {
             console.error('Error fetching all filtered expenses:', err)
         }
-    }, [filters])
+    }, [expenseService, filters])
 
     const updateFilters = async (newFilters: SimpleFilters) => {
         setPageState(1) // Reset to first page when filters change
@@ -95,10 +115,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }
 
     const createExpense = async (data: CreateExpenseData) => {
+        if (!expenseService) throw new Error('ExpenseService not initialized')
+
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error('Usuario no autenticado')
-            await ExpenseService.create({ ...data, user_id: user.id, currency: CURRENCY, type: 'expense', source: 'manual' })
+            await expenseService.create({ ...data, currency: CURRENCY, type: 'expense', source: 'manual' })
             await fetchExpenses()
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')
@@ -106,8 +126,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }
 
     const updateExpense = async (id: string, data: UpdateExpenseData) => {
+        if (!expenseService) throw new Error('ExpenseService not initialized')
+
         try {
-            const updatedExpense = await ExpenseService.update(id, data)
+            const updatedExpense = await expenseService.update(id, data)
             setExpenses(prev => prev.map(exp => exp.id === id ? updatedExpense : exp))
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al actualizar gasto')
@@ -115,8 +137,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }
 
     const deleteExpense = async (id: string) => {
+        if (!expenseService) throw new Error('ExpenseService not initialized')
+
         try {
-            await ExpenseService.delete(id)
+            await expenseService.delete(id)
             await fetchExpenses()
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al eliminar gasto')
@@ -128,8 +152,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }
 
     useEffect(() => {
-        Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
-    }, [fetchExpenses, fetchAllFilteredExpenses, filters])
+        if (expenseService) {
+            Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        }
+    }, [fetchExpenses, fetchAllFilteredExpenses, filters, expenseService])
 
     return (
         <ExpenseContext.Provider value={{
