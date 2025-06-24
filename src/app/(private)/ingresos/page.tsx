@@ -16,7 +16,7 @@ import { formatAmount } from '@/lib/utils/formats'
 export default function IncresosPage() {
     const [filters, setFilters] = useState<IncomeFiltersType>({})
     const router = useRouter()
-    const { incomes, loading, error, deleteIncome } = useIncomeContEext()
+    const { incomes, loading, error, deleteIncome } = useIncomeContext()
     const { categories } = useCategories()
 
     const handleDeleteIncome = async (id: string) => {
