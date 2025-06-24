@@ -13,6 +13,7 @@ interface IncomeContextType {
     updateIncome: (id: string, data: UpdateIncomeData) => Promise<void>
     deleteIncome: (id: string) => Promise<void>
     refreshIncomes: () => Promise<void>
+    getIncomeStats: () => Promise<any>
 }
 
 const IncomeContext = createContext<IncomeContextType | undefined>(undefined)
@@ -88,6 +89,11 @@ export function IncomeProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    const getIncomeStats = async () => {
+        if (!incomeService) throw new Error('IncomeService not initialized')
+        return await incomeService.getStats()
+    }
+
     useEffect(() => {
         if (incomeService) {
             fetchIncomes()
@@ -102,7 +108,8 @@ export function IncomeProvider({ children }: { children: ReactNode }) {
             createIncome,
             updateIncome,
             deleteIncome,
-            refreshIncomes: fetchIncomes
+            refreshIncomes: fetchIncomes,
+            getIncomeStats
         }}>
             {children}
         </IncomeContext.Provider>

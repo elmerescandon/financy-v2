@@ -16,6 +16,7 @@ import { useBudgetContext } from '@/lib/context/BudgetContext'
 import { IncomeService } from '@/lib/supabase/incomes'
 import { GoalService } from '@/lib/supabase/goals'
 import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
+import { useIncomeContext } from '@/lib/context/IncomeContext'
 
 export default function PresupuestoPage() {
     const {
@@ -35,7 +36,7 @@ export default function PresupuestoPage() {
     const [showForm, setShowForm] = useState(false)
     const [showWizard, setShowWizard] = useState(false)
     const [unbudgetedIncome, setUnbudgetedIncome] = useState<number>(0)
-
+    const { incomes, getIncomeStats } = useIncomeContext()
     const handleCreateBudget = async (data: CreateBudgetData) => {
         try {
             await createBudget(data)
@@ -90,7 +91,7 @@ export default function PresupuestoPage() {
                 const endDate = endOfMonth.toISOString().split('T')[0]
 
                 // Get current month income
-                const incomeStats = await IncomeService.getStats(startDate, endDate)
+                const incomeStats = await getIncomeStats()
 
                 // Get current month goal savings
                 const goals = await GoalService.getGoals()

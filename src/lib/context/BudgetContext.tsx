@@ -49,15 +49,29 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
     const [error, setError] = useState<string | null>(null)
     const [stats, setStats] = useState<BudgetStats | null>(null)
     const supabase = createClient()
+    const [categoryService, setCategoryService] = useState<CategoryService | null>(null)
+
+
+    useEffect(() => {
+        const initializeServices = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                setCategoryService(new CategoryService(user.id))
+            }
+        }
+        initializeServices()
+    }, [supabase.auth])
 
     const fetchBudgets = async (filters?: BudgetFilters) => {
         try {
             setLoading(true)
             setError(null)
 
+            if (!categoryService) return
+
             const [budgetData, categoriesData, statsData] = await Promise.all([
                 BudgetService.getInsights(filters),
-                CategoryService.getAll(),
+                categoryService.getAll(),
                 BudgetService.getStats()
             ])
 

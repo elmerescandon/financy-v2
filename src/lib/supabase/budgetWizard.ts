@@ -27,8 +27,10 @@ export async function getFinancialSummary(
     const startDate = format(startOfMonth(targetDate), 'yyyy-MM-dd')
     const endDate = format(endOfMonth(targetDate), 'yyyy-MM-dd')
 
+    const incomeService = new IncomeService(userId)
+
     // Get current month income using existing service
-    const incomes = await IncomeService.getByDateRange(startDate, endDate)
+    const incomes = await incomeService.getByDateRange(startDate, endDate)
     const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0)
 
     // Get current month goal savings using existing service
