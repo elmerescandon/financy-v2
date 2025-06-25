@@ -52,7 +52,7 @@ export default function CategoriesPage() {
 
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
-                    <div className="bg-background rounded-xl shadow-sm border overflow-hidden">
+                    <div className="bg-background rounded-xl overflow-hidden">
                         <ExpenseFilters
                             categories={categories}
                             filters={uiFilters}
@@ -60,7 +60,7 @@ export default function CategoriesPage() {
                         />
                     </div>
 
-                    <div className="bg-background rounded-xl shadow-sm border overflow-hidden">
+                    <div className="bg-background rounded-xl overflow-hidden">
                         <CategoryOverview />
                     </div>
                 </div>

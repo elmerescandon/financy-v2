@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { formatAmount } from '@/lib/utils/formats'
+import { useTheme } from 'next-themes'
 import type { WeeklySpendingData } from './utils'
 
 interface WeeklySpendingChartProps {
@@ -10,6 +11,9 @@ interface WeeklySpendingChartProps {
 }
 
 export function WeeklySpendingChart({ weeklyData }: WeeklySpendingChartProps) {
+    const { theme, systemTheme } = useTheme()
+    const currentTheme = theme === 'system' ? systemTheme : theme
+
     // Prepare data for stacked bar chart
     const chartData = weeklyData.map(week => {
         const dataPoint: any = {
@@ -34,18 +38,34 @@ export function WeeklySpendingChart({ weeklyData }: WeeklySpendingChartProps) {
         )
     )
 
-    const colors = [
-        '#A8E6CF', // mint green
-        '#FFB3BA', // light pink
-        '#FFDAC1', // peach
-        '#C7CEEA', // lavender
-        '#E2F0CB', // light green
-        '#FFE5B4', // light orange
-        '#D4A5A5', // dusty rose
-        '#B8E0D2', // sage green
-        '#F4C2C2', // coral pink
-        '#C8E6C9'  // light mint
+    // Theme-aware hex colors with high contrast and accessibility
+    const lightColors = [
+        '#3B82F6', // blue
+        '#10B981', // emerald  
+        '#F59E0B', // amber
+        '#EF4444', // red
+        '#8B5CF6', // violet
+        '#06B6D4', // cyan
+        '#84CC16', // lime
+        '#F97316', // orange
+        '#EC4899', // pink
+        '#6366F1'  // indigo
     ]
+
+    const darkColors = [
+        '#60A5FA', // light blue
+        '#34D399', // light emerald
+        '#FBBF24', // light amber
+        '#F87171', // light red
+        '#A78BFA', // light violet
+        '#22D3EE', // light cyan
+        '#A3E635', // light lime
+        '#FB923C', // light orange
+        '#F472B6', // light pink
+        '#818CF8'  // light indigo
+    ]
+
+    const colors = currentTheme === 'dark' ? darkColors : lightColors
 
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
@@ -76,19 +96,19 @@ export function WeeklySpendingChart({ weeklyData }: WeeklySpendingChartProps) {
             <CardContent>
                 <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <BarChart data={chartData} >
                             <XAxis
                                 dataKey="week"
-                                stroke="hsl(var(--foreground))"
                                 fontSize={12}
-                                style={{ fill: 'hsl(var(--foreground))' }}
+                                tick={{ stroke: currentTheme === 'dark' ? 'white' : 'black', strokeWidth: 0.1 }}
+                                stroke={currentTheme === 'dark' ? 'white' : 'black'}
                             />
                             <YAxis
-                                stroke="hsl(var(--foreground))"
                                 fontSize={12}
+                                dataKey="total"
+                                tick={{ stroke: currentTheme === 'dark' ? 'white' : 'black', strokeWidth: 0.1 }}
+                                stroke={currentTheme === 'dark' ? 'white' : 'black'}
                                 tickFormatter={(value) => formatAmount(value)}
-                                style={{ fill: 'hsl(var(--foreground))' }}
                             />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend />

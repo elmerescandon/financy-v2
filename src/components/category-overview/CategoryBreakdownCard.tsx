@@ -49,7 +49,7 @@ export function CategoryBreakdownCard({
     const percentageOfTotal = totalAmount > 0 ? (category.totalAmount / totalAmount) * 100 : 0
 
     return (
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="border-none">
             <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

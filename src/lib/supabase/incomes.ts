@@ -210,7 +210,7 @@ export class IncomeService {
             total_amount,
             income_count,
             average_income,
-            currency: data?.[0]?.currency || 'USD',
+            currency: data?.[0]?.currency || 'PEN',
             date_range: {
                 start: startDate || '',
                 end: endDate || ''

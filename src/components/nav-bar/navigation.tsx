@@ -118,10 +118,9 @@ export default function Navigation({ user, children }: NavigationProps) {
     }
 
     const navigationItems = [
-        // { icon: Receipt, label: 'Gastos', href: '/gastos' },
+        { icon: Home, label: 'Inicio', href: '/inicio' },
         { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
-        // { icon: PieChart, label: 'Presupuestos', href: '/presupuesto' },
-        // { icon: Target, label: 'Metas', href: '/metas' },
+        { icon: Target, label: 'Ahorros', href: '/ahorros' },
     ]
 
     return (
@@ -147,24 +146,6 @@ export default function Navigation({ user, children }: NavigationProps) {
                                 Navegación
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
-                                <SidebarMenuItem className='list-none'>
-                                    <SidebarMenuButton>
-                                        <Receipt className="w-5 h-5 mr-3 group-hover:text-primary transition-colors" />
-                                        <span className="font-medium">Gastos</span>
-                                    </SidebarMenuButton>
-                                    <SidebarMenuSub>
-                                        <SidebarMenuSubItem className='list-none'>
-                                            <SidebarMenuSubButton onClick={() => router.push('/gastos')} className='cursor-pointer'>
-                                                Por consumo
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem className='list-none'>
-                                            <SidebarMenuSubButton onClick={() => router.push('/gastos/categorias')} className='cursor-pointer'>
-                                                Por categoría
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
 
                                 <SidebarMenu>
                                     {navigationItems.map((item) => (
@@ -178,6 +159,25 @@ export default function Navigation({ user, children }: NavigationProps) {
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                     ))}
+                                    <SidebarMenuItem className='list-none'>
+                                        <SidebarMenuButton>
+                                            <Receipt className="w-5 h-5 mr-3 group-hover:text-primary transition-colors" />
+                                            <span className="font-medium">Gastos</span>
+                                        </SidebarMenuButton>
+                                        <SidebarMenuSub>
+                                            <SidebarMenuSubItem className='list-none'>
+                                                <SidebarMenuSubButton onClick={() => router.push('/gastos')} className='cursor-pointer'>
+                                                    Por consumo
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                            <SidebarMenuSubItem className='list-none'>
+                                                <SidebarMenuSubButton onClick={() => router.push('/gastos/categorias')} className='cursor-pointer'>
+                                                    Por categoría
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        </SidebarMenuSub>
+                                    </SidebarMenuItem>
+
                                 </SidebarMenu>
                             </SidebarGroupContent>
                         </SidebarGroup>

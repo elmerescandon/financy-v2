@@ -85,7 +85,7 @@ export function processWeeklySpending(expenses: ExpenseWithDetails[], weeks: num
         const totalAmount = weekExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
         return {
-            week: format(weekStart, 'MMM dd', { locale: es }),
+            week: `${format(weekStart, 'dd MMM', { locale: es })} - ${format(weekEnd, 'dd MMM', { locale: es })}`,
             weekStart: format(weekStart, 'yyyy-MM-dd'),
             weekEnd: format(weekEnd, 'yyyy-MM-dd'),
             totalAmount,

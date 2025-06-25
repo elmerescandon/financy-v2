@@ -41,7 +41,7 @@ export function CategoryOverview() {
 
     // Process data
     const categoryData = processExpensesByCategory(allFilteredExpenses)
-    const weeklyData = processWeeklySpending(allFilteredExpenses, 8)
+    const weeklyData = processWeeklySpending(allFilteredExpenses, 4)
     const totalAmount = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
     return (
@@ -55,7 +55,7 @@ export function CategoryOverview() {
             />
 
             {/* Charts Section */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 border-none">
                 <CategoryPieChart categories={categoryData} />
                 <WeeklySpendingChart weeklyData={weeklyData} />
             </div>

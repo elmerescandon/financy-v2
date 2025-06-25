@@ -102,7 +102,7 @@ export default function MetasPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">Metas</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-warm-gray-900">Ahorros</h1>
                     <p className="text-muted-foreground">
                         Gestiona tus metas de ahorro y controla tu progreso
                     </p>

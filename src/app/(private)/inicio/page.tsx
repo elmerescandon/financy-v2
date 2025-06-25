@@ -1,3 +1,5 @@
+import HomeComponent from "@/components/home/home";
+
 export default async function Home() {
-    return <p>Hello</p>
+    return <HomeComponent />
 }
