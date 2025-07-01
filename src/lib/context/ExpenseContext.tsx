@@ -74,10 +74,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         try {
             setLoading(true)
             setError(null)
-            console.log("ExpenseContext - fetchExpenses called with filters:", filters)
-            console.log("ExpenseContext - category_ids in filters:", filters.category_ids)
             const result = await expenseService.getFilteredWithPagination(filters, page, pageSize)
-            console.log("ExpenseContext - fetchExpenses result:", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {

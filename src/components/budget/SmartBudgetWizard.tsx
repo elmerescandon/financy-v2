@@ -55,12 +55,10 @@ export default function SmartBudgetWizard({ onComplete, onCancel }: SmartBudgetW
 
     // Check if wizard can be used
     useEffect(() => {
-        // if (!user?.id) return
-
-
+        if (!user) return
         const checkEligibility = async () => {
             try {
-                const eligible = await canUseWizard(user!)
+                const eligible = await canUseWizard(user)
                 setCanUse(eligible)
 
                 if (!eligible) {

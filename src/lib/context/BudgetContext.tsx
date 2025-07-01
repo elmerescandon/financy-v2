@@ -69,12 +69,16 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
             if (!categoryService) return
 
+            const defaultFilters = filters || { is_active: true }
+
+            // Fetch all budgets (no default filter)
             const [budgetData, categoriesData, statsData] = await Promise.all([
-                BudgetService.getInsights(filters),
+                BudgetService.getInsights(defaultFilters),
                 categoryService.getAll(),
                 BudgetService.getStats()
             ])
 
+            console.log('budgetData', budgetData)
             setBudgets(budgetData)
             setCategories(categoriesData)
             setStats(statsData)
@@ -200,7 +204,7 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchBudgets()
-    }, [])
+    }, [categoryService])
 
     return (
         <BudgetContext.Provider value={{

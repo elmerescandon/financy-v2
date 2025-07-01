@@ -126,7 +126,9 @@ export class BudgetService {
             query = query.lte('period_end', filters.period_end)
         }
         if (filters?.is_active) {
-            const today = new Date().toISOString().split('T')[0]
+            // Get today's date in local timezone (GMT-5)
+            const now = new Date()
+            const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0]
             query = query.lte('period_start', today).gte('period_end', today)
         }
         if (filters?.is_over_budget) {
@@ -144,12 +146,17 @@ export class BudgetService {
         const { data, error } = await query
 
         if (error) throw error
+
+
+
         return data as BudgetInsight[]
     }
 
     // Get active budgets for current period
     static async getActive() {
-        const today = new Date().toISOString().split('T')[0]
+        // Get today's date in local timezone (GMT-5)
+        const now = new Date()
+        const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0]
 
         const { data, error } = await supabase
             .from('budget_insights')

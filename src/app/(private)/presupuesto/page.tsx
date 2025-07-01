@@ -13,8 +13,6 @@ import BudgetCard from '../../../components/budgets/BudgetCard'
 import BudgetForm from '@/components/budgets/BudgetForm'
 import SmartBudgetWizard from '@/components/budget/SmartBudgetWizard'
 import { useBudgetContext } from '@/lib/context/BudgetContext'
-import { IncomeService } from '@/lib/supabase/incomes'
-import { GoalService } from '@/lib/supabase/goals'
 import type { BudgetInsight, CreateBudgetData } from '@/types/budget'
 import { useIncomeContext } from '@/lib/context/IncomeContext'
 
@@ -36,7 +34,9 @@ export default function PresupuestoPage() {
     const [showForm, setShowForm] = useState(false)
     const [showWizard, setShowWizard] = useState(false)
     const [unbudgetedIncome, setUnbudgetedIncome] = useState<number>(0)
-    const { incomes, getIncomeStats } = useIncomeContext()
+    const { getIncomeStats } = useIncomeContext()
+
+
     const handleCreateBudget = async (data: CreateBudgetData) => {
         try {
             await createBudget(data)
@@ -78,40 +78,8 @@ export default function PresupuestoPage() {
     const totalBudget = stats?.total_budget || budgets.reduce((sum, budget) => sum + budget.budget_amount, 0)
     const totalSpent = stats?.total_spent || budgets.reduce((sum, budget) => sum + budget.spent_amount, 0)
     const totalRemaining = stats?.total_remaining || (totalBudget - totalSpent)
-    const overBudgetCount = stats?.over_budget_count || budgets.filter(b => b.spent_amount > b.budget_amount).length
 
-    // Calculate unbudgeted income (total income - goal savings - total budget allocation)
-    useEffect(() => {
-        const calculateUnbudgetedIncome = async () => {
-            try {
-                const currentDate = new Date()
-                const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-                const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
-                const startDate = startOfMonth.toISOString().split('T')[0]
-                const endDate = endOfMonth.toISOString().split('T')[0]
 
-                // Get current month income
-                const incomeStats = await getIncomeStats()
-
-                // Get current month goal savings
-                const goals = await GoalService.getGoals()
-                const goalSavings = goals.reduce((sum, goal) => {
-                    return sum + goal.recent_entries
-                        .filter(entry => entry.date >= startDate && entry.date <= endDate)
-                        .reduce((entrySum, entry) => entrySum + entry.amount, 0)
-                }, 0)
-
-                // Unbudgeted income = total income - goal savings - total budget
-                const unbudgeted = incomeStats.total_amount - goalSavings - totalBudget
-                setUnbudgetedIncome(Math.max(0, unbudgeted))
-            } catch (error) {
-                console.error('Error calculating unbudgeted income:', error)
-                setUnbudgetedIncome(0)
-            }
-        }
-
-        calculateUnbudgetedIncome()
-    }, [totalBudget])
 
     if (loading) {
         return (
@@ -138,8 +106,8 @@ export default function PresupuestoPage() {
                     {/* Smart Budget Wizard */}
                     <Sheet open={showWizard} onOpenChange={setShowWizard}>
                         <SheetTrigger asChild>
-                            <Button variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100">
-                                <Sparkles className="mr-2 h-4 w-4 text-blue-600" />
+                            <Button variant="outline" className=" dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-gray-600 from-blue-50 to-purple-50 border-blue-200 hover:from-blue-100 hover:to-purple-100">
+                                <Sparkles className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 Asistente Inteligente
                             </Button>
                         </SheetTrigger>
@@ -186,7 +154,7 @@ export default function PresupuestoPage() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Presupuesto Total</CardTitle>
@@ -240,7 +208,7 @@ export default function PresupuestoPage() {
                         </p>
                     </CardContent>
                 </Card>
-            </div>
+            </div> */}
 
             {/* Budget Grid */}
             {budgets.length === 0 ? (

@@ -167,6 +167,19 @@ export default function MetasPage() {
                 </div>
             )}
 
+            {/* Goal Entries */}
+            {goals.map((goal) => (
+                <div key={goal.id}>
+                    <h2 className="text-lg font-semibold mb-2">{goal.name}</h2>
+                    {goal.recent_entries.map((entry) => (
+                        <div key={entry.id}>
+                            <p className="text-muted-foreground mb-4">{entry.amount}</p>
+                            <p className="text-muted-foreground mb-4">{entry.description}</p>
+                        </div>
+                    ))}
+                </div>
+            ))}
+
             {/* Delete Confirmation Dialog */}
             <AlertDialog
                 open={!!deletingGoalId}
