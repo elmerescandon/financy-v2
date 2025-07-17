@@ -1,259 +1,339 @@
 # Financy v2 - Personal Finance Tracker
 
-A comprehensive expense tracking application with intelligent automation features including iPhone Shortcuts integration and email-based transaction parsing.
+## 🚀 Complete Developer Guide
 
-## 🎯 Project Overview
+A comprehensive Next.js expense tracking application with intelligent automation features including iPhone Shortcuts integration and email-based transaction parsing.
 
-Financy v2 is designed to provide a seamless expense tracking experience with focus on:
+## 🏗️ Tech Stack
 
-- **iPhone Shortcuts Integration**: Quick expense entry via Siri and shortcuts
-- **Email Transaction Parsing**: Automatic expense detection from bank/card notifications
-- **Smart Budget Management**: Dynamic budget allocation and spending recommendations
-- **Savings Goals Tracking**: Goal-oriented financial planning
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Backend**: Supabase (PostgreSQL + Auth + RLS)
+- **UI**: Tailwind CSS + Shadcn/ui + Radix UI
+- **State Management**: React Context + Custom Hooks
+- **Forms**: React Hook Form + Zod validation
+- **Charts**: Recharts
+- **Testing**: Jest + Testing Library
+- **Animations**: Framer Motion
 
-## 🏗️ Database Schema
+## 📁 Project Architecture
 
-### Core Tables
+### Application Structure
 
-#### `expenses`
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (private)/         # Protected routes (requires auth)
+│   ├── api/               # API endpoints
+│   ├── auth/              # Authentication flows
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+│   ├── ui/               # Base UI components (shadcn/ui)
+│   ├── authentication/   # Auth-related components
+│   ├── expenses/         # Expense management
+│   ├── budgets/          # Budget management
+│   ├── goals/            # Savings goals
+│   └── nav-bar/          # Navigation
+├── lib/                   # Business logic & utilities
+│   ├── supabase/         # Database services
+│   ├── context/          # React context providers
+│   ├── types/            # TypeScript definitions
+│   └── utils/            # Helper functions
+├── hooks/                 # Custom React hooks
+└── types/                 # Global type definitions
+```
 
-Primary transaction table supporting expenses, income, and transfers:
+### Authentication Flow
 
-- `id` (UUID, PK): Unique identifier
-- `user_id` (UUID, FK): References auth.users
-- `amount` (DECIMAL): Transaction amount
-- `type` (TEXT): 'expense', 'income', or 'transfer'
-- `description` (TEXT): Transaction description
-- `date` (DATE): Transaction date
-- `category_id` (UUID, FK): References categories
-- `subcategory_id` (UUID, FK): References subcategories
-- `budget_id` (UUID, FK): References budgets
-- `merchant` (TEXT): Merchant name
-- `payment_method` (TEXT): Payment method used
-- `recurring` (BOOLEAN): Is recurring transaction
-- `recurring_frequency` (TEXT): Frequency if recurring
-- `source` (TEXT): Data source (manual, email, shortcut)
-- `confidence_score` (DECIMAL): AI confidence for auto-imported
-- `needs_review` (BOOLEAN): Requires user review
-- `transaction_hash` (VARCHAR): Duplicate detection hash
-- `receipt_url` (TEXT): Receipt image URL
-- `tags` (JSONB): Flexible tagging system
-- `source_metadata` (JSONB): Source-specific data
+- **Provider**: Supabase Auth
+- **Middleware**: Automatic session refresh
+- **Security**: Row Level Security (RLS) on all tables
+- **Onboarding**: Category setup for new users
+- **Protected Routes**: All routes under `(private)/` require authentication
 
-#### `categories`
+## 🗄️ Database Schema
 
-Expense categorization system:
+**For detailed table structures, columns, relationships, and indexes see:** `README_BACK.md`
 
-- `id` (UUID, PK): Unique identifier
-- `user_id` (UUID, FK): References auth.users
-- `name` (VARCHAR): Category name
-- `icon` (VARCHAR): Display icon
-- `color` (VARCHAR): Display color
-- `is_default` (BOOLEAN): System default category
+**Core Tables:** `expenses`, `categories`, `subcategories`, `budgets`, `savings_goals`, `goal_entries`
+**Key Features:** RLS on all tables, user-scoped data, optimized indexes, foreign key constraints
 
-#### `subcategories`
+## 🌐 API Endpoints
 
-Detailed categorization:
+### Authentication Routes
 
-- `id` (UUID, PK): Unique identifier
-- `category_id` (UUID, FK): References categories
-- `name` (VARCHAR): Subcategory name
+- `GET /auth/confirm` - Email confirmation handler
 
-#### `budgets`
+### Gmail Integration
 
-Budget management and allocation:
+- `GET /api/gmail/auth` - OAuth flow initialization
+- `POST /api/gmail/sync` - Sync transactions from Gmail
+- `GET /api/gmail/status` - Check connection status
+- `DELETE /api/gmail/disconnect` - Remove Gmail integration
 
-- `id` (UUID, PK): Unique identifier
-- `user_id` (UUID, FK): References auth.users
-- `category_id` (UUID, FK): References categories
-- `amount` (DECIMAL): Budget amount
-- `period_start` (DATE): Budget period start
-- `period_end` (DATE): Budget period end
-- `rollover_amount` (DECIMAL): Unused budget from previous period
-- `allocation_percentage` (DECIMAL): Percentage of total income
-- `priority` (INTEGER): Priority for smart recommendations
+### External Integrations
 
-#### `savings_goals`
+- `GET /api/integrations` - API documentation
+- `POST /api/integrations/expenses` - Create expense from external sources
+- `GET /api/integrations/expenses` - Health check
 
-Goal-oriented savings tracking:
+### Integration API Usage
 
-- `id` (UUID, PK): Unique identifier
-- `user_id` (UUID, FK): References auth.users
-- `name` (TEXT): Goal name
-- `target_amount` (DECIMAL): Target amount
-- `current_amount` (DECIMAL): Current progress
-- `target_date` (DATE): Target completion date
-- `category_id` (UUID, FK): Optional category link
-- `budget_id` (UUID, FK): Optional budget link
+#### iPhone Shortcuts
 
-#### `goal_entries`
+```json
+POST /api/integrations/expenses
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
 
-Individual contributions to savings goals:
+{
+  "amount": 15.50,
+  "description": "Café con leche",
+  "source": "iphone",
+  "merchant": "Starbucks",
+  "category": "Food & Dining",
+  "payment_method": "tarjeta_credito"
+}
+```
 
-- `id` (UUID, PK): Unique identifier
-- `goal_id` (UUID, FK): References savings_goals
-- `amount` (DECIMAL): Contribution amount
-- `description` (TEXT): Entry description
-- `date` (DATE): Contribution date
-- `created_at` (TIMESTAMP): Entry creation timestamp
-- `updated_at` (TIMESTAMP): Last update timestamp
+#### Email Parsing
 
-### Views
+```json
+POST /api/integrations/expenses
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
 
-#### `budget_insights`
+{
+  "amount": 85.00,
+  "description": "Compra en supermercado",
+  "source": "email",
+  "merchant": "Mercadona",
+  "category": "Shopping",
+  "confidence_score": 0.92,
+  "raw_data": {
+    "email_subject": "Compra realizada - Mercadona"
+  }
+}
+```
 
-Comprehensive budget analysis view combining:
+## 🔄 State Management
 
-- Budget allocations and spending
-- Income and expense summaries
-- Savings goal progress
-- Category-wise breakdowns
-- Smart recommendation data
+### Context Providers
 
-### Foreign Key Constraints
+#### ExpenseContext
 
-| From Table    | From Column    | To Table      | To Column | Delete Rule |
-| ------------- | -------------- | ------------- | --------- | ----------- |
-| subcategories | category_id    | categories    | id        | CASCADE     |
-| expenses      | category_id    | categories    | id        | SET NULL    |
-| expenses      | subcategory_id | subcategories | id        | SET NULL    |
-| budgets       | category_id    | categories    | id        | CASCADE     |
-| expenses      | budget_id      | budgets       | id        | SET NULL    |
-| savings_goals | category_id    | categories    | id        | NO ACTION   |
-| savings_goals | budget_id      | budgets       | id        | NO ACTION   |
-| goal_entries  | goal_id        | savings_goals | id        | CASCADE     |
+- **Location**: `src/lib/context/ExpenseContext.tsx`
+- **Purpose**: Manages expense data, pagination, and filtering
+- **Key Methods**:
+  - `createExpense()` - Add new expense
+  - `updateExpense()` - Update existing expense
+  - `deleteExpense()` - Remove expense
+  - `updateFilters()` - Apply filters and reset pagination
+  - `setPage()` - Navigate pagination
 
-**Key Relationships:**
+#### BudgetContext
 
-- Categories can have multiple subcategories (1:many)
-- Expenses link to categories and subcategories (optional)
-- Budgets are tied to specific categories
-- Expenses can be associated with budgets
-- Savings goals can link to categories or budgets (optional)
-- Goal entries track individual contributions to savings goals
+- **Location**: `src/lib/context/BudgetContext.tsx`
+- **Purpose**: Handles budget management and insights
+- **Key Methods**:
+  - `createBudget()` - Create new budget
+  - `getBudgetAlerts()` - Get overspending alerts
+  - `previewAssignment()` - Preview budget allocation
+  - `getBudgetExpenses()` - Get expenses for specific budget
 
-### Database Indexes
+#### GoalContext
 
-**Performance Optimizations:**
+- **Location**: `src/lib/context/GoalContext.tsx`
+- **Purpose**: Manages savings goals and progress tracking
+- **Key Methods**:
+  - `createGoal()` - Create new savings goal
+  - `addGoalEntry()` - Add contribution to goal
+  - `getGoalEntries()` - Get goal contribution history
 
-- **User-scoped queries**: All tables indexed on `user_id` for fast RLS filtering
-- **Expense lookups**: Composite indexes on `user_id + category_id` and `user_id + date` for dashboard queries
-- **Budget periods**: Composite index on `period_start + period_end` for date range filtering
-- **Transaction deduplication**: Index on `transaction_hash` (non-null values only)
-- **Review workflow**: Partial index on `needs_review = true` for admin tasks
-- **Data sources**: Index on `source` field for filtering by import method
-- **Type filtering**: Indexes on `type` and `recurring` fields for expense categorization
-- **Foreign key performance**: All FK columns indexed for join optimization
-- **Goal tracking**: Indexes on `goal_id`, `date`, and `created_at` for goal entry queries
+#### IncomeContext
 
-## 📱 Key Features
+- **Location**: `src/lib/context/IncomeContext.tsx`
+- **Purpose**: Handles income tracking and statistics
+- **Key Methods**:
+  - `createIncome()` - Add new income entry
+  - `getIncomeStats()` - Get income statistics for date range
 
-### iPhone Shortcuts Integration
+### Usage Pattern
 
-- Voice-activated expense entry
-- Receipt photo processing
-- Quick category selection
-- Offline capability with sync
+```tsx
+// In layout.tsx
+<ExpenseProvider>
+  <IncomeProvider>
+    <GoalProvider>{children}</GoalProvider>
+  </IncomeProvider>
+</ExpenseProvider>;
 
-### Email Transaction Parsing
+// In components
+const { expenses, createExpense, loading } = useExpenseContext();
+```
 
-- Bank notification processing
-- Credit card statement parsing
-- Merchant recognition
-- Duplicate detection
-- Confidence scoring
+## 🧩 Component Structure
 
-### Smart Budget Management
+### UI Components (`/components/ui/`)
 
-- Dynamic budget allocation
-- Spending pattern analysis
-- Rollover budget handling
-- Priority-based recommendations
+- Base components from Shadcn/ui
+- Radix UI primitives with custom styling
+- Consistent design system
 
-### Savings Goals
+### Feature Components
 
-- Multiple goal tracking
-- Progress visualization
-- Budget integration
-- Target date management
+- `expenses/` - Expense forms, lists, summaries
+- `budgets/` - Budget wizard, cards, forms
+- `goals/` - Goal tracking, progress displays
+- `category-overview/` - Spending breakdowns, charts
+- `authentication/` - Login, signup, recovery forms
+- `nav-bar/` - Sidebar navigation with theme switching
 
-## 🚀 Implementation Phases
+### Key Components
 
-### Phase 1: Database Foundation ✅
+#### SmartBudgetWizard
 
-- Core table creation
-- RLS policies implementation
-- Index optimization
-- Seed data setup
+- **Purpose**: Multi-step budget creation with AI assistance
+- **Features**: Financial analysis, conflict resolution, percentage allocation
+- **Location**: `components/budget/SmartBudgetWizard.tsx`
 
-### Phase 2: Basic CRUD & Categories ✅
+#### ExpenseTable
 
-- Expense management functions
-- Category system
-- Form validation
-- Basic operations testing
+- **Purpose**: Paginated expense management with filtering
+- **Features**: Sorting, filtering, bulk actions, pagination
+- **Location**: `components/expense-table/ExpenseTable.tsx`
 
-### Phase 3: Minimal UI ✅
+#### CategoryOverview
 
-- Expense entry forms
-- List/table views
-- Category interfaces
-- Mobile responsiveness
-
-### Phase 4: Integration Infrastructure ✅
-
-- iPhone Shortcuts API
-- Email parsing system
-- Receipt processing
-- Authentication for integrations
-
-### Phase 5: Integration Polish 📋
-
-- Advanced OCR
-- Smart categorization
-- Confidence scoring
-- Batch processing
-
-## 🔐 Security Features
-
-- Row Level Security (RLS) on all tables
-- User-scoped data access
-- Secure API endpoints
-- Authentication middleware
-- Input validation and sanitization
-
-## 📊 Data Flow
-
-1. **Manual Entry**: Direct user input via web interface
-2. **iPhone Shortcuts**: API endpoints for mobile integration
-3. **Email Parsing**: Automated transaction detection
-4. **Budget Analysis**: Real-time budget vs. spending calculations
-5. **Savings Tracking**: Goal progress updates
-6. **Smart Recommendations**: AI-driven spending insights
+- **Purpose**: Visual spending analysis by category
+- **Features**: Pie charts, weekly trends, spending summaries
+- **Location**: `components/category-overview/CategoryOverview.tsx`
 
 ## 🛠️ Development Setup
+
+### Environment Variables
+
+Create `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Gmail Integration (optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/gmail/auth
+```
+
+### Installation
 
 ```bash
 # Install dependencies
 npm install
 
-# Set up environment variables
-cp .env.example .env.local
-
-# Run development server
-npm run dev
-
 # Run database migrations
 npx supabase db push
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
 ```
 
-## 🔗 Database Relations
+### Development Scripts
 
-## 📈 Future Enhancements
+- `npm run dev` - Start development server with Turbopack
+- `npm run build` - Production build
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm test` - Run Jest tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Generate coverage report
 
-- Machine learning for better categorization
-- Bank API integrations
-- Advanced reporting and analytics
-- Multi-currency support
-- Family/shared budget features
-- Investment tracking integration
+## ✨ Feature Development Guide
+
+### Adding a New Page
+
+1. **Create page component** in `src/app/(private)/feature/page.tsx`
+2. **Add to navigation** in `components/nav-bar/navigation.tsx`
+3. **Create context provider** if needed in `lib/context/`
+4. **Add to layout** if context is required
+
+Example:
+
+```tsx
+// src/app/(private)/reports/page.tsx
+export default function ReportsPage() {
+  return <div>Reports Content</div>
+}
+
+// Add to navigation.tsx
+{
+  title: "Reports",
+  url: "/reports",
+  icon: BarChart3
+}
+```
+
+### Adding New API Endpoint
+
+1. **Create route handler** in `src/app/api/feature/route.ts`
+2. **Add validation schema** in `lib/api/validation.ts`
+3. **Add to API documentation** in integration endpoint
+4. **Create service class** in `lib/supabase/` if needed
+
+Example:
+
+```tsx
+// src/app/api/reports/route.ts
+export async function GET(request: NextRequest) {
+  const authResult = await validateApiKey(request);
+  if (!authResult.success) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  // Implementation
+}
+```
+
+### Adding Database Table
+
+1. **Create migration** in `supabase/migrations/`
+2. **Add RLS policies** for user data isolation
+3. **Create TypeScript types** in `src/types/`
+4. **Create service class** in `lib/supabase/`
+5. **Add to context provider** if needed
+
+### Creating New Component
+
+1. **Create component file** in appropriate `components/` subdirectory
+2. **Export from index.ts** if part of a module
+3. **Add stories** for complex components
+4. **Write tests** in `__tests__` directory
+
+## 🔐 Security Features
+
+- **Row Level Security (RLS)** on all Supabase tables
+- **User-scoped data access** - users only see their own data
+- **API key authentication** for external integrations
+- **Input validation** with Zod schemas
+- **CSRF protection** through Supabase Auth
+- **Secure token storage** in httpOnly cookies
+
+## 🔄 Data Flow
+
+1. **Manual Entry**: Web interface → Context → Service → Supabase
+2. **iPhone Shortcuts**: Siri → API endpoint → Validation → Database
+3. **Email Parsing**: Gmail API → Parser → Confidence scoring → Database
+4. **Budget Analysis**: Database → Insights calculation → Context → UI
+5. **Real-time Updates**: Supabase subscriptions → Context → Component re-render
+
+**Quick Reference:**
+
+- Database details: `README_BACK.md`
+- Type definitions: `src/types/`
+- Service classes: `src/lib/supabase/`
+- API validation: `src/lib/api/validation.ts`
