@@ -1,35 +1,98 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingDown, Calendar, Tag } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { TrendingDown, Calendar, Tag, Eye, EyeOff } from 'lucide-react'
 import { formatAmount } from '@/lib/utils/formats'
 import type { Expense } from '@/types/expense'
 import { useExpenseContext } from '@/lib/context/ExpenseContext'
 import { Skeleton } from '../ui/skeleton'
-
+import { useState } from 'react'
 
 export function ExpenseSummary() {
-
     const { allFilteredExpenses, loading } = useExpenseContext()
 
+    // State for controlling visibility of amounts in each card
+    const [showTotalAmount, setShowTotalAmount] = useState(false)
+    const [showMonthlyAmount, setShowMonthlyAmount] = useState(false)
 
-    const totalExpenses = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+    // Calculate amounts with error handling
+    const totalExpenses = allFilteredExpenses.reduce((sum, expense) => {
+        try {
+            return sum + (expense.amount || 0)
+        } catch {
+            return sum
+        }
+    }, 0)
 
     const monthlyExpenses = allFilteredExpenses.filter(expense => {
-        const expenseDate = new Date(expense.date)
-        const now = new Date()
-        return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear()
+        try {
+            const expenseDate = new Date(expense.date)
+            const now = new Date()
+            return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear()
+        } catch {
+            return false
+        }
     })
-    const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
-    const uniqueCategories = new Set(allFilteredExpenses.map(expense => expense.category_id)).size
+    const monthlyTotal = monthlyExpenses.reduce((sum, expense) => {
+        try {
+            return sum + (expense.amount || 0)
+        } catch {
+            return sum
+        }
+    }, 0)
+
+    const uniqueCategories = new Set(
+        allFilteredExpenses
+            .map(expense => expense.category_id)
+            .filter(Boolean)
+    ).size
+
+    // Helper function to render amount with visibility control
+    const renderAmount = (amount: number, isVisible: boolean) => {
+        if (!isVisible) {
+            return '****'
+        }
+
+        try {
+            return formatAmount(amount)
+        } catch {
+            return 'S/ 0.00'
+        }
+    }
+
+    // Toggle handlers
+    const handleToggleTotalVisibility = () => {
+        setShowTotalAmount(prev => !prev)
+    }
+
+    const handleToggleMonthlyVisibility = () => {
+        setShowMonthlyAmount(prev => !prev)
+    }
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
+            {/* Total Gastos Card */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Gastos</CardTitle>
-                    <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2">
+                        <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleToggleTotalVisibility}
+                            data-testid="amount-toggle"
+                            className="h-auto p-1 hover:bg-accent"
+                        >
+                            {showTotalAmount ? (
+                                <EyeOff className="h-4 w-4" data-testid="eye-off-icon" />
+                            ) : (
+                                <Eye className="h-4 w-4" data-testid="eye-icon" />
+                            )}
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
@@ -44,7 +107,7 @@ export function ExpenseSummary() {
                     ) : (
                         <>
                             <div className="text-2xl font-bold text-primary">
-                                {formatAmount(totalExpenses)}
+                                {renderAmount(totalExpenses, showTotalAmount)}
                             </div>
                             <p className="text-xs text-muted-foreground">
                                 {allFilteredExpenses.length} gastos registrados
@@ -54,10 +117,26 @@ export function ExpenseSummary() {
                 </CardContent>
             </Card>
 
+            {/* Este Mes Card */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Este Mes</CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleToggleMonthlyVisibility}
+                            data-testid="amount-toggle"
+                            className="h-auto p-1 hover:bg-accent"
+                        >
+                            {showMonthlyAmount ? (
+                                <EyeOff className="h-4 w-4" data-testid="eye-off-icon" />
+                            ) : (
+                                <Eye className="h-4 w-4" data-testid="eye-icon" />
+                            )}
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
@@ -72,7 +151,7 @@ export function ExpenseSummary() {
                     ) : (
                         <>
                             <div className="text-2xl font-bold">
-                                {formatAmount(monthlyTotal)}
+                                {renderAmount(monthlyTotal, showMonthlyAmount)}
                             </div>
                             <div className="text-xs text-muted-foreground">
                                 {monthlyExpenses.length} gastos este mes
@@ -82,6 +161,7 @@ export function ExpenseSummary() {
                 </CardContent>
             </Card>
 
+            {/* Categorías Card (no amount hiding needed) */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Categorías</CardTitle>

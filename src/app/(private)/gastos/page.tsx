@@ -11,6 +11,7 @@ import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilt
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
 import { useState, useRef } from 'react'
+import { Button } from '@/components/ui/button'
 
 export default function ExpensesPage() {
     const {
