@@ -1,4 +1,4 @@
-import { formatAmount, formatDate } from '../formats'
+import { formatAmount, formatDate } from './formats'
 
 describe('formatAmount', () => {
     it('formats PEN currency correctly by default', () => {
