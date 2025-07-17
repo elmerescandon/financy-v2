@@ -1,339 +1,200 @@
 # Financy v2 - Personal Finance Tracker
 
-## 🚀 Complete Developer Guide
+## Project Overview
 
-A comprehensive Next.js expense tracking application with intelligent automation features including iPhone Shortcuts integration and email-based transaction parsing.
+**Type**: Next.js Personal Finance Application
+**Purpose**: Expense tracking with intelligent automation (iPhone Shortcuts, email parsing)
+**Architecture**: Full-stack web application with external integrations
 
-## 🏗️ Tech Stack
+## Technology Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Backend**: Supabase (PostgreSQL + Auth + RLS)
-- **UI**: Tailwind CSS + Shadcn/ui + Radix UI
-- **State Management**: React Context + Custom Hooks
-- **Forms**: React Hook Form + Zod validation
-- **Charts**: Recharts
-- **Testing**: Jest + Testing Library
-- **Animations**: Framer Motion
+**Frontend Stack**:
 
-## 📁 Project Architecture
+- Next.js 15 + React 19 + TypeScript
+- Tailwind CSS + Shadcn/ui + Radix UI
+- React Context + Custom Hooks (state management)
+- React Hook Form + Zod (forms/validation)
+- Recharts (data visualization)
+- Jest + Testing Library (testing)
 
-### Application Structure
+**Backend Stack**:
+
+- Supabase (PostgreSQL + Authentication + Row Level Security)
+- Next.js API Routes
+- Google Gmail API (email integration)
+- iPhone Shortcuts (external automation)
+
+## Project Structure Context
 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── (private)/         # Protected routes (requires auth)
-│   ├── api/               # API endpoints
-│   ├── auth/              # Authentication flows
-│   └── layout.tsx         # Root layout
-├── components/            # React components
-│   ├── ui/               # Base UI components (shadcn/ui)
-│   ├── authentication/   # Auth-related components
-│   ├── expenses/         # Expense management
-│   ├── budgets/          # Budget management
-│   ├── goals/            # Savings goals
-│   └── nav-bar/          # Navigation
-├── lib/                   # Business logic & utilities
-│   ├── supabase/         # Database services
-│   ├── context/          # React context providers
-│   ├── types/            # TypeScript definitions
-│   └── utils/            # Helper functions
-├── hooks/                 # Custom React hooks
-└── types/                 # Global type definitions
+│   ├── (private)/         # Authentication-protected routes
+│   ├── api/               # Backend API endpoints
+│   └── auth/              # Authentication flow handlers
+├── components/            # React UI components
+│   ├── ui/               # Base design system components
+│   └── [feature-name]/   # Feature-specific components
+├── lib/                   # Core business logic
+│   ├── supabase/         # Database service layer
+│   ├── context/          # React state management
+│   └── utils/            # Utility functions
+├── hooks/                # Custom React hooks
+├── types/                # TypeScript type definitions
+└── middleware.ts         # Authentication middleware
 ```
 
-### Authentication Flow
+## Documentation System
 
-- **Provider**: Supabase Auth
-- **Middleware**: Automatic session refresh
-- **Security**: Row Level Security (RLS) on all tables
-- **Onboarding**: Category setup for new users
-- **Protected Routes**: All routes under `(private)/` require authentication
+This README serves as the **central navigation hub** for development documentation. Each documentation file has a specific purpose:
 
-## 🗄️ Database Schema
+### Documentation File Mapping
 
-**For detailed table structures, columns, relationships, and indexes see:** `README_BACK.md`
+| File                  | Target Audience     | Content Type                                                | Usage Context                                                                           |
+| --------------------- | ------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `README_FRONT.md`     | Frontend developers | Component architecture, state patterns, UI system           | When implementing UI components, managing state, or understanding frontend architecture |
+| `README_DEV_FRONT.md` | Frontend developers | Development guidelines, testing standards, code patterns    | When writing new components, implementing tests, or following code standards            |
+| `README_BACK.md`      | Backend developers  | Database schema, API endpoints, services, integrations      | When working with database, implementing APIs, or integrating external services         |
+| `README_DEV_BACK.md`  | Backend developers  | Development guidelines, security patterns, SOLID principles | When creating services, implementing security, or following backend standards           |
 
-**Core Tables:** `expenses`, `categories`, `subcategories`, `budgets`, `savings_goals`, `goal_entries`
-**Key Features:** RLS on all tables, user-scoped data, optimized indexes, foreign key constraints
+## Development Context Resolution
 
-## 🌐 API Endpoints
+### Frontend Development Contexts
 
-### Authentication Routes
+**Component Implementation**:
 
-- `GET /auth/confirm` - Email confirmation handler
+- Architecture patterns → `README_FRONT.md`
+- Development standards → `README_DEV_FRONT.md`
+- Testing implementation → `README_DEV_FRONT.md`
 
-### Gmail Integration
+**State Management**:
 
-- `GET /api/gmail/auth` - OAuth flow initialization
-- `POST /api/gmail/sync` - Sync transactions from Gmail
-- `GET /api/gmail/status` - Check connection status
-- `DELETE /api/gmail/disconnect` - Remove Gmail integration
+- Context patterns → `README_FRONT.md`
+- Hook usage → `README_FRONT.md`
+- Data flow → `README_FRONT.md`
 
-### External Integrations
+**UI Development**:
 
-- `GET /api/integrations` - API documentation
-- `POST /api/integrations/expenses` - Create expense from external sources
-- `GET /api/integrations/expenses` - Health check
+- Design system → `README_FRONT.md`
+- Component standards → `README_DEV_FRONT.md`
+- Form patterns → `README_DEV_FRONT.md`
 
-### Integration API Usage
+### Backend Development Contexts
 
-#### iPhone Shortcuts
+**API Development**:
 
-```json
-POST /api/integrations/expenses
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
+- Endpoint documentation → `README_BACK.md`
+- Implementation patterns → `README_DEV_BACK.md`
+- Security implementation → `README_DEV_BACK.md`
 
-{
-  "amount": 15.50,
-  "description": "Café con leche",
-  "source": "iphone",
-  "merchant": "Starbucks",
-  "category": "Food & Dining",
-  "payment_method": "tarjeta_credito"
-}
-```
+**Database Operations**:
 
-#### Email Parsing
+- Schema reference → `README_BACK.md`
+- Service patterns → `README_DEV_BACK.md`
+- Migration procedures → `README_BACK.md`
 
-```json
-POST /api/integrations/expenses
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
+**External Integrations**:
 
-{
-  "amount": 85.00,
-  "description": "Compra en supermercado",
-  "source": "email",
-  "merchant": "Mercadona",
-  "category": "Shopping",
-  "confidence_score": 0.92,
-  "raw_data": {
-    "email_subject": "Compra realizada - Mercadona"
-  }
-}
-```
+- Gmail API implementation → `README_BACK.md`
+- iPhone Shortcuts setup → `README_BACK.md`
+- Authentication flows → `README_BACK.md`
 
-## 🔄 State Management
+### Full-Stack Development Contexts
 
-### Context Providers
+**Feature Implementation Workflow**:
 
-#### ExpenseContext
+1. Database schema → `README_BACK.md`
+2. Service layer → `README_DEV_BACK.md`
+3. API endpoints → `README_BACK.md` + `README_DEV_BACK.md`
+4. Frontend components → `README_FRONT.md` + `README_DEV_FRONT.md`
+5. Integration testing → Both DEV files
 
-- **Location**: `src/lib/context/ExpenseContext.tsx`
-- **Purpose**: Manages expense data, pagination, and filtering
-- **Key Methods**:
-  - `createExpense()` - Add new expense
-  - `updateExpense()` - Update existing expense
-  - `deleteExpense()` - Remove expense
-  - `updateFilters()` - Apply filters and reset pagination
-  - `setPage()` - Navigate pagination
+## Environment Configuration
 
-#### BudgetContext
-
-- **Location**: `src/lib/context/BudgetContext.tsx`
-- **Purpose**: Handles budget management and insights
-- **Key Methods**:
-  - `createBudget()` - Create new budget
-  - `getBudgetAlerts()` - Get overspending alerts
-  - `previewAssignment()` - Preview budget allocation
-  - `getBudgetExpenses()` - Get expenses for specific budget
-
-#### GoalContext
-
-- **Location**: `src/lib/context/GoalContext.tsx`
-- **Purpose**: Manages savings goals and progress tracking
-- **Key Methods**:
-  - `createGoal()` - Create new savings goal
-  - `addGoalEntry()` - Add contribution to goal
-  - `getGoalEntries()` - Get goal contribution history
-
-#### IncomeContext
-
-- **Location**: `src/lib/context/IncomeContext.tsx`
-- **Purpose**: Handles income tracking and statistics
-- **Key Methods**:
-  - `createIncome()` - Add new income entry
-  - `getIncomeStats()` - Get income statistics for date range
-
-### Usage Pattern
-
-```tsx
-// In layout.tsx
-<ExpenseProvider>
-  <IncomeProvider>
-    <GoalProvider>{children}</GoalProvider>
-  </IncomeProvider>
-</ExpenseProvider>;
-
-// In components
-const { expenses, createExpense, loading } = useExpenseContext();
-```
-
-## 🧩 Component Structure
-
-### UI Components (`/components/ui/`)
-
-- Base components from Shadcn/ui
-- Radix UI primitives with custom styling
-- Consistent design system
-
-### Feature Components
-
-- `expenses/` - Expense forms, lists, summaries
-- `budgets/` - Budget wizard, cards, forms
-- `goals/` - Goal tracking, progress displays
-- `category-overview/` - Spending breakdowns, charts
-- `authentication/` - Login, signup, recovery forms
-- `nav-bar/` - Sidebar navigation with theme switching
-
-### Key Components
-
-#### SmartBudgetWizard
-
-- **Purpose**: Multi-step budget creation with AI assistance
-- **Features**: Financial analysis, conflict resolution, percentage allocation
-- **Location**: `components/budget/SmartBudgetWizard.tsx`
-
-#### ExpenseTable
-
-- **Purpose**: Paginated expense management with filtering
-- **Features**: Sorting, filtering, bulk actions, pagination
-- **Location**: `components/expense-table/ExpenseTable.tsx`
-
-#### CategoryOverview
-
-- **Purpose**: Visual spending analysis by category
-- **Features**: Pie charts, weekly trends, spending summaries
-- **Location**: `components/category-overview/CategoryOverview.tsx`
-
-## 🛠️ Development Setup
-
-### Environment Variables
-
-Create `.env.local`:
+**Required Environment Variables**:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
 
-# Gmail Integration (optional)
+**Optional Integrations**:
+
+```env
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:3000/api/gmail/auth
 ```
 
-### Installation
+## Development Commands
 
-```bash
-# Install dependencies
-npm install
-
-# Run database migrations
-npx supabase db push
-
-# Start development server
-npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
-```
-
-### Development Scripts
+**Core Development**:
 
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Production build
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm test` - Run Jest tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Generate coverage report
+- `npm test` - Execute Jest test suite
+- `npm run lint` - ESLint validation
 
-## ✨ Feature Development Guide
+**Database Operations**:
 
-### Adding a New Page
+- `npx supabase db push` - Apply database migrations
+- `npx supabase db reset` - Reset database to migration state
 
-1. **Create page component** in `src/app/(private)/feature/page.tsx`
-2. **Add to navigation** in `components/nav-bar/navigation.tsx`
-3. **Create context provider** if needed in `lib/context/`
-4. **Add to layout** if context is required
+## Implementation Workflows
 
-Example:
+### Adding New Functionality
 
-```tsx
-// src/app/(private)/reports/page.tsx
-export default function ReportsPage() {
-  return <div>Reports Content</div>
-}
+**New Component Workflow**:
 
-// Add to navigation.tsx
-{
-  title: "Reports",
-  url: "/reports",
-  icon: BarChart3
-}
-```
+1. Consult `README_FRONT.md` for architecture patterns
+2. Follow `README_DEV_FRONT.md` for implementation standards
+3. Implement: `src/components/[feature]/ComponentName.tsx`
+4. Test: `src/components/[feature]/__tests__/ComponentName.test.tsx`
 
-### Adding New API Endpoint
+**New API Endpoint Workflow**:
 
-1. **Create route handler** in `src/app/api/feature/route.ts`
-2. **Add validation schema** in `lib/api/validation.ts`
-3. **Add to API documentation** in integration endpoint
-4. **Create service class** in `lib/supabase/` if needed
+1. Review database schema in `README_BACK.md`
+2. Follow service patterns in `README_DEV_BACK.md`
+3. Implement: `src/app/api/[endpoint]/route.ts`
+4. Create service: `src/lib/supabase/[Feature]Service.ts`
 
-Example:
+**New Database Table Workflow**:
 
-```tsx
-// src/app/api/reports/route.ts
-export async function GET(request: NextRequest) {
-  const authResult = await validateApiKey(request);
-  if (!authResult.success) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  // Implementation
-}
-```
+1. Create migration: `supabase/migrations/[timestamp]_[description].sql`
+2. Define types: `src/types/[feature].ts`
+3. Implement service: `src/lib/supabase/[Feature]Service.ts`
+4. Update documentation: `README_BACK.md`
 
-### Adding Database Table
+### Debugging Context Resolution
 
-1. **Create migration** in `supabase/migrations/`
-2. **Add RLS policies** for user data isolation
-3. **Create TypeScript types** in `src/types/`
-4. **Create service class** in `lib/supabase/`
-5. **Add to context provider** if needed
+**Frontend Issues**:
 
-### Creating New Component
+- Component state problems → `README_FRONT.md` state management section
+- UI/styling inconsistencies → `README_FRONT.md` design system section
+- Test failures → `README_DEV_FRONT.md` testing standards section
 
-1. **Create component file** in appropriate `components/` subdirectory
-2. **Export from index.ts** if part of a module
-3. **Add stories** for complex components
-4. **Write tests** in `__tests__` directory
+**Backend Issues**:
 
-## 🔐 Security Features
+- API response errors → `README_BACK.md` API endpoints section
+- Database query problems → `README_BACK.md` schema section
+- Service layer errors → `README_DEV_BACK.md` service patterns section
 
-- **Row Level Security (RLS)** on all Supabase tables
-- **User-scoped data access** - users only see their own data
-- **API key authentication** for external integrations
-- **Input validation** with Zod schemas
-- **CSRF protection** through Supabase Auth
-- **Secure token storage** in httpOnly cookies
+**Integration Issues**:
 
-## 🔄 Data Flow
+- Gmail synchronization → `README_BACK.md` Gmail integration section
+- iPhone Shortcuts connectivity → `README_BACK.md` external integrations section
+- Authentication failures → `README_BACK.md` authentication section
 
-1. **Manual Entry**: Web interface → Context → Service → Supabase
-2. **iPhone Shortcuts**: Siri → API endpoint → Validation → Database
-3. **Email Parsing**: Gmail API → Parser → Confidence scoring → Database
-4. **Budget Analysis**: Database → Insights calculation → Context → UI
-5. **Real-time Updates**: Supabase subscriptions → Context → Component re-render
+## Key Development Locations
 
-**Quick Reference:**
+**Frontend Components**: `src/components/` - Organized by feature domain
+**Backend Services**: `src/lib/supabase/` - Database service classes with business logic
+**Type Definitions**: `src/types/` - TypeScript interfaces for all entities
+**State Management**: `src/lib/context/` - React context providers and reducers
+**API Endpoints**: `src/app/api/` - Next.js route handlers
+**Test Files**: `**/__tests__/` - Co-located with source files
 
-- Database details: `README_BACK.md`
-- Type definitions: `src/types/`
-- Service classes: `src/lib/supabase/`
-- API validation: `src/lib/api/validation.ts`
+## Context-Aware Development Guide
+
+**For LLM Implementation**: When implementing features, first determine the development context (frontend, backend, or full-stack), then consult the appropriate documentation files for architecture patterns, implementation standards, and testing requirements. Each documentation file contains specific implementation templates and code examples for its domain.
