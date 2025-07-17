@@ -17,7 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ExpensePagination } from "./ExpensePagination"
 import ExpenseActions from "./ExpenseActions"
 import { Button } from "../ui/button"
-import { useRouter } from "next/navigation"
 
 
 const ExpenseTableSkeleton = () => {
@@ -36,9 +35,12 @@ const ExpenseTableSkeleton = () => {
     )
 }
 
-export function ExpenseTable() {
+interface ExpenseTableProps {
+    onAddExpense?: () => void
+}
+
+export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
     const { expenses, pagination, setPage, setPageSize, deleteExpense, loading, error } = useExpenseContext()
-    const router = useRouter()
     const handlePageChange = (page: number) => {
         setPage(page)
     }
@@ -118,7 +120,7 @@ export function ExpenseTable() {
                                             }
                                         </p>
                                         <Button
-                                            onClick={() => router.push('/gastos/agregar')}
+                                            onClick={onAddExpense}
                                             variant="outline"
                                             className="w-full sm:w-auto cursor-pointer"
                                         >

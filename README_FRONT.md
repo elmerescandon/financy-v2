@@ -145,9 +145,33 @@ interface IncomeContextState {
 **Layout Components:**
 
 - `card.tsx` - Content container with variants
-- `sheet.tsx` - Slide-out panel component
+- `sheet.tsx` - Slide-out panel component (right/left/top/bottom sides)
 - `sidebar.tsx` - Navigation sidebar
 - `separator.tsx` - Visual content divider
+
+**Sheet Component Architecture:**
+
+- Built on Radix Dialog primitives
+- Responsive sliding animations
+- Overlay backdrop with click-outside-to-close
+- Customizable side positioning (right, left, top, bottom)
+- Mobile-optimized responsive widths
+- Keyboard accessibility (ESC to close)
+
+```typescript
+// Sheet usage pattern
+<Sheet open={open} onOpenChange={setOpen}>
+  <SheetTrigger asChild>
+    <Button>Open Sheet</Button>
+  </SheetTrigger>
+  <SheetContent side="right" className="w-full sm:max-w-md">
+    <SheetHeader>
+      <SheetTitle>Sheet Title</SheetTitle>
+    </SheetHeader>
+    <div className="py-4">{/* Sheet content */}</div>
+  </SheetContent>
+</Sheet>
+```
 
 **Navigation Components:**
 
@@ -206,6 +230,51 @@ Authentication
 - Automatic redirection on success
 
 ### Expense Management System (`components/expenses/`)
+
+#### AddExpenseSheet Component (`AddExpenseSheet.tsx`)
+
+**ForwardRef Architecture:**
+
+```typescript
+interface AddExpenseSheetRef {
+  open: () => void;
+}
+
+interface AddExpenseSheetProps {
+  showTrigger?: boolean;
+}
+
+const AddExpenseSheet = forwardRef<AddExpenseSheetRef, AddExpenseSheetProps>();
+```
+
+**State Management:**
+
+- Sheet open/close state management
+- Context integration for expense creation
+- Toast notification handling
+- Form validation and submission
+
+**Integration Patterns:**
+
+```typescript
+// Main usage with trigger button
+<AddExpenseSheet ref={sheetRef} />;
+
+// Programmatic opening from other components
+const sheetRef = useRef<AddExpenseSheetRef>(null);
+const handleOpenSheet = () => sheetRef.current?.open();
+
+// Without trigger button for external control
+<AddExpenseSheet ref={sheetRef} showTrigger={false} />;
+```
+
+**Features:**
+
+- ShadCN Sheet component integration
+- Responsive slide-out panel (right side)
+- Mobile-optimized layout
+- Form validation with ExpenseForm component
+- Automatic context updates on success
 
 #### ExpenseForm Component (`ExpenseForm.tsx`)
 
@@ -270,11 +339,20 @@ ExpenseTable (ExpenseTable.tsx)
 └── ExpensePagination (ExpensePagination.tsx)
 ```
 
+**Props Interface:**
+
+```typescript
+interface ExpenseTableProps {
+  onAddExpense?: () => void;
+}
+```
+
 **State Integration:**
 
 - Reads from `ExpenseContext` for data and pagination
 - Calls `updateFilters()` on filter changes
 - Manages bulk operations on selected rows
+- Integrates with external AddExpenseSheet via callback
 
 **Feature Implementation:**
 
@@ -283,6 +361,22 @@ ExpenseTable (ExpenseTable.tsx)
 - Bulk operations (delete, export)
 - Responsive mobile layout
 - Sort functionality
+- Empty state with "Add first expense" button integration
+
+**Integration with AddExpenseSheet:**
+
+```typescript
+// Parent component integration
+const sheetRef = useRef<AddExpenseSheetRef>(null);
+const handleOpenSheet = () => sheetRef.current?.open();
+
+return (
+  <>
+    <ExpenseTable onAddExpense={handleOpenSheet} />
+    <AddExpenseSheet ref={sheetRef} showTrigger={false} />
+  </>
+);
+```
 
 ### Budget Management System (`components/budgets/`)
 
@@ -428,21 +522,46 @@ export default function PrivateLayout({ children }) {
 
 ```typescript
 export default function ExpensesPage() {
-  const { expenses, loading, createExpense, updateFilters } =
-    useExpenseContext();
+  const { updateFilters } = useExpenseContext();
   const { categories } = useCategories();
+  const addExpenseSheetRef = useRef<AddExpenseSheetRef>(null);
+
+  const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
+    dateRange: "all",
+  });
+
+  const handleFiltersChange = async (filters: UIExpenseFilters) => {
+    setUiFilters(filters);
+    const dbFilters = convertToDatabaseFilters(filters);
+    await updateFilters(dbFilters);
+  };
+
+  const handleOpenAddExpense = () => {
+    addExpenseSheetRef.current?.open();
+  };
 
   return (
-    <div className="space-y-6">
-      <ExpenseFilters onFilter={updateFilters} />
+    <div className="min-h-screen bg-background">
+      <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold text-foreground leading-tight">
+            Gastos
+          </h1>
+          <AddExpenseSheet ref={addExpenseSheetRef} />
+        </div>
 
-      {loading ? (
-        <ExpenseTableSkeleton />
-      ) : (
-        <ExpenseTable expenses={expenses} categories={categories} />
-      )}
+        <div className="space-y-6">
+          <ExpenseSummary />
 
-      <ExpenseForm categories={categories} onSubmit={createExpense} />
+          <ExpenseFilters
+            categories={categories}
+            filters={uiFilters}
+            onFiltersChange={handleFiltersChange}
+          />
+
+          <ExpenseTable onAddExpense={handleOpenAddExpense} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -492,6 +611,32 @@ Business logic separated from UI components
 **4. Context Injection:**
 Automatic state availability without prop drilling
 
+**5. ForwardRef Pattern:**
+Imperative component control through ref objects for programmatic access
+
+```typescript
+// ForwardRef implementation for external control
+interface ComponentRef {
+  open: () => void;
+  close: () => void;
+  reset: () => void;
+}
+
+const Component = forwardRef<ComponentRef, ComponentProps>((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    open: () => setOpen(true),
+    close: () => setOpen(false),
+    reset: () => setFormData(initialData),
+  }));
+
+  return <div>Component JSX</div>;
+});
+
+// Usage in parent component
+const componentRef = useRef<ComponentRef>(null);
+const handleAction = () => componentRef.current?.open();
+```
+
 ### Responsive Design Implementation
 
 **Mobile-First Approach:**
@@ -507,6 +652,8 @@ Automatic state availability without prop drilling
 - Forms adapt to smaller screens
 - Navigation collapses to overlay
 - Charts resize automatically
+- Sheets adapt width responsively (`w-full sm:max-w-md`)
+- Sheet content includes overflow scrolling for mobile
 
 ## Data Flow Architecture
 

@@ -9,17 +9,15 @@ import {
 } from '@/components/expense-table'
 import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
+import { useState, useRef } from 'react'
 
 export default function ExpensesPage() {
     const {
         updateFilters,
     } = useExpenseContext()
     const { categories } = useCategories()
-    const router = useRouter()
+    const addExpenseSheetRef = useRef<AddExpenseSheetRef>(null)
 
     const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
         dateRange: 'all'
@@ -32,6 +30,10 @@ export default function ExpensesPage() {
         await updateFilters(dbFilters)
     }
 
+    const handleOpenAddExpense = () => {
+        addExpenseSheetRef.current?.open()
+    }
+
 
     return (
         <div className="min-h-screen bg-background">
@@ -41,14 +43,7 @@ export default function ExpensesPage() {
                     <h1 className="text-2xl font-bold text-foreground leading-tight">
                         Gastos
                     </h1>
-                    <Button
-                        onClick={() => router.push('/gastos/agregar')}
-                        className="w-full h-12 text-base font-medium shadow-sm hover:shadow-md transition-shadow duration-200"
-                        size="lg"
-                    >
-                        <Plus className="w-5 h-5 mr-3" />
-                        Agregar Gasto
-                    </Button>
+                    <AddExpenseSheet ref={addExpenseSheetRef} />
                 </div>
 
                 {/* Content with improved mobile spacing */}
@@ -61,7 +56,7 @@ export default function ExpensesPage() {
                         onFiltersChange={handleFiltersChange}
                     />
 
-                    <ExpenseTable />
+                    <ExpenseTable onAddExpense={handleOpenAddExpense} />
                 </div>
             </div>
         </div>
