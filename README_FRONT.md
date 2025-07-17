@@ -326,6 +326,14 @@ const { createExpense } = useExpenseContext()
 - Trend analysis
 - Visual summaries
 
+**Privacy Features:**
+
+- Amount hiding functionality with \*\*\*\* masking
+- Individual toggle controls for Total and Monthly amounts
+- Eye/EyeOff icon toggle buttons
+- Independent visibility state management
+- Persistent state during context updates
+
 ### Expense Table System (`components/expense-table/`)
 
 #### ExpenseTable Architecture

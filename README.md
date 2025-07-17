@@ -16,6 +16,7 @@
 - React Hook Form + Zod (forms/validation)
 - Recharts (data visualization)
 - Jest + Testing Library (testing)
+- Privacy controls (amount hiding/showing with toggle buttons)
 
 **Backend Stack**:
 

@@ -849,6 +849,9 @@ useEffect(() => {
 - [ ] Error states handled gracefully
 - [ ] Loading states display correctly
 - [ ] Integration with context providers works
+- [ ] Privacy features (amount hiding/showing) tested
+- [ ] Toggle state persistence during data updates
+- [ ] Icon state changes (Eye/EyeOff) validated
 
 ### Performance Checklist:
 

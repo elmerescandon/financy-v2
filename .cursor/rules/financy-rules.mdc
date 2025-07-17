@@ -1,10 +1,11 @@
 ---
-alwaysApply: true
+description: Use this rule every time the user asks for new code to be implemented into the project, for example: workflow, features, components, API, migrations, functionalities, etc. You must read all the document and follow each step.
+alwaysApply: false
 ---
-
-Use this rule each time you are going to implement new code into the project, for example: workflows, tables, components, API, functionalities, etc.
 
 1. Go the ./README.md file and understand how the project works
 2. Then according to the type of functionality review the ./README_DEV_FRONT.md, ./README_DEV_BACK.md or both to now more about the programming guidelines.
-3. Implement the functionality in steps that could be testeable and modularized
-4. Refresh the README.md, ./README_FRONT.md and ./README_BACK.md with the new feature implemented
+3. Ask the user what must be tested and how the tests must look, wait for their response.
+4. Build the components according to the tests following the guidelines.
+5. Implement the functionalities.
+6. Refresh the README.md, ./README_FRONT.md and ./README_BACK.md with the new feature implemented
