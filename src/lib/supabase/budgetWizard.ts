@@ -280,12 +280,26 @@ export async function generateBudgets(
     }
 }
 
+export async function getFinancialSummaryForPreviousMonth(userId: string): Promise<FinancialSummary> {
+    const now = new Date()
+    const prevMonth = now.getMonth() === 0
+        ? new Date(now.getFullYear() - 1, 11, 1)
+        : new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    return await getFinancialSummary(userId, prevMonth.getMonth(), prevMonth.getFullYear())
+}
+
 export async function canUseWizard(userId: string): Promise<boolean> {
     const currentDate = new Date()
     const isEarlyInMonth = currentDate.getDate() <= 10 // First 10 days of month
 
     // Check if user has income this month
-    const summary = await getFinancialSummary(userId)
+    const summary = await getFinancialSummaryForPreviousMonth(userId)
+    console.log('[canUseWizard] Financial summary for user:', userId, {
+        totalIncome: summary.totalIncome,
+        availableForBudgets: summary.availableForBudgets,
+        month: summary.month,
+        year: summary.year
+    })
     const hasIncome = summary.totalIncome > 0
 
     // Check if user has eligible categories
