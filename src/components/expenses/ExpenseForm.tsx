@@ -74,9 +74,6 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         if (!formData.category_id) {
             newErrors.category_id = 'La categoría es obligatoria'
         }
-        if (!formData.payment_method) {
-            newErrors.payment_method = 'El método de pago es obligatorio'
-        }
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -90,11 +87,11 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             const submitData = {
                 amount: parseFloat(formData.amount),
                 description: formData.description.trim(),
-                date: formData.date,
+                date: `${formatDate(formData.date)} 12:00:00`, // Add explicit time to avoid timezone conversion
                 category_id: formData.category_id,
                 subcategory_id: formData.subcategory_id || null,
                 merchant: formData.merchant.trim() || null,
-                payment_method: formData.payment_method,
+                payment_method: formData.payment_method || 'other',
                 tags: tags
             }
             await onSubmit(submitData)
@@ -106,15 +103,17 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     const handleDateChange = (dateString: string) => {
-        const dateObj = new Date(dateString)
+        let dateObj: Date
 
         // If user selects a date, set time to 12:00 PM
         if (dateString) {
-            dateObj.setHours(12, 0, 0, 0)
+            // Parse date in local timezone to avoid UTC conversion
+            const [year, month, day] = dateString.split('-').map(Number)
+            dateObj = new Date(year, month - 1, day, 12, 0, 0, 0) // month is 0-indexed
             setHasModifiedDate(true)
         } else {
             // If no date, use current time
-            dateObj.setTime(Date.now())
+            dateObj = new Date()
             setHasModifiedDate(false)
         }
 
@@ -129,7 +128,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     const formatDate = (date: Date) => {
-        return date.toISOString().split('T')[0]
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
     }
 
     const formatTime = (date: Date) => {
@@ -264,10 +266,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Description */}
             <div>
-                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción *</Label>
+                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción</Label>
                 <Input
                     id="description"
-                    placeholder="Ej: Compra en supermercado"
+                    placeholder="Ej: Compra en supermercado (opcional)"
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     className='text-sm'
@@ -278,13 +280,13 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             </div>
 
             <div className='w-full'>
-                <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago *</Label>
+                <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago</Label>
                 <Select
                     value={formData.payment_method}
                     onValueChange={(value) => handleInputChange('payment_method', value)}
                 >
                     <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecciona método de pago" />
+                        <SelectValue placeholder="Selecciona método de pago (opcional)" />
                     </SelectTrigger>
                     <SelectContent>
                         {PAYMENT_METHODS.map((method) => (

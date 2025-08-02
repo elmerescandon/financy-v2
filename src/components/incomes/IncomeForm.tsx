@@ -113,7 +113,7 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
             const submitData = {
                 amount: parseFloat(formData.amount),
                 description: formData.description.trim(),
-                date: formData.date.toISOString().split('T')[0], // Convert to YYYY-MM-DD
+                date: `${formatLocalDate(formData.date)} 12:00:00`, // Add explicit time to avoid timezone conversion
                 source: formData.source,
                 employer_client: formData.employer_client.trim() || null,
                 category_id: formData.category_id || null,
@@ -121,7 +121,7 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
                 is_recurring: formData.is_recurring,
                 recurring_frequency: formData.is_recurring ? formData.recurring_frequency : null,
                 recurring_end_date: formData.is_recurring && formData.recurring_end_date
-                    ? formData.recurring_end_date.toISOString().split('T')[0]
+                    ? `${formatLocalDate(formData.recurring_end_date)} 12:00:00`
                     : null,
                 is_taxable: formData.is_taxable,
                 tags: tags
@@ -151,6 +151,13 @@ export function IncomeForm({ categories, initialData, onSubmit, onCancel }: Inco
 
     const removeTag = (tagToRemove: string) => {
         setTags(prev => prev.filter(tag => tag !== tagToRemove))
+    }
+
+    const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
     }
 
     return (

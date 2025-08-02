@@ -81,10 +81,17 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
         setEndDate(end)
         setFormData(prev => ({
             ...prev,
-            period_start: start.toISOString().split('T')[0],
-            period_end: end.toISOString().split('T')[0]
+            period_start: formatLocalDate(start),
+            period_end: formatLocalDate(end)
         }))
     }, [period])
+
+    const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+    }
 
     const handleDateChange = (date: Date | undefined, field: 'start' | 'end') => {
         if (!date) return
@@ -93,13 +100,13 @@ export default function BudgetForm({ categories, initialData, onSubmit, onCancel
             setStartDate(date)
             setFormData(prev => ({
                 ...prev,
-                period_start: date.toISOString().split('T')[0]
+                period_start: formatLocalDate(date)
             }))
         } else {
             setEndDate(date)
             setFormData(prev => ({
                 ...prev,
-                period_end: date.toISOString().split('T')[0]
+                period_end: formatLocalDate(date)
             }))
         }
     }
