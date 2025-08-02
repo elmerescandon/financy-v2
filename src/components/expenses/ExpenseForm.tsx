@@ -90,7 +90,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             const submitData = {
                 amount: parseFloat(formData.amount),
                 description: formData.description.trim(),
-                date: formData.date,
+                date: `${formatDate(formData.date)} 12:00:00`, // Add explicit time to avoid timezone conversion
                 category_id: formData.category_id,
                 subcategory_id: formData.subcategory_id || null,
                 merchant: formData.merchant.trim() || null,
@@ -106,15 +106,17 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     const handleDateChange = (dateString: string) => {
-        const dateObj = new Date(dateString)
+        let dateObj: Date
 
         // If user selects a date, set time to 12:00 PM
         if (dateString) {
-            dateObj.setHours(12, 0, 0, 0)
+            // Parse date in local timezone to avoid UTC conversion
+            const [year, month, day] = dateString.split('-').map(Number)
+            dateObj = new Date(year, month - 1, day, 12, 0, 0, 0) // month is 0-indexed
             setHasModifiedDate(true)
         } else {
             // If no date, use current time
-            dateObj.setTime(Date.now())
+            dateObj = new Date()
             setHasModifiedDate(false)
         }
 
@@ -129,7 +131,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     const formatDate = (date: Date) => {
-        return date.toISOString().split('T')[0]
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
     }
 
     const formatTime = (date: Date) => {
