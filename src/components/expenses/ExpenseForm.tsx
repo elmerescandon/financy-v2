@@ -74,9 +74,6 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
         if (!formData.category_id) {
             newErrors.category_id = 'La categoría es obligatoria'
         }
-        if (!formData.payment_method) {
-            newErrors.payment_method = 'El método de pago es obligatorio'
-        }
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -94,7 +91,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 category_id: formData.category_id,
                 subcategory_id: formData.subcategory_id || null,
                 merchant: formData.merchant.trim() || null,
-                payment_method: formData.payment_method,
+                payment_method: formData.payment_method || 'other',
                 tags: tags
             }
             await onSubmit(submitData)
@@ -269,10 +266,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             {/* Description */}
             <div>
-                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción *</Label>
+                <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción</Label>
                 <Input
                     id="description"
-                    placeholder="Ej: Compra en supermercado"
+                    placeholder="Ej: Compra en supermercado (opcional)"
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     className='text-sm'
@@ -283,13 +280,13 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             </div>
 
             <div className='w-full'>
-                <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago *</Label>
+                <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago</Label>
                 <Select
                     value={formData.payment_method}
                     onValueChange={(value) => handleInputChange('payment_method', value)}
                 >
                     <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecciona método de pago" />
+                        <SelectValue placeholder="Selecciona método de pago (opcional)" />
                     </SelectTrigger>
                     <SelectContent>
                         {PAYMENT_METHODS.map((method) => (
