@@ -49,17 +49,17 @@ export function ExpenseSummary() {
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Este Mes</CardTitle>
-                    <div className="flex items-center gap-2">
+            <div className="rounded-lg border bg-card shadow-sm p-4 min-h-[60px] flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Este Mes</span>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleToggleMonthlyVisibility}
                             data-testid="amount-toggle"
-                            className="h-12 w-12 p-2 hover:bg-accent sm:h-auto sm:w-auto sm:p-1 touch-manipulation"
+                            className="h-8 w-8 p-1 hover:bg-accent/50 touch-manipulation ml-auto"
                         >
                             {showMonthlyAmount ? (
                                 <EyeOff className="h-4 w-4" data-testid="eye-off-icon" />
@@ -68,29 +68,24 @@ export function ExpenseSummary() {
                             )}
                         </Button>
                     </div>
-                </CardHeader>
-                <CardContent>
+                    
                     {loading ? (
-                        <>
-                            <div className="text-2xl font-bold">
-                                <Skeleton className="w-24 h-8" />
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                                <Skeleton className="w-32 h-4 mt-2" />
-                            </div>
-                        </>
+                        <div className="flex items-baseline gap-3">
+                            <Skeleton className="w-24 h-7" />
+                            <Skeleton className="w-20 h-4" />
+                        </div>
                     ) : (
-                        <>
-                            <div className="text-2xl font-bold">
+                        <div className="flex items-baseline gap-3">
+                            <div className="text-2xl font-semibold text-foreground">
                                 {renderAmount(monthlyTotal, showMonthlyAmount)}
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                                {monthlyExpenses.length} gastos este mes
+                            <div className="text-sm text-muted-foreground">
+                                {monthlyExpenses.length} gastos
                             </div>
-                        </>
+                        </div>
                     )}
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     )
 } 

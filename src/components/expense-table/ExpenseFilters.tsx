@@ -89,7 +89,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     }
 
     const clearFilters = () => {
-        onFiltersChange({ dateRange: 'all' })
+        onFiltersChange({ dateRange: 'this_month' })
     }
 
     const removeCategory = (categoryId: string) => {
@@ -100,7 +100,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
         })
     }
 
-    const hasActiveFilters = filters.dateRange !== 'all' || (filters.categoryIds && filters.categoryIds.length > 0)
+    const hasActiveFilters = filters.dateRange !== 'this_month' || (filters.categoryIds && filters.categoryIds.length > 0)
     const selectedCategories = categories.filter(c => filters.categoryIds?.includes(c.id) || false)
 
     const getCategoryDisplayText = () => {
@@ -115,37 +115,41 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
     }
 
     return (
-        <div className="space-y-4 p-4 bg-background rounded-xl border shadow-none">
-            {/* Date Range Buttons */}
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+        <div className="space-y-3 p-3 sm:p-4 bg-background rounded-xl border shadow-none">
+            {/* Mobile-First Compact Layout */}
+            <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-6">
+                {/* Date Range - More compact on mobile */}
                 <div className="flex-1 min-w-0">
-                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Fecha</Label>
-                    <div className='flex flex-wrap gap-2'>
-                        {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
-                            <Button
-                                key={key}
-                                variant={filters.dateRange === key ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
-                                className={`text-xs sm:text-sm ${filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}`}
-                            >
-                                {label}
-                            </Button>
-                        ))}
+                    <Label className='text-xs sm:text-sm font-medium text-muted-foreground mb-2 block'>Fecha</Label>
+                    <div className='flex overflow-x-auto gap-2 pb-1 scrollbar-hide'>
+                        <div className='flex gap-2 min-w-max'>
+                            {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
+                                <Button
+                                    key={key}
+                                    variant={filters.dateRange === key ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
+                                    className={`h-10 px-3 text-xs sm:text-sm touch-manipulation sm:h-8 sm:px-3 flex-shrink-0 ${filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}`}
+                                >
+                                    {label}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
+                {/* Categories - Mobile optimized */}
                 <div className="flex-1 min-w-0 sm:max-w-xs">
-                    <Label className='text-sm font-medium text-muted-foreground mb-2 block'>Categorías</Label>
+                    <Label className='text-xs sm:text-sm font-medium text-muted-foreground mb-2 block'>Categorías</Label>
                     <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={open}
-                                className="w-full justify-between"
+                                className="w-full justify-between h-10 px-3 text-sm sm:h-9 touch-manipulation"
                             >
-                                <span className="truncate">{getCategoryDisplayText()}</span>
+                                <span className="truncate text-left">{getCategoryDisplayText()}</span>
                                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
@@ -159,7 +163,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                                             return (
                                                 <div
                                                     key={category.id}
-                                                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
+                                                    className="flex items-center gap-2 p-3 rounded-md hover:bg-accent cursor-pointer touch-manipulation min-h-[44px] sm:min-h-[32px] sm:p-2"
                                                     onClick={() => handleCategoryToggle(category.id)}
                                                 >
                                                     <Checkbox
@@ -183,30 +187,34 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                 </div>
             </div>
 
-            {/* Active Filters */}
+            {/* Active Filters - More compact on mobile */}
             {hasActiveFilters && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex flex-wrap gap-2">
-                        {filters.dateRange !== 'all' && (
-                            <Badge variant="secondary" className="gap-1">
+                        {filters.dateRange !== 'this_month' && (
+                            <Badge variant="secondary" className="gap-1 h-8 px-3 touch-manipulation">
                                 {DATE_RANGE_LABELS[filters.dateRange]}
-                                <X
-                                    className="w-3 h-3 cursor-pointer hover:text-destructive"
-                                    onClick={() => handleDateRangeChange('all')}
-                                />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDateRangeChange('this_month')}
+                                    className='cursor-pointer hover:text-destructive p-0 h-auto w-4 h-4 ml-1 touch-manipulation'
+                                >
+                                    <X className="w-3 h-3" />
+                                </Button>
                             </Badge>
                         )}
                         {selectedCategories.map((category) => (
-                            <Badge key={category.id} variant="secondary" className="gap-1">
+                            <Badge key={category.id} variant="secondary" className="gap-1 h-8 px-3 touch-manipulation">
                                 <span>{category.icon}</span>
-                                {category.name}
+                                <span className="hidden sm:inline">{category.name}</span>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => removeCategory(category.id)}
-                                    className='cursor-pointer hover:text-destructive p-0 h-auto'
+                                    className='cursor-pointer hover:text-destructive p-0 h-auto w-4 h-4 ml-1 touch-manipulation'
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-3 h-3" />
                                 </Button>
                             </Badge>
                         ))}
@@ -215,10 +223,10 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                         variant="ghost"
                         size="sm"
                         onClick={clearFilters}
-                        className="text-muted-foreground hover:text-foreground w-full sm:w-auto"
+                        className="text-muted-foreground hover:text-foreground w-full sm:w-auto h-10 sm:h-8 touch-manipulation"
                     >
                         <X className="w-3 h-3 mr-1" />
-                        Limpiar filtros
+                        <span className="text-xs sm:text-sm">Limpiar filtros</span>
                     </Button>
                 </div>
             )}
