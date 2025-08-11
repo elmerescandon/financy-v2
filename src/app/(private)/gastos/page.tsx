@@ -47,12 +47,12 @@ export default function ExpensesPage() {
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
                     <ExpenseSummary />
-
+{/* 
                     <ExpenseFilters
                         categories={categories}
                         filters={uiFilters}
                         onFiltersChange={handleFiltersChange}
-                    />
+                    /> */}
 
                     <ExpenseTable onAddExpense={handleOpenAddExpense} />
                 </div>

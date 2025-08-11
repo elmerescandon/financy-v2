@@ -172,7 +172,7 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
             <div className="lg:hidden">
                 {loading && <ExpenseCardsSkeleton />}
                 {!loading && expenses.length > 0 && (
-                    <div className="border-l border-r">
+                    <div>
                         {expenses.map((expense) => (
                             <ExpenseCard
                                 key={expense.id}

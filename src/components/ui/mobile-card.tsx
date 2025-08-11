@@ -283,7 +283,7 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
         >
           <button
             onClick={handleDelete}
-            className="h-full w-full flex  border-l border-t items-center justify-center touch-manipulation"
+            className="h-full w-full flex  border-t border-r items-center justify-center touch-manipulation"
             aria-label={`Delete expense ${expense.description}`}
           >
             🗑️
@@ -294,7 +294,7 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
         <div
           ref={cardRef}
           className={cn(
-            "relative bg-card border-t transition-transform duration-200 ease-out",
+            "relative bg-card border-t border-l border-r transition-transform duration-200 ease-out",
             className
           )}
           style={{ transform: `translateX(-${swipeOffset}px)` }}

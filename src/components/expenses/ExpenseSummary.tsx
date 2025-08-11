@@ -48,7 +48,7 @@ export function ExpenseSummary() {
     }
 
     return (
-        <button onClick={handleToggleMonthlyVisibility} className="rounded-lg border bg-card shadow-sm p-4 flex items-center justify-between w-full">
+        <button onClick={handleToggleMonthlyVisibility} className="rounded-lg border bg-card p-4 flex items-center justify-between w-full">
 
                 <p className="text-sm font-medium text-foreground">Gasto Mensual</p>
                 <div className="flex items-center justify-end gap-2">

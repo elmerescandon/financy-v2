@@ -119,7 +119,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
             {/* Mobile-First Compact Layout */}
             <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-6">
                 {/* Date Range - More compact on mobile */}
-                <div className="flex-1 min-w-0">
+                {/* <div className="flex-1 min-w-0">
                     <Label className='text-xs sm:text-sm font-medium text-muted-foreground mb-2 block'>Fecha</Label>
                     <div className='flex overflow-x-auto gap-2 pb-1 scrollbar-hide'>
                         <div className='flex gap-2 min-w-max'>
@@ -136,7 +136,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                             ))}
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Categories - Mobile optimized */}
                 <div className="flex-1 min-w-0 sm:max-w-xs">
@@ -188,7 +188,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
             </div>
 
             {/* Active Filters - More compact on mobile */}
-            {hasActiveFilters && (
+            {/* {hasActiveFilters && (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex flex-wrap gap-2">
                         {filters.dateRange !== 'this_month' && (
@@ -229,7 +229,7 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                         <span className="text-xs sm:text-sm">Limpiar filtros</span>
                     </Button>
                 </div>
-            )}
+            )} */}
         </div>
     )
 } 
