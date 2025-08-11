@@ -54,7 +54,6 @@ export function ExpenseSummary() {
                 <div className="flex items-center justify-end gap-2">
                 {loading ? (
                     <div className="flex gap-3">
-                        <Skeleton className="w-24 h-7" />
                         <Skeleton className="w-20 h-4" />
                     </div>
                 ) : (
