@@ -172,74 +172,179 @@ interface ExpenseCardProps extends MobileCardProps {
 
 const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
   ({ expense, onEdit, onDelete, formatCurrency, className, ...props }, ref) => {
+    const [swipeOffset, setSwipeOffset] = React.useState(0)
+    const [isDragging, setIsDragging] = React.useState(false)
+    const startX = React.useRef(0)
+    const cardRef = React.useRef<HTMLDivElement>(null)
+
+    // Function to format date as relative or regular
+    const formatDate = React.useCallback((dateString: string) => {
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffTime = now.getTime() - date.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      
+      if (diffDays === 0) return 'Hoy'
+      if (diffDays === 1) return 'Ayer'
+      if (diffDays === 2) return 'Hace 2 días'
+      if (diffDays === 3) return 'Hace 3 días'
+      
+      // For dates older than 3 days, use regular format
+      return date.toLocaleDateString('es-ES')
+    }, [])
+
     const handleEdit = React.useCallback(() => {
       onEdit?.(expense.id)
     }, [onEdit, expense.id])
 
     const handleDelete = React.useCallback(() => {
       onDelete?.(expense.id)
+      // Reset swipe position after delete
+      setSwipeOffset(0)
     }, [onDelete, expense.id])
 
+    const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+      startX.current = e.touches[0].clientX
+      setIsDragging(true)
+    }, [])
+
+    const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+      if (!isDragging) return
+      
+      const currentX = e.touches[0].clientX
+      const deltaX = currentX - startX.current
+      
+      // Only allow swipe to the right and limit the distance
+      const newOffset = Math.max(0, Math.min(deltaX, 100))
+      setSwipeOffset(newOffset)
+    }, [isDragging])
+
+    const handleTouchEnd = React.useCallback(() => {
+      setIsDragging(false)
+      
+      // If swiped more than 50px, keep delete visible, otherwise snap back
+      if (swipeOffset > 50) {
+        setSwipeOffset(80) // Fixed position showing delete
+      } else {
+        setSwipeOffset(0)
+      }
+    }, [swipeOffset])
+
+    const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
+      startX.current = e.clientX
+      setIsDragging(true)
+    }, [])
+
+    const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
+      if (!isDragging) return
+      
+      const deltaX = e.clientX - startX.current
+      const newOffset = Math.max(0, Math.min(deltaX, 100))
+      setSwipeOffset(newOffset)
+    }, [isDragging])
+
+    const handleMouseUp = React.useCallback(() => {
+      setIsDragging(false)
+      
+      if (swipeOffset > 50) {
+        setSwipeOffset(80)
+      } else {
+        setSwipeOffset(0)
+      }
+    }, [swipeOffset])
+
+    // Close swipe when clicking outside
+    const handleClickOutside = React.useCallback(() => {
+      if (swipeOffset > 0) {
+        setSwipeOffset(0)
+      }
+    }, [swipeOffset])
+
+    React.useEffect(() => {
+      if (isDragging) {
+        document.addEventListener('mousemove', handleMouseMove as any)
+        document.addEventListener('mouseup', handleMouseUp)
+        return () => {
+          document.removeEventListener('mousemove', handleMouseMove as any)
+          document.removeEventListener('mouseup', handleMouseUp)
+        }
+      }
+    }, [isDragging, handleMouseMove, handleMouseUp])
+
     return (
-      <MobileCard
-        ref={ref}
-        size="touch"
-        className={cn("relative", className)}
-        {...props}
-      >
-        <MobileCardHeader>
-          <div className="flex-1 min-w-0">
-            <MobileCardTitle className="truncate">
-              {expense.description}
-            </MobileCardTitle>
-            {expense.merchant && (
-              <MobileCardDescription className="truncate">
-                {expense.merchant}
-              </MobileCardDescription>
-            )}
-          </div>
-          <div className="text-right ml-3 flex-shrink-0">
-            <div className="text-lg font-semibold">
-              {formatCurrency(expense.amount)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {new Date(expense.date).toLocaleDateString('es-ES')}
-            </div>
-          </div>
-        </MobileCardHeader>
+      <div className="relative overflow-hidden rounded-lg">
+        {/* Delete button background */}
+        <div 
+          className="absolute right-0 top-0 h-full w-20 bg-destructive flex items-center justify-center text-white font-medium text-sm"
+          style={{
+            transform: `translateX(${80 - swipeOffset}px)`,
+            opacity: swipeOffset > 20 ? 1 : 0
+          }}
+        >
+          <button
+            onClick={handleDelete}
+            className="h-full w-full flex items-center justify-center touch-manipulation"
+            aria-label={`Delete expense ${expense.description}`}
+          >
+            Eliminar
+          </button>
+        </div>
 
-        <MobileCardFooter>
-          <div className="flex items-center space-x-2">
-            {expense.category && (
-              <div className="flex items-center space-x-1 px-2 py-1 rounded-md bg-secondary/50 text-xs">
-                <span>{expense.category.icon}</span>
-                <span className="font-medium">{expense.category.name}</span>
+        {/* Main card content */}
+        <div
+          ref={cardRef}
+          className={cn(
+            "relative bg-card border rounded-lg transition-transform duration-200 ease-out",
+            className
+          )}
+          style={{ transform: `translateX(${swipeOffset}px)` }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onClick={handleClickOutside}
+        >
+          <div className="p-4 min-h-[60px]">
+            {/* Compact layout: Description and Amount on same line */}
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex-1 min-w-0 mr-3">
+                <span className="font-medium text-sm truncate block">
+                  {expense.description}
+                </span>
               </div>
-            )}
-          </div>
+              <div className="text-lg font-semibold flex-shrink-0">
+                {formatCurrency(expense.amount)}
+              </div>
+            </div>
 
-          <div className="flex items-center space-x-2">
-            {onEdit && (
-              <button
-                onClick={handleEdit}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded touch-manipulation"
-                aria-label={`Edit expense ${expense.description}`}
-              >
-                Editar
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={handleDelete}
-                className="text-xs text-destructive hover:text-destructive/80 transition-colors py-1 px-2 rounded touch-manipulation"
-                aria-label={`Delete expense ${expense.description}`}
-              >
-                Eliminar
-              </button>
-            )}
+            {/* Date and Category below in muted and small text */}
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                {formatDate(expense.date)}
+                {expense.merchant && (
+                  <span className="ml-2">• {expense.merchant}</span>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                {expense.category && (
+                  <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded">
+                    {expense.category.icon} {expense.category.name}
+                  </span>
+                )}
+                {onEdit && (
+                  <button
+                    onClick={handleEdit}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded touch-manipulation"
+                    aria-label={`Edit expense ${expense.description}`}
+                  >
+                    Editar
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </MobileCardFooter>
-      </MobileCard>
+        </div>
+      </div>
     )
   }
 )
