@@ -312,7 +312,7 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
                   {expense.description}
                 </span>
               </div>
-              <div className="text-lg font-semibold flex-shrink-0">
+              <div className="text-sm font-semibold flex-shrink-0">
                 {formatCurrency(expense.amount)}
               </div>
             </div>
