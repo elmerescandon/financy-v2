@@ -21,7 +21,7 @@ export default function ExpensesPage() {
     const addExpenseSheetRef = useRef<AddExpenseSheetRef>(null)
 
     const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
-        dateRange: 'all'
+        dateRange: 'this_month'
     })
 
 
