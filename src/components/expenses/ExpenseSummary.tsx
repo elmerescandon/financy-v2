@@ -33,7 +33,7 @@ export function ExpenseSummary() {
 
     const renderAmount = (amount: number, isVisible: boolean) => {
         if (!isVisible) {
-            return '****'
+            return '******'
         }
 
         try {
@@ -48,44 +48,26 @@ export function ExpenseSummary() {
     }
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
-            <div className="rounded-lg border bg-card shadow-sm p-4 min-h-[60px] flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">Este Mes</span>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleToggleMonthlyVisibility}
-                            data-testid="amount-toggle"
-                            className="h-8 w-8 p-1 hover:bg-accent/50 touch-manipulation ml-auto"
-                        >
-                            {showMonthlyAmount ? (
-                                <EyeOff className="h-4 w-4" data-testid="eye-off-icon" />
-                            ) : (
-                                <Eye className="h-4 w-4" data-testid="eye-icon" />
-                            )}
-                        </Button>
+        <button onClick={handleToggleMonthlyVisibility} className="rounded-lg border bg-card shadow-sm p-4 flex items-center justify-between w-full">
+
+                <p className="text-sm font-medium text-foreground">Gasto Mensual</p>
+                <div className="flex items-center justify-end gap-2">
+                {loading ? (
+                    <div className="flex gap-3">
+                        <Skeleton className="w-24 h-7" />
+                        <Skeleton className="w-20 h-4" />
                     </div>
-                    
-                    {loading ? (
-                        <div className="flex items-baseline gap-3">
-                            <Skeleton className="w-24 h-7" />
-                            <Skeleton className="w-20 h-4" />
-                        </div>
-                    ) : (
-                        <div className="flex items-baseline gap-3">
-                            <div className="text-2xl font-semibold text-foreground">
-                                {renderAmount(monthlyTotal, showMonthlyAmount)}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                                {monthlyExpenses.length} gastos
-                            </div>
-                        </div>
-                    )}
+                ) : (
+                    <div className="text-sm font-semibold text-foreground">
+                        {renderAmount(monthlyTotal, showMonthlyAmount)}
+                    </div>
+                )}
+                 {showMonthlyAmount ? (
+                    <EyeOff className="h-4 w-4" data-testid="eye-off-icon" />
+                ) : (
+                    <Eye className="h-4 w-4" data-testid="eye-icon" />
+                )}
                 </div>
-            </div>
-        </div>
+        </button>
     )
 } 
