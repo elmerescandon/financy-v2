@@ -121,18 +121,20 @@ export function ExpenseFilters({ categories, filters, onFiltersChange }: Expense
                 {/* Date Range - More compact on mobile */}
                 <div className="flex-1 min-w-0">
                     <Label className='text-xs sm:text-sm font-medium text-muted-foreground mb-2 block'>Fecha</Label>
-                    <div className='grid grid-cols-2 sm:flex sm:flex-wrap gap-2'>
-                        {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
-                            <Button
-                                key={key}
-                                variant={filters.dateRange === key ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
-                                className={`h-10 px-3 text-xs sm:text-sm touch-manipulation sm:h-8 sm:px-3 ${filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}`}
-                            >
-                                {label}
-                            </Button>
-                        ))}
+                    <div className='flex overflow-x-auto gap-2 pb-1 scrollbar-hide'>
+                        <div className='flex gap-2 min-w-max'>
+                            {Object.entries(DATE_RANGE_LABELS).map(([key, label]) => (
+                                <Button
+                                    key={key}
+                                    variant={filters.dateRange === key ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handleDateRangeChange(key as ExpenseFilters['dateRange'])}
+                                    className={`h-10 px-3 text-xs sm:text-sm touch-manipulation sm:h-8 sm:px-3 flex-shrink-0 ${filters.dateRange === key ? 'bg-primary hover:bg-primary/90' : ''}`}
+                                >
+                                    {label}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
