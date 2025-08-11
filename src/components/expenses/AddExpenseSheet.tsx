@@ -47,7 +47,7 @@ export const AddExpenseSheet = forwardRef<AddExpenseSheetRef, AddExpenseSheetPro
                 {showTrigger && (
                     <SheetTrigger asChild>
                         <Button
-                            size="default"
+                            size="touch"
                             className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200"
                         >
                             <Plus className="mr-2 h-4 w-4" />

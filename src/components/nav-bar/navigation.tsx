@@ -14,6 +14,7 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
+import { NavigationTrigger } from '@/components/ui/touch-target'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     Sidebar,
@@ -278,7 +279,13 @@ export default function Navigation({ user, children }: NavigationProps) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm p-4">
                         <div className="flex items-center justify-between">
-                            <SidebarTrigger className="text-muted-foreground hover:text-foreground cursor-pointer" />
+                            <NavigationTrigger 
+                                asChild 
+                                aria-label="Toggle sidebar menu"
+                                className="text-muted-foreground hover:text-foreground"
+                            >
+                                <SidebarTrigger />
+                            </NavigationTrigger>
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm text-muted-foreground hidden sm:block">
                                     ¡Hola, {getUserDisplayName()}!

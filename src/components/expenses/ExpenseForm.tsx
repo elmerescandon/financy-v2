@@ -3,8 +3,16 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MobileInput, MobileNumberInput } from '@/components/ui/mobile-input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+    MobileSelect, 
+    MobileSelectContent, 
+    MobileSelectItem, 
+    MobileSelectTrigger, 
+    MobileSelectValue 
+} from '@/components/ui/mobile-select'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, LogIn, Plus, X } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
@@ -167,18 +175,18 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-2 max-w-5xl w-full min-w-full max-lg:min-w-2xs max-lg:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-5xl w-full min-w-full lg:space-y-2">
             {/* Amount */}
             <div>
                 <Label htmlFor="amount" className="text-sm font-medium mb-2">Cantidad *</Label>
-                <Input
+                <MobileNumberInput
                     id="amount"
-                    type="number"
                     step="0.01"
                     min="0"
                     placeholder="0.00"
                     value={formData.amount}
                     onChange={(e) => handleInputChange('amount', e.target.value)}
+                    touchEnhanced
                 />
                 {errors.amount && (
                     <p className="text-sm text-destructive mt-1">{errors.amount}</p>
@@ -186,25 +194,25 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             </div>
 
 
-            <div className="grid grid-cols-2 gap-4 max-lg:grid-cols-1">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Category */}
                 <div>
                     <Label htmlFor="category" className="text-sm font-medium mb-2">Categoría *</Label>
-                    <Select value={formData.category_id} onValueChange={handleCategoryChange}>
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Selecciona una categoría" />
-                        </SelectTrigger>
-                        <SelectContent>
+                    <MobileSelect value={formData.category_id} onValueChange={handleCategoryChange}>
+                        <MobileSelectTrigger className="w-full">
+                            <MobileSelectValue placeholder="Selecciona una categoría" />
+                        </MobileSelectTrigger>
+                        <MobileSelectContent>
                             {categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
+                                <MobileSelectItem key={category.id} value={category.id}>
                                     <div className="flex items-center gap-2">
                                         <span>{category.icon}</span>
                                         <span>{category.name}</span>
                                     </div>
-                                </SelectItem>
+                                </MobileSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </MobileSelectContent>
+                    </MobileSelect>
                     {errors.category_id && (
                         <p className="text-sm text-destructive mt-1">{errors.category_id}</p>
                     )}
@@ -213,34 +221,34 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 {/* Subcategory */}
                 <div className="w-full">
                     <Label htmlFor="subcategory" className="text-sm font-medium mb-2">Subcategoría</Label>
-                    <Select
+                    <MobileSelect
                         value={formData.subcategory_id}
                         onValueChange={(value) => handleInputChange('subcategory_id', value)}
                         disabled={!formData.category_id || subcategories.length === 0}
                     >
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Selecciona una subcategoría" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <MobileSelectTrigger className="w-full">
+                            <MobileSelectValue placeholder="Selecciona una subcategoría" />
+                        </MobileSelectTrigger>
+                        <MobileSelectContent>
                             {subcategories.map((subcategory) => (
-                                <SelectItem key={subcategory.id} value={subcategory.id}>
+                                <MobileSelectItem key={subcategory.id} value={subcategory.id}>
                                     {subcategory.name}
-                                </SelectItem>
+                                </MobileSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </MobileSelectContent>
+                    </MobileSelect>
                 </div>
             </div>
 
-            <div className={hasModifiedDate ? "grid grid-cols-2 gap-4 max-lg:grid-cols-1" : ""}>
+            <div className={hasModifiedDate ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : ""}>
                 {/* Date */}
                 <div>
                     <Label htmlFor="date" className="text-sm font-medium mb-2">Fecha *</Label>
-                    <Input
+                    <MobileInput
                         type="date"
                         value={formatDate(formData.date)}
                         onChange={(e) => handleDateChange(e.target.value)}
-                        className='text-sm w-full'
+                        className='w-full'
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                         Deja sin modificar para usar la fecha y hora actual
@@ -254,11 +262,11 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                 {hasModifiedDate && (
                     <div>
                         <Label htmlFor="time" className="text-sm font-medium mb-2">Hora</Label>
-                        <Input
+                        <MobileInput
                             type="time"
                             value={formatTime(formData.date)}
                             onChange={(e) => handleTimeChange(e.target.value)}
-                            className='text-sm w-full'
+                            className='w-full'
                         />
                     </div>
                 )}
@@ -267,12 +275,11 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
             {/* Description */}
             <div>
                 <Label htmlFor="description" className="text-sm font-medium mb-2">Descripción</Label>
-                <Input
+                <MobileInput
                     id="description"
                     placeholder="Ej: Compra en supermercado (opcional)"
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    className='text-sm'
                 />
                 {errors.description && (
                     <p className="text-sm text-destructive mt-1">{errors.description}</p>
@@ -281,21 +288,21 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             <div className='w-full'>
                 <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago</Label>
-                <Select
+                <MobileSelect
                     value={formData.payment_method}
                     onValueChange={(value) => handleInputChange('payment_method', value)}
                 >
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecciona método de pago (opcional)" />
-                    </SelectTrigger>
-                    <SelectContent>
+                    <MobileSelectTrigger className="w-full">
+                        <MobileSelectValue placeholder="Selecciona método de pago (opcional)" />
+                    </MobileSelectTrigger>
+                    <MobileSelectContent>
                         {PAYMENT_METHODS.map((method) => (
-                            <SelectItem key={method} value={method}>
+                            <MobileSelectItem key={method} value={method}>
                                 {PAYMENT_METHOD_LABELS[method]}
-                            </SelectItem>
+                            </MobileSelectItem>
                         ))}
-                    </SelectContent>
-                </Select>
+                    </MobileSelectContent>
+                </MobileSelect>
                 {errors.payment_method && (
                     <p className="text-sm text-destructive mt-1">{errors.payment_method}</p>
                 )}
@@ -309,12 +316,11 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                     <AccordionContent className='space-y-4'>
                         <div>
                             <Label htmlFor="merchant" className="text-sm font-medium mb-2">Comercio</Label>
-                            <Input
+                            <MobileInput
                                 id="merchant"
                                 placeholder="Ej: Mercadona, Amazon..."
                                 value={formData.merchant}
                                 onChange={(e) => handleInputChange('merchant', e.target.value)}
-                                className='text-sm'
                             />
                         </div>
 
@@ -361,11 +367,23 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
 
             {/* Actions */}
-            <div className="flex gap-3 pt-4">
-                <Button type="submit" variant="default" disabled={loading} className='w-[100px] cursor-pointer bg-primary dark:bg-primary'>
-                    {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin  text-primary dark:text-primary-foreground" /> : "Crear"}
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                <Button 
+                    type="submit" 
+                    variant="default" 
+                    size="touch"
+                    disabled={loading} 
+                    className='w-full sm:w-[120px] cursor-pointer bg-primary dark:bg-primary'
+                >
+                    {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin text-primary dark:text-primary-foreground" /> : "Crear"}
                 </Button>
-                <Button type="button" variant="outline" onClick={onCancel} className='w-[100px] cursor-pointer'>
+                <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="touch"
+                    onClick={onCancel} 
+                    className='w-full sm:w-[120px] cursor-pointer'
+                >
                     Cancelar
                 </Button>
             </div>
