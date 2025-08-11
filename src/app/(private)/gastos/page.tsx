@@ -38,24 +38,21 @@ export default function ExpensesPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto">
+            <div className="px-4 py-6 space-y-6 max-w-7xl mx-auto max-md:pt-0">
                 {/* Header - Mobile optimized */}
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-2xl font-bold text-foreground leading-tight">
-                        Gastos
-                    </h1>
                     <AddExpenseSheet ref={addExpenseSheetRef} />
                 </div>
 
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
                     <ExpenseSummary />
-
+{/* 
                     <ExpenseFilters
                         categories={categories}
                         filters={uiFilters}
                         onFiltersChange={handleFiltersChange}
-                    />
+                    /> */}
 
                     <ExpenseTable onAddExpense={handleOpenAddExpense} />
                 </div>
