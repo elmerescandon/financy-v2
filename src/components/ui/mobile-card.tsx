@@ -212,10 +212,10 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
       if (!isDragging) return
       
       const currentX = e.touches[0].clientX
-      const deltaX = currentX - startX.current
+      const deltaX = startX.current - currentX
       
-      // Only allow swipe to the right and limit the distance
-      const newOffset = Math.max(0, Math.min(deltaX, 100))
+      // Only allow swipe to the left (negative deltaX becomes positive) and limit the distance
+      const newOffset = Math.max(0, Math.min(deltaX, 80))
       setSwipeOffset(newOffset)
     }, [isDragging])
 
@@ -238,8 +238,8 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
     const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
       if (!isDragging) return
       
-      const deltaX = e.clientX - startX.current
-      const newOffset = Math.max(0, Math.min(deltaX, 100))
+      const deltaX = startX.current - e.clientX
+      const newOffset = Math.max(0, Math.min(deltaX, 80))
       setSwipeOffset(newOffset)
     }, [isDragging])
 
@@ -272,10 +272,10 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
     }, [isDragging, handleMouseMove, handleMouseUp])
 
     return (
-      <div className="relative overflow-hidden rounded-lg">
+      <div className="relative overflow-hidden">
         {/* Delete button background */}
         <div 
-          className="absolute right-0 top-0 h-full w-20 bg-destructive flex items-center justify-center text-white font-medium text-sm"
+          className="absolute right-0 top-0 h-full w-20  flex items-center justify-center text-white"
           style={{
             transform: `translateX(${80 - swipeOffset}px)`,
             opacity: swipeOffset > 20 ? 1 : 0
@@ -283,10 +283,10 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
         >
           <button
             onClick={handleDelete}
-            className="h-full w-full flex items-center justify-center touch-manipulation"
+            className="h-full w-full flex  border-l border-t items-center justify-center touch-manipulation"
             aria-label={`Delete expense ${expense.description}`}
           >
-            Eliminar
+            🗑️
           </button>
         </div>
 
@@ -294,10 +294,10 @@ const ExpenseCard = React.forwardRef<HTMLDivElement, ExpenseCardProps>(
         <div
           ref={cardRef}
           className={cn(
-            "relative bg-card border rounded-lg transition-transform duration-200 ease-out",
+            "relative bg-card border-t transition-transform duration-200 ease-out",
             className
           )}
-          style={{ transform: `translateX(${swipeOffset}px)` }}
+          style={{ transform: `translateX(-${swipeOffset}px)` }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
