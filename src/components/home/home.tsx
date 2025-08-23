@@ -9,22 +9,21 @@ import { formatAmount } from "@/lib/utils/formats"
 
 export default function HomeComponent() {
 
-    const { allFilteredExpenses, loading: expensesLoading } = useExpenseContext()
-    const { incomes, loading: incomesLoading } = useIncomeContext()
-    const { goals, loading: goalsLoading } = useGoalContext()
+    // const { allFilteredExpenses, loading: expensesLoading } = useExpenseContext()
+    // const { incomes, loading: incomesLoading } = useIncomeContext()
+    // const { goals, loading: goalsLoading } = useGoalContext()
 
-    // Calculate totals
-    const totalExpenses = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
-    const totalIncome = incomes.reduce((sum: number, income: IncomeWithDetails) => sum + income.amount, 0)
-    const totalSavings = goals.reduce((sum: number, goal: GoalInsight) => sum + (goal.recent_entries.reduce((sum: number, entry: GoalEntry) => sum + entry.amount, 0) || 0), 0)
+    // // Calculate totals
+    // const totalExpenses = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+    // const totalIncome = incomes.reduce((sum: number, income: IncomeWithDetails) => sum + income.amount, 0)
+    // const totalSavings = goals.reduce((sum: number, goal: GoalInsight) => sum + (goal.recent_entries.reduce((sum: number, entry: GoalEntry) => sum + entry.amount, 0) || 0), 0)
 
-    // Calculate balance: Earnings - Expenses - Savings
-    const balance = totalIncome - totalExpenses - totalSavings
+    // // Calculate balance: Earnings - Expenses - Savings
+    // const balance = totalIncome - totalExpenses - totalSavings
 
     return (
         <div className="p-8">
-            <div className="flex flex-col gap-6">
-                {/* Balance Card */}
+            {/* <div className="flex flex-col gap-6">
                 <Card className="border-2">
                     <CardHeader>
                         <CardTitle className="text-xl">Balance del Mes</CardTitle>
@@ -41,7 +40,6 @@ export default function HomeComponent() {
                     </CardContent>
                 </Card>
 
-                {/* Existing summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
                         <CardHeader>
@@ -79,7 +77,7 @@ export default function HomeComponent() {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

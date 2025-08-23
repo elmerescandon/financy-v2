@@ -119,17 +119,17 @@ export default function Navigation({ user, children }: NavigationProps) {
     }
 
     const navigationItems = [
-        { icon: Home, label: 'Inicio', href: '/inicio' },
-        { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
-        { icon: Target, label: 'Ahorros', href: '/ahorros' },
-        { icon: DollarSign, label: 'Presupuesto', href: '/presupuesto' },
+        { icon: Home, label: 'Inicio', href: '/gastos' },
+        // { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
+        // { icon: Target, label: 'Ahorros', href: '/ahorros' },
+        // { icon: DollarSign, label: 'Presupuesto', href: '/presupuesto' },
     ]
 
     return (
         <SidebarProvider>
             <div className="flex h-screen w-full">
                 <Sidebar className="border-r border-border/50 bg-card/95 backdrop-blur-sm">
-                    <SidebarHeader className="p-6">
+                    <SidebarHeader className="p-2">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-xl warm-gradient flex items-center justify-center">
                                 <CreditCard className="w-6 h-6 text-foreground" />
@@ -161,25 +161,6 @@ export default function Navigation({ user, children }: NavigationProps) {
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                     ))}
-                                    <SidebarMenuItem className='list-none'>
-                                        <SidebarMenuButton>
-                                            <Receipt className="w-5 h-5 mr-3 group-hover:text-primary transition-colors" />
-                                            <span className="font-medium">Gastos</span>
-                                        </SidebarMenuButton>
-                                        <SidebarMenuSub>
-                                            <SidebarMenuSubItem className='list-none'>
-                                                <SidebarMenuSubButton onClick={() => router.push('/gastos')} className='cursor-pointer'>
-                                                    Por consumo
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem className='list-none'>
-                                                <SidebarMenuSubButton onClick={() => router.push('/gastos/categorias')} className='cursor-pointer'>
-                                                    Por categoría
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        </SidebarMenuSub>
-                                    </SidebarMenuItem>
-
                                 </SidebarMenu>
                             </SidebarGroupContent>
                         </SidebarGroup>
@@ -220,9 +201,6 @@ export default function Navigation({ user, children }: NavigationProps) {
                                         <p className="text-sm font-medium leading-none">
                                             {getUserDisplayName()}
                                         </p>
-                                        <p className="text-xs leading-none text-muted-foreground">
-                                            {user?.email}
-                                        </p>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
@@ -254,14 +232,6 @@ export default function Navigation({ user, children }: NavigationProps) {
                                         </DropdownMenuItem>
                                     </DropdownMenuSubContent>
                                 </DropdownMenuSub>
-                                <DropdownMenuItem onClick={() => router.push('/configuracion/api')} className="cursor-pointer">
-                                    <CreditCard className="mr-2 h-4 w-4" />
-                                    <span>API Keys</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/configuracion/gmail')} className="cursor-pointer">
-                                    <Mail className="mr-2 h-4 w-4" />
-                                    <span>Gmail Integration</span>
-                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={handleLogout}
@@ -277,7 +247,7 @@ export default function Navigation({ user, children }: NavigationProps) {
                 </Sidebar>
 
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm p-4">
+                    <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm ">
                         <div className="flex items-center justify-between">
                             <NavigationTrigger 
                                 asChild 
@@ -286,11 +256,11 @@ export default function Navigation({ user, children }: NavigationProps) {
                             >
                                 <SidebarTrigger />
                             </NavigationTrigger>
-                            <div className="flex items-center space-x-4">
+                            {/* <div className="flex items-center space-x-4">
                                 <span className="text-sm text-muted-foreground hidden sm:block">
                                     ¡Hola, {getUserDisplayName()}!
                                 </span>
-                            </div>
+                            </div> */}
                         </div>
                     </header>
 
