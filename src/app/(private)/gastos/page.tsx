@@ -9,10 +9,10 @@ import {
 import { convertToDatabaseFilters, ExpenseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function ExpensesPage() {
+function ExpensesPageContent() {
     const {
         updateFilters,
     } = useExpenseContext()
@@ -66,5 +66,13 @@ export default function ExpensesPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function ExpensesPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>}>
+            <ExpensesPageContent />
+        </Suspense>
     )
 } 
