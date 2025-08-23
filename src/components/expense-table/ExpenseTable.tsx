@@ -90,6 +90,10 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
     }
 
 
+    const orderedExpenses = [...expenses].sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    )
+
 
     return (
         <div className="space-y-4">
@@ -107,11 +111,11 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
                             </TableRow>
                         </TableHeader>
                         {loading && <ExpenseTableSkeleton />}
-                        {!loading && expenses.length > 0 && <TableBody>
-                            {expenses.map((expense) => (
+                        {!loading && orderedExpenses.length > 0 && <TableBody>
+                            {orderedExpenses.map((expense) => (
                                 <TableRow key={expense.id}>
                                     <TableCell>
-                                        {format(new Date(expense.date), 'dd/MM/yyyy')}
+                                        {format(new Date(expense.updated_at), 'dd/MM/yyyy p')}
                                     </TableCell>
                                     <TableCell>
                                         <div>
@@ -141,7 +145,7 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
                             ))}
                         </TableBody>
                         }
-                        {!loading && expenses.length === 0 &&
+                        {!loading && orderedExpenses.length === 0 &&
                             <TableBody>
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center">
@@ -171,9 +175,9 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
             {/* Mobile Card View */}
             <div className="lg:hidden">
                 {loading && <ExpenseCardsSkeleton />}
-                {!loading && expenses.length > 0 && (
+                {!loading && orderedExpenses.length > 0 && (
                     <div>
-                        {expenses.map((expense) => (
+                        {orderedExpenses.map((expense) => (
                             <ExpenseCard
                                 key={expense.id}
                                 expense={{
@@ -193,10 +197,10 @@ export function ExpenseTable({ onAddExpense }: ExpenseTableProps) {
                         ))}
                     </div>
                 )}
-                {!loading && expenses.length === 0 && (
+                {!loading && orderedExpenses.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-12 px-4">
                         <p className="text-muted-foreground mb-6 text-center">
-                            {expenses.length === 0
+                            {orderedExpenses.length === 0
                                 ? 'No tienes gastos registrados aún.'
                                 : 'No se encontraron gastos con los filtros aplicados.'
                             }

@@ -4,14 +4,12 @@ import { useExpenseContext } from '@/lib/context/ExpenseContext'
 import { useCategories } from '@/hooks/useCategories'
 import {
     ExpenseTable,
-    ExpenseFilters,
     type ExpenseFilters as UIExpenseFilters
 } from '@/components/expense-table'
 import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
 import { useState, useRef } from 'react'
-import { Button } from '@/components/ui/button'
 
 export default function ExpensesPage() {
     const {

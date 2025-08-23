@@ -11,13 +11,13 @@ const ExpenseActions = ({ expense, onDelete }: { expense: ExpenseWithDetails, on
 
     return (
         <div className="flex items-center justify-end gap-2">
-            <Button
+            {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push(`/gastos/editar/${expense.id}`)}
             >
                 <Edit className="h-4 w-4" />
-            </Button>
+            </Button> */}
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -35,7 +35,7 @@ const ExpenseActions = ({ expense, onDelete }: { expense: ExpenseWithDetails, on
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => onDelete(expense.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="text-background bg-foreground hover:bg-destructive/90"
                         >
                             Eliminar
                         </AlertDialogAction>

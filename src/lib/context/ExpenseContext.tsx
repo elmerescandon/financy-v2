@@ -75,6 +75,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             setLoading(true)
             setError(null)
             const result = await expenseService.getFilteredWithPagination(filters, page, pageSize)
+            console.log("Result", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {
@@ -84,16 +85,16 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         }
     }, [expenseService, filters, page, pageSize])
 
-    const fetchAllFilteredExpenses = useCallback(async () => {
-        if (!expenseService) return
+    // const fetchAllFilteredExpenses = useCallback(async () => {
+    //     if (!expenseService) return
 
-        try {
-            const allExpenses = await expenseService.getAllFiltered(filters)
-            setAllFilteredExpenses(allExpenses)
-        } catch (err) {
-            console.error('Error fetching all filtered expenses:', err)
-        }
-    }, [expenseService, filters])
+    //     try {
+    //         const allExpenses = await expenseService.getAllFiltered(filters)
+    //         setAllFilteredExpenses(allExpenses)
+    //     } catch (err) {
+    //         console.error('Error fetching all filtered expenses:', err)
+    //     }
+    // }, [expenseService, filters])
 
     const updateFilters = async (newFilters: SimpleFilters) => {
         setPageState(1) // Reset to first page when filters change
@@ -116,7 +117,8 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
         try {
             await expenseService.create({ ...data, currency: CURRENCY, type: 'expense', source: 'manual' })
-            await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+            // await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+            await fetchExpenses()
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')
         }
@@ -145,14 +147,25 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     }
 
     const refreshExpenses = async () => {
-        await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        // await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        await fetchExpenses()
     }
 
     useEffect(() => {
-        if (expenseService) {
-            Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        const updateExpenses = async () => {
+            try{
+                await fetchExpenses()
+            } catch (error){
+                console.log("An error occurred.")
+            }
         }
-    }, [fetchExpenses, fetchAllFilteredExpenses, filters, expenseService])
+
+        if (expenseService) {
+            updateExpenses()
+            // Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+            // await fetchExpenses()
+        }
+    }, [fetchExpenses, filters, expenseService])
 
     return (
         <ExpenseContext.Provider value={{
