@@ -15,7 +15,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function CategoryOverview() {
-    const { allFilteredExpenses, loading } = useExpenseContext()
+    const { totalExpense, loading } = useExpenseContext()
     const { categories } = useCategories()
 
     if (loading) {
@@ -39,25 +39,25 @@ export function CategoryOverview() {
         )
     }
 
-    // Process data
-    const categoryData = processExpensesByCategory(allFilteredExpenses)
-    const weeklyData = processWeeklySpending(allFilteredExpenses, 4)
-    const totalAmount = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+    // // Process data
+    // const categoryData = processExpensesByCategory(allFilteredExpenses)
+    // const weeklyData = processWeeklySpending(allFilteredExpenses, 4)
+    // const totalAmount = allFilteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
 
     return (
         <div className="space-y-6">
             {/* Summary Cards */}
-            <CategorySummaryCards
+            {/* <CategorySummaryCards
                 categories={categoryData}
                 weeklyData={weeklyData}
                 totalAmount={totalAmount}
                 totalExpenses={allFilteredExpenses.length}
-            />
+            /> */}
 
             {/* Charts Section */}
             <div className="grid gap-6 md:grid-cols-2 border-none">
-                <CategoryPieChart categories={categoryData} />
-                <WeeklySpendingChart weeklyData={weeklyData} />
+                {/* <CategoryPieChart categories={categoryData} /> */}
+                {/* <WeeklySpendingChart weeklyData={weeklyData} /> */}
             </div>
 
             {/* Category Breakdown */}
@@ -66,7 +66,7 @@ export function CategoryOverview() {
                     Desglose por Categorías
                 </h2>
                 <div className="space-y-4">
-                    {categoryData.map((category) => (
+                    {/* {categoryData.map((category) => (
                         <CategoryBreakdownCard
                             key={category.categoryId}
                             category={category}
@@ -74,7 +74,7 @@ export function CategoryOverview() {
                             expenses={allFilteredExpenses}
                             totalAmount={totalAmount}
                         />
-                    ))}
+                    ))} */}
                 </div>
             </div>
         </div>
