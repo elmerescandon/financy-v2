@@ -76,7 +76,6 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             setLoading(true)
             setError(null)
             const result = await expenseService.getFilteredWithPagination(filters, page, pageSize)
-            console.log("Result", result)
             setExpenses(result.data)
             setPagination(result.pagination)
         } catch (err) {
@@ -93,8 +92,6 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
             setLoading(true)
             setError(null)
             const totalExpense = await expenseService.getTotalExpense(filters)
-            console.log("Filters from Total Expense:",filters)
-            console.log(totalExpense)
             setTotalExpense(totalExpense) 
         } catch (err) {
             console.error('Error fetching all filtered expenses:', err)

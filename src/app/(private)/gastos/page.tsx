@@ -10,6 +10,7 @@ import { convertToDatabaseFilters, ExpenseFilters } from '@/components/expense-t
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
 import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function ExpensesPage() {
     const {
@@ -17,6 +18,10 @@ export default function ExpensesPage() {
     } = useExpenseContext()
     const { categories } = useCategories()
     const addExpenseSheetRef = useRef<AddExpenseSheetRef>(null)
+    const searchParams = useSearchParams()
+
+      // Get a specific query parameter, e.g. ?id=123
+    const expense = searchParams.get('expense');
 
     const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
         dateRange: 'this_month'
@@ -32,6 +37,12 @@ export default function ExpensesPage() {
     const handleOpenAddExpense = () => {
         addExpenseSheetRef.current?.open()
     }
+
+    useEffect(() => {
+        if (expense && expense === 'true'){
+            addExpenseSheetRef.current?.open()
+        }
+    },[])
 
 
     return (

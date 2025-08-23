@@ -31,11 +31,11 @@ interface ExpenseFormProps {
 }
 
 const PAYMENT_METHODS = [
-    'cash',
+    // 'cash',
     'debit_card',
     'credit_card',
-    'bank_transfer',
-    'other'
+    // 'bank_transfer',
+    // 'other'
 ]
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -288,7 +288,8 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             <div className='w-full'>
                 <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago</Label>
-                <MobileSelect
+                
+                {/* <MobileSelect
                     value={formData.payment_method}
                     onValueChange={(value) => handleInputChange('payment_method', value)}
                 >
@@ -302,13 +303,13 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                             </MobileSelectItem>
                         ))}
                     </MobileSelectContent>
-                </MobileSelect>
+                </MobileSelect> */}
                 {errors.payment_method && (
                     <p className="text-sm text-destructive mt-1">{errors.payment_method}</p>
                 )}
             </div>
 
-            <Accordion type='single' collapsible>
+            {/* <Accordion type='single' collapsible>
                 <AccordionItem value="item-1" className='my-2 max-w-5xl w-full'>
                     <AccordionTrigger type='button' className='w-full'>
                         <span className="text-sm font-medium">Agregar detalles</span>
@@ -324,8 +325,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                             />
                         </div>
 
-                        {/* Tags */}
-                        {/* <div>
+                        <div>
                             <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
                             <div className="flex gap-2 mb-2">
                                 <Input
@@ -360,10 +360,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                                 ))}
                             </div>
                         )}
-                    </div> */}
+                    </div> 
                     </AccordionContent>
                 </AccordionItem>
-            </Accordion>
+            </Accordion> */}
 
 
             {/* Actions */}

@@ -294,12 +294,6 @@ export async function canUseWizard(userId: string): Promise<boolean> {
 
     // Check if user has income this month
     const summary = await getFinancialSummaryForPreviousMonth(userId)
-    console.log('[canUseWizard] Financial summary for user:', userId, {
-        totalIncome: summary.totalIncome,
-        availableForBudgets: summary.availableForBudgets,
-        month: summary.month,
-        year: summary.year
-    })
     const hasIncome = summary.totalIncome > 0
 
     // Check if user has eligible categories

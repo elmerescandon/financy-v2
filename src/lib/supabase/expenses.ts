@@ -158,10 +158,7 @@ export class ExpenseService {
     }
 
     async getTotalExpense(filters: SimpleFilters = {}) : Promise<number> {
-        console.log(filters)
-
         const categoryIds = filters.category_ids || (filters.category_id ? [filters.category_id] : null)
-    
         const { data, error } = await supabase
             .rpc('get_expense_total', {
                 p_user_id: this.userId,
@@ -170,7 +167,6 @@ export class ExpenseService {
                 p_category_ids: categoryIds
             })
             
-        console.log(data)
         if (error) {
             console.error('ExpenseService getTotalExpense - Query error:', error)
             throw error
