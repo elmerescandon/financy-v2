@@ -157,6 +157,24 @@ export class ExpenseService {
         if (error) throw error
     }
 
+    async getTotalExpense(filters: SimpleFilters = {}) : Promise<number> {
+        const categoryIds = filters.category_ids || (filters.category_id ? [filters.category_id] : null)
+        const { data, error } = await supabase
+            .rpc('get_expense_total', {
+                p_user_id: this.userId,
+                p_date_from: filters.date_from || null,
+                p_date_to: filters.date_to || null,
+                p_category_ids: categoryIds
+            })
+            
+        if (error) {
+            console.error('ExpenseService getTotalExpense - Query error:', error)
+            throw error
+        }
+    
+        return data || 0
+    }
+
     // Get all filtered expenses without pagination (for summary calculations)
     async getAllFiltered(filters: SimpleFilters = {}): Promise<ExpenseWithDetails[]> {
 

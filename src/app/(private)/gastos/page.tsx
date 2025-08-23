@@ -4,14 +4,13 @@ import { useExpenseContext } from '@/lib/context/ExpenseContext'
 import { useCategories } from '@/hooks/useCategories'
 import {
     ExpenseTable,
-    ExpenseFilters,
     type ExpenseFilters as UIExpenseFilters
 } from '@/components/expense-table'
-import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilters'
+import { convertToDatabaseFilters, ExpenseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
-import { useState, useRef } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function ExpensesPage() {
     const {
@@ -19,6 +18,10 @@ export default function ExpensesPage() {
     } = useExpenseContext()
     const { categories } = useCategories()
     const addExpenseSheetRef = useRef<AddExpenseSheetRef>(null)
+    const searchParams = useSearchParams()
+
+      // Get a specific query parameter, e.g. ?id=123
+    const expense = searchParams.get('expense');
 
     const [uiFilters, setUiFilters] = useState<UIExpenseFilters>({
         dateRange: 'this_month'
@@ -35,6 +38,12 @@ export default function ExpensesPage() {
         addExpenseSheetRef.current?.open()
     }
 
+    useEffect(() => {
+        if (expense && expense === 'true'){
+            addExpenseSheetRef.current?.open()
+        }
+    },[])
+
 
     return (
         <div className="min-h-screen bg-background">
@@ -47,12 +56,11 @@ export default function ExpensesPage() {
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
                     <ExpenseSummary />
-{/* 
-                    <ExpenseFilters
+                     {/* <ExpenseFilters
                         categories={categories}
-                        filters={uiFilters}
-                        onFiltersChange={handleFiltersChange}
-                    /> */}
+                         filters={uiFilters}
+                         onFiltersChange={handleFiltersChange}
+                     />  */}
 
                     <ExpenseTable onAddExpense={handleOpenAddExpense} />
                 </div>

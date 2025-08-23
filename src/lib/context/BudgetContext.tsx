@@ -78,7 +78,6 @@ export function BudgetProvider({ children }: { children: ReactNode }) {
                 BudgetService.getStats()
             ])
 
-            console.log('budgetData', budgetData)
             setBudgets(budgetData)
             setCategories(categoriesData)
             setStats(statsData)

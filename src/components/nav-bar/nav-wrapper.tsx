@@ -19,6 +19,8 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface NavWrapperProps {
     children: React.ReactNode
@@ -103,27 +105,31 @@ function NavigationSkeleton({ children }: { children: React.ReactNode }) {
 export default function NavWrapper({ children }: NavWrapperProps) {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
     useEffect(() => {
+        setLoading(true)
         const supabase = createClient()
+        const initializeUser = async () => {
+            try{
+                const { data: { session } } = await supabase.auth.getSession()
+                setUser(session?.user ?? null)
+                setLoading(false)
+                return;
+            } catch (error){
+                toast("Un error ocurrió al iniciar sesión, inténtalo más tarde.")
+                router.push('/login')
+            }
 
-        // Get initial session
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
-            setUser(session?.user ?? null)
-            setLoading(false)
+
         }
-
-        getSession()
-
-        // Listen for auth changes
+        initializeUser()
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 setUser(session?.user ?? null)
                 setLoading(false)
             }
         )
-
         return () => subscription.unsubscribe()
     }, [])
 
@@ -133,6 +139,7 @@ export default function NavWrapper({ children }: NavWrapperProps) {
     }
 
     if (!user) {
+        router.push('/login')
         return <>{children}</>
     }
 

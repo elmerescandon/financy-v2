@@ -5,6 +5,7 @@ import { ExpenseService } from '@/lib/supabase/expenses'
 import type { ExpenseWithDetails, CreateExpenseData, UpdateExpenseData } from '@/types/expense'
 import { createClient } from '../supabase/client'
 import { CURRENCY } from '../constants'
+import { initializeThisMonth } from '@/components/expense-table/ExpenseFilters'
 
 // Simple pagination result interface
 interface PaginationResult {
@@ -24,7 +25,7 @@ interface SimpleFilters {
 
 interface ExpenseContextType {
     expenses: ExpenseWithDetails[]
-    allFilteredExpenses: ExpenseWithDetails[]
+    totalExpense: number | null
     loading: boolean
     error: string | null
     pagination: PaginationResult | null
@@ -42,11 +43,11 @@ const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined)
 
 export function ExpenseProvider({ children }: { children: ReactNode }) {
     const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
-    const [allFilteredExpenses, setAllFilteredExpenses] = useState<ExpenseWithDetails[]>([])
+    const [totalExpense, setTotalExpense] = useState<number | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [pagination, setPagination] = useState<PaginationResult | null>(null)
-    const [filters, setFilters] = useState<SimpleFilters>({})
+    const [filters, setFilters] = useState<SimpleFilters>(initializeThisMonth())
     const [page, setPageState] = useState(1)
     const [pageSize, setPageSizeState] = useState(20)
     const [expenseService, setExpenseService] = useState<ExpenseService | null>(null)
@@ -88,10 +89,13 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         if (!expenseService) return
 
         try {
-            const allExpenses = await expenseService.getAllFiltered(filters)
-            setAllFilteredExpenses(allExpenses)
+            setLoading(true)
+            setError(null)
+            const totalExpense = await expenseService.getTotalExpense(filters)
+            setTotalExpense(totalExpense) 
         } catch (err) {
             console.error('Error fetching all filtered expenses:', err)
+            setTotalExpense(null)
         }
     }, [expenseService, filters])
 
@@ -117,6 +121,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
         try {
             await expenseService.create({ ...data, currency: CURRENCY, type: 'expense', source: 'manual' })
             await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+            // await fetchExpenses()
         } catch (err) {
             throw new Error(err instanceof Error ? err.message : 'Error al crear gasto')
         }
@@ -146,18 +151,21 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
     const refreshExpenses = async () => {
         await Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+        // await fetchExpenses()
     }
 
     useEffect(() => {
         if (expenseService) {
+            // updateExpenses()
             Promise.all([fetchExpenses(), fetchAllFilteredExpenses()])
+            // await fetchExpenses()
         }
-    }, [fetchExpenses, fetchAllFilteredExpenses, filters, expenseService])
+    }, [fetchExpenses, filters, expenseService])
 
     return (
         <ExpenseContext.Provider value={{
             expenses,
-            allFilteredExpenses,
+            totalExpense,
             loading,
             error,
             pagination,

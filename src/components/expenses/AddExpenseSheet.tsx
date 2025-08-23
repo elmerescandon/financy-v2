@@ -59,16 +59,13 @@ export const AddExpenseSheet = forwardRef<AddExpenseSheetRef, AddExpenseSheetPro
                     side="right"
                     className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto p-0"
                 >
-                    <SheetHeader className="px-6 py-6 border-b bg-muted/30">
-                        <SheetTitle className="text-left text-2xl font-bold text-foreground">
+                    <SheetHeader className="px-4 py-4 border-b bg-muted/30">
+                        <SheetTitle className="text-left text-lg font-bold text-foreground">
                             Agregar Nuevo Gasto
                         </SheetTitle>
-                        <SheetDescription className="text-left text-muted-foreground">
-                            Registra un nuevo gasto y organiza tus finanzas
-                        </SheetDescription>
                     </SheetHeader>
 
-                    <div className="flex-1 p-6">
+                    <div className="flex-1 px-4 py-2">
                         <ExpenseForm
                             categories={categories}
                             onSubmit={handleCreateExpense}

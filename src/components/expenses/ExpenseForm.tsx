@@ -14,7 +14,7 @@ import {
     MobileSelectValue 
 } from '@/components/ui/mobile-select'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, LogIn, Plus, X } from 'lucide-react'
+import { Loader2, LogIn, Plus, X, CreditCard } from 'lucide-react'
 import type { CategoryWithSubcategories } from '@/types/category'
 import type { ExpenseWithDetails } from '@/types/expense'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
@@ -31,11 +31,11 @@ interface ExpenseFormProps {
 }
 
 const PAYMENT_METHODS = [
-    'cash',
+    // 'cash',
     'debit_card',
     'credit_card',
-    'bank_transfer',
-    'other'
+    // 'bank_transfer',
+    // 'other'
 ]
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -288,27 +288,34 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
 
             <div className='w-full'>
                 <Label htmlFor="payment_method" className="text-sm font-medium mb-2">Método de pago</Label>
-                <MobileSelect
-                    value={formData.payment_method}
-                    onValueChange={(value) => handleInputChange('payment_method', value)}
-                >
-                    <MobileSelectTrigger className="w-full">
-                        <MobileSelectValue placeholder="Selecciona método de pago (opcional)" />
-                    </MobileSelectTrigger>
-                    <MobileSelectContent>
-                        {PAYMENT_METHODS.map((method) => (
-                            <MobileSelectItem key={method} value={method}>
-                                {PAYMENT_METHOD_LABELS[method]}
-                            </MobileSelectItem>
-                        ))}
-                    </MobileSelectContent>
-                </MobileSelect>
+                <div className="grid grid-cols-2 gap-3">
+                    <Button
+                        type="button"
+                        variant={formData.payment_method === 'debit_card' ? 'default' : 'outline'}
+                        size="touch"
+                        onClick={() => handleInputChange('payment_method', 'debit_card')}
+                        className="w-full cursor-pointer text-xs"
+                    >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Débito
+                    </Button>
+                    <Button
+                        type="button"
+                        variant={formData.payment_method === 'credit_card' ? 'default' : 'outline'}
+                        size="touch"
+                        onClick={() => handleInputChange('payment_method', 'credit_card')}
+                        className="w-full cursor-pointer text-xs"
+                    >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Crédito
+                    </Button>
+                </div>
                 {errors.payment_method && (
                     <p className="text-sm text-destructive mt-1">{errors.payment_method}</p>
                 )}
             </div>
 
-            <Accordion type='single' collapsible>
+            {/* <Accordion type='single' collapsible>
                 <AccordionItem value="item-1" className='my-2 max-w-5xl w-full'>
                     <AccordionTrigger type='button' className='w-full'>
                         <span className="text-sm font-medium">Agregar detalles</span>
@@ -324,8 +331,7 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                             />
                         </div>
 
-                        {/* Tags */}
-                        {/* <div>
+                        <div>
                             <Label htmlFor="tags" className="text-sm font-medium mb-2">Etiquetas</Label>
                             <div className="flex gap-2 mb-2">
                                 <Input
@@ -360,10 +366,10 @@ export function ExpenseForm({ categories, initialData, onSubmit, onCancel }: Exp
                                 ))}
                             </div>
                         )}
-                    </div> */}
+                    </div> 
                     </AccordionContent>
                 </AccordionItem>
-            </Accordion>
+            </Accordion> */}
 
 
             {/* Actions */}

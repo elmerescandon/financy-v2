@@ -58,11 +58,8 @@ export default function SmartBudgetWizard({ onComplete, onCancel }: SmartBudgetW
         if (!user) return
         const checkEligibility = async () => {
             try {
-                console.log('[canUseWizard] Checking eligibility for user:', user)
                 const eligible = await canUseWizard(user)
                 setCanUse(eligible)
-                console.log('[canUseWizard] Eligible:', eligible)
-
                 if (!eligible) {
                     toast.error('Smart Budget Wizard not available', {
                         description: 'Ensure you have income this month and are early in the month'

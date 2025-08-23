@@ -29,6 +29,16 @@ const DATE_RANGE_LABELS = {
     this_year: 'Este año'
 }
 
+export const initializeThisMonth = () => {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+    return {
+        date_from: new Date(currentYear, currentMonth, 1).toISOString().split('T')[0],
+        date_to: new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+    }
+}
+
 // Helper function to convert UI filters to database filters
 export const convertToDatabaseFilters = (uiFilters: ExpenseFilters) => {
     const now = new Date()
