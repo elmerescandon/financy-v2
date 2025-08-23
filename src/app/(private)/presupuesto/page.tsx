@@ -34,7 +34,7 @@ export default function PresupuestoPage() {
     const [showForm, setShowForm] = useState(false)
     const [showWizard, setShowWizard] = useState(false)
     const [unbudgetedIncome, setUnbudgetedIncome] = useState<number>(0)
-    const { getIncomeStats } = useIncomeContext()
+    // const { getIncomeStats } = useIncomeContext()
 
 
     const handleCreateBudget = async (data: CreateBudgetData) => {

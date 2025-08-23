@@ -122,7 +122,7 @@ export default function Navigation({ user, children }: NavigationProps) {
         { icon: Home, label: 'Inicio', href: '/gastos' },
         // { icon: DollarSign, label: 'Ingresos', href: '/ingresos' },
         // { icon: Target, label: 'Ahorros', href: '/ahorros' },
-        // { icon: DollarSign, label: 'Presupuesto', href: '/presupuesto' },
+        { icon: DollarSign, label: 'Presupuesto', href: '/presupuesto' },
     ]
 
     return (
