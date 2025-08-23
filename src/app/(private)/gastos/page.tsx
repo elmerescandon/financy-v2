@@ -6,10 +6,10 @@ import {
     ExpenseTable,
     type ExpenseFilters as UIExpenseFilters
 } from '@/components/expense-table'
-import { convertToDatabaseFilters } from '@/components/expense-table/ExpenseFilters'
+import { convertToDatabaseFilters, ExpenseFilters } from '@/components/expense-table/ExpenseFilters'
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary'
 import { AddExpenseSheet, AddExpenseSheetRef } from '@/components/expenses/AddExpenseSheet'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 export default function ExpensesPage() {
     const {
@@ -45,12 +45,11 @@ export default function ExpensesPage() {
                 {/* Content with improved mobile spacing */}
                 <div className="space-y-6">
                     <ExpenseSummary />
-{/* 
-                    <ExpenseFilters
+                     {/* <ExpenseFilters
                         categories={categories}
-                        filters={uiFilters}
-                        onFiltersChange={handleFiltersChange}
-                    /> */}
+                         filters={uiFilters}
+                         onFiltersChange={handleFiltersChange}
+                     />  */}
 
                     <ExpenseTable onAddExpense={handleOpenAddExpense} />
                 </div>

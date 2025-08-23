@@ -9,27 +9,10 @@ import { Skeleton } from '../ui/skeleton'
 import { useState } from 'react'
 
 export function ExpenseSummary() {
-    const { allFilteredExpenses, loading } = useExpenseContext()
+    const { totalExpense, loading } = useExpenseContext()
 
     const [showMonthlyAmount, setShowMonthlyAmount] = useState(false)
 
-    const monthlyExpenses = allFilteredExpenses.filter(expense => {
-        try {
-            const expenseDate = new Date(expense.date)
-            const now = new Date()
-            return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear()
-        } catch {
-            return false
-        }
-    })
-
-    const monthlyTotal = monthlyExpenses.reduce((sum, expense) => {
-        try {
-            return sum + (expense.amount || 0)
-        } catch {
-            return sum
-        }
-    }, 0)
 
     const renderAmount = (amount: number, isVisible: boolean) => {
         if (!isVisible) {
@@ -58,7 +41,7 @@ export function ExpenseSummary() {
                     </div>
                 ) : (
                     <div className="text-sm font-semibold text-foreground">
-                        {renderAmount(monthlyTotal, showMonthlyAmount)}
+                        {renderAmount(totalExpense || 0, showMonthlyAmount)}
                     </div>
                 )}
                  {showMonthlyAmount ? (
